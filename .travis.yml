@@ -11,7 +11,7 @@ install:
   
 script:
   - git clone https://github.com/VirtualFlyBrain/VFB_neo4j.git
-  - export PYTHONPATH=$PYTHONPATH:$PWD/VirtualFlyBrain/src/
+  - export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
   - cd src
   - python ./report_runner.py
 
