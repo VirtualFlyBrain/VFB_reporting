@@ -1,4 +1,4 @@
-from .reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_prod, save_report
+from reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_prod, save_report
 
 
 kb_report = gen_dataset_report(["http://kb.virtualflybrain.org", "neo4j", "neo4j"], 'kb')
