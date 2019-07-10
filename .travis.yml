@@ -11,9 +11,9 @@ before_script:
 
 install:
   - pip install -r requirements.txt
-  - pip install -r VFB_neo4j/requirements.txt
   
 script:
+  - pip install -r VFB_neo4j/requirements.txt
   - export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
   - cd src
   - python ./report_runner.py
