@@ -19,4 +19,4 @@ script:
   - python ./report_runner.py
 
 after_success:
-  - src/push.sh
+  - push.sh
