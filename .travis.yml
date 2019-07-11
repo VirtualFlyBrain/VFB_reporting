@@ -18,3 +18,5 @@ script:
   - cd src
   - python ./report_runner.py
 
+after_success:
+  - src/push.sh
