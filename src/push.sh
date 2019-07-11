@@ -6,7 +6,6 @@ setup_git() {
 }
 
 commit_website_files() {
-  git checkout -b $TRAVIS_BRANCH
   git add . results/*.tsv
   echo "Results from latest Travis build: $TRAVIS_BUILD_NUMBER" > reports/readme.md
   git add . results/readme.md
@@ -14,7 +13,7 @@ commit_website_files() {
 }
 
 upload_files() {
-  git push --quiet
+  git push --quiet origin HEAD:$TRAVIS_BRANCH
 }
 
 setup_git
