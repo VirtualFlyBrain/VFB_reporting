@@ -19,4 +19,5 @@ script:
   - python ./report_runner.py
 
 after_success:
-  - push.sh
+  - cd $TRAVIS_BUILD_DIR
+  - $TRAVIS_BUILD_DIR/src/push.sh
