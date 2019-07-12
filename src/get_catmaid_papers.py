@@ -4,8 +4,8 @@ from collections import OrderedDict
 
 def gen_cat_report(URL, PROJECT_ID, report_name):
 
-    dataset_outfile = report_name + "_datasets.tsv"
-    skid_outfile = report_name + "_skids.tsv"
+    dataset_outfile = "../VFB_reporting_results/" + report_name + "_datasets.tsv"
+    skid_outfile = "../VFB_reporting_results/" + report_name + "_skids.tsv"
     
     # get token
 
