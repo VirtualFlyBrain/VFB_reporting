@@ -28,6 +28,7 @@ def gen_cat_report(URL, PROJECT_ID, paper_annotaion, report_name):
     df_papers = pd.DataFrame(papers)
     df_papers = df_papers.set_index("id")
     df_papers = df_papers.drop("type", axis=1)
+    df_papers = df_papers.sort_values("name")
     df_papers.to_csv(dataset_outfile, sep="\t")
 
     # SKIDs
@@ -55,7 +56,7 @@ def gen_cat_report(URL, PROJECT_ID, paper_annotaion, report_name):
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
 
-
+    df_skids = df_skids.sort_values("paper_name","skid")
     df_skids.to_csv(skid_outfile, sep="\t", index=False)
 
     
