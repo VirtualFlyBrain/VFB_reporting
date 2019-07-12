@@ -18,6 +18,7 @@ script:
   - export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
   - cd src
   - python ./report_runner.py
+  - python ./get_catmaid_papers.py
 
 after_success:
   - cd $TRAVIS_BUILD_DIR/VFB_reporting_results
