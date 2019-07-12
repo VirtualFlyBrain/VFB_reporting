@@ -8,6 +8,7 @@ python:
 
 before_script:
   - git clone https://github.com/VirtualFlyBrain/VFB_neo4j.git
+  - git clone https://${GH_TOKEN}@github.com/VirtualFlyBrain/VFB_reporting_results.git
 
 install:
   - pip install -r requirements.txt
@@ -17,4 +18,10 @@ script:
   - export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
   - cd src
   - python ./report_runner.py
+  - python ./get_catmaid_papers.py
 
+after_success:
+  - cd $TRAVIS_BUILD_DIR/VFB_reporting_results
+  - if [ $TRAVIS_PULL_REQUEST == false ]; then
+      $TRAVIS_BUILD_DIR/src/push.sh;
+    fi;
