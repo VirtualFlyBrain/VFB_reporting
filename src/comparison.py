@@ -6,26 +6,47 @@ CAT_papers = pd.read_csv("CAT_datasets.tsv", sep="\t", index_col="id")
 CAT_skids = pd.read_csv("CAT_skids.tsv", sep="\t")
 
 # PAPERS
-# get table of catmaid papers list from VFB
+# get table of catmaid datasets and associated skids from VFB
 
-pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
-            "RETURN ds.catmaid_annotation_id as id, ds.short_form as VFB_name"
+pub_query = "MATCH path = (ds:DataSet)<-[:has_source]-()<-[]-()-[r:in_register_with]->() WHERE r.catmaid_skeleton_ids" \
+            " IS NOT NULL RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name, " \
+            "COUNT(path) as SKIDs_in_VFB"
 q = nc.commit_list([pub_query])
 papers = results_2_dict_list(q)
 
 VFB_papers = pd.DataFrame.from_dict(papers)
-VFB_papers = VFB_papers.set_index("id")
+VFB_papers = VFB_papers.set_index("CATMAID_ID")
+VFB_papers = VFB_papers.applymap(str)
 
-# compare papers in VFB and catmaid
+# compare papers in VFB and CATMAID
+
+# SKID counts
+# count no. skids per paper in CATMAID
+
+CAT_skid_counts = {paper: len(CAT_skids[(CAT_skids['paper_id'] == paper)])
+                   for paper in CAT_skids['paper_id'].unique()}
+
+# add to CAT_papers
+CAT_skid_count_df = pd.DataFrame.from_dict(CAT_skid_counts, orient='index', columns=["SKIDs_in_CATMAID"])
+CAT_skid_count_df = CAT_skid_count_df.applymap(str)
+CAT_papers = pd.concat([CAT_papers, CAT_skid_count_df], join="outer", axis=1, sort=True)
+
+# make combined table with all info
 
 all_papers = pd.concat([CAT_papers, VFB_papers], join="outer", axis=1, sort=True)
 all_papers.to_csv("all_papers.tsv", sep="\t")
 
+
+# terminal output showing any new papers
 new_papers = all_papers[all_papers.VFB_name.isnull()]
-print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB:")
+print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
 print(new_papers["name"])
 
-# NEURON SKIDS
+
+# match up SKIDs per paper and count blanks
+
+
+# NEURON SKID details
 # get a list of all skids in VFB
 
 skid_query = "MATCH ()-[r]->() WHERE r.catmaid_skeleton_ids IS NOT NULL RETURN DISTINCT r.catmaid_skeleton_ids"
