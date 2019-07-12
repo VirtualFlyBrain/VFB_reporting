@@ -60,3 +60,4 @@ def gen_cat_report(URL, PROJECT_ID, report_name):
 
     
 gen_cat_report("https://l1em.catmaid.virtualflybrain.org",1,"L1_CAT")
+gen_cat_report("https://fafb.catmaid.virtualflybrain.org",1,"FAFB_CAT")
