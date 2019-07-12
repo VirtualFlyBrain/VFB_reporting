@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from collections import OrderedDict
 
-def gen_cat_report(URL, PROJECT_ID, report_name):
+def gen_cat_report(URL, PROJECT_ID, paper_annotaion, report_name):
 
     dataset_outfile = "../VFB_reporting_results/" + report_name + "_datasets.tsv"
     skid_outfile = "../VFB_reporting_results/" + report_name + "_skids.tsv"
@@ -21,7 +21,7 @@ def gen_cat_report(URL, PROJECT_ID, report_name):
     # PAPERs
     # pull out paper ids and names -> table and save as tsv
 
-    call_papers = {"annotated_with": "papers", "with_annotations": False, "annotation_reference": "name"}
+    call_papers = {"annotated_with": paper_annotaion, "with_annotations": False, "annotation_reference": "name"}
     papers = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                          data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
 
@@ -59,5 +59,5 @@ def gen_cat_report(URL, PROJECT_ID, report_name):
     df_skids.to_csv(skid_outfile, sep="\t", index=False)
 
     
-gen_cat_report("https://l1em.catmaid.virtualflybrain.org",1,"L1_CAT")
-gen_cat_report("https://fafb.catmaid.virtualflybrain.org",1,"FAFB_CAT")
+gen_cat_report("https://l1em.catmaid.virtualflybrain.org",1,"papers","L1_CAT")
+gen_cat_report("https://fafb.catmaid.virtualflybrain.org",1,"Published","FAFB_CAT")
