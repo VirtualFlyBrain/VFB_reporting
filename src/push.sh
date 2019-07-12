@@ -7,8 +7,8 @@ setup_git() {
 
 commit_website_files() {
   git add . *.tsv
-  echo "Results from latest Travis build: $TRAVIS_BUILD_NUMBER" > readme.md
-  git add . readme.md
+  echo "# VFB_reporting_results\nrepository containing results of various data change and consistency checking.\n\n Current results are from the latest travis build #$TRAVIS_BUILD_NUMBER from $TRAVIS_COMMIT" > README.md
+  git add . README.md
   git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 }
 
