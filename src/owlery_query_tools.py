@@ -10,37 +10,30 @@ import json
 class OWLeryConnect:
 
     def __init__(self,
-                 owlery_endpoint="http://owl.virtualflybrain.org/kbs/vfb/",
+                 endpoint="http://owl.virtualflybrain.org/kbs/vfb/",
                  lookup=None,
-                 obo_prefixes = None):
-
+                 obo_curies=None,
+                 curies=None):
+        """Endpoint: owlery REST endpoint
+           Lookup: Dict of name: ID;
+           obo_curies: list of prefixes for generation of OBO curies
+           curies: Dict of curie: base"""
+        self.owlery_endpoint = endpoint
         if not (lookup):
             self.lookup = {}
         else:
             self.lookup = lookup
-        self.owlery_endpoint = owlery_endpoint
-        self.curies = {}
-
-    def gen_lookup_from_neo(self, prefixes, nc: neo4j_connect):
-        """Prefixes = list of ID prefixes;
-        nc = neo4J connection"""
-        for p in prefixes:
-            # Will only work if Entity covers properties - currently does not
-            query = "MATCH (e:Entity) WHERE e.short_form =~ '%s_.+' " \
-                    "RETURN e.label as label, e.obo_id as obo_id" % p
-            q = nc.commit_list([query])
-            if q:
-                result = results_2_dict_list(q)
-                lookup = {x['label']: x['obo_id'] for x in result}
-                self.lookup.update(lookup)
-
-    def extend_curies(self, curies):
-        self.curies.update(curies)
+        if not curies:
+            self.curies = {}
+        else:
+            self.curies = curies
+        if obo_curies:
+            self.add_obo_curies(obo_curies)
 
     def add_obo_curies(self, prefixes):
         obolib = "http://purl.obolibrary.org/obo/"
-        c = { p : obolib + p for p in prefixes}
-        self.extend_curies(c)
+        c = {p : obolib + p + '_' for p in prefixes}
+        self.curies.update(c)
 
     def get_subclasses(self, query, query_by_label=False):
         owl_endpoint = self.owlery_endpoint + "subclasses?"
@@ -57,8 +50,6 @@ class OWLeryConnect:
     def labels_2_ids(self, query_string):
         """Substitutes labels for IDs in a query string"""
         return re.sub(r"'(.+?)'", lambda m: self.lookup.get(m.group(1)), query_string)
-
-
 
 
 
