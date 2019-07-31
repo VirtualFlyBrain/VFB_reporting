@@ -17,6 +17,7 @@ script:
   - pip install -r VFB_neo4j/requirements.txt
   - export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
   - cd src
+  - python ./test/query_tools_test.py
   - python ./report_runner.py
   - python ./get_catmaid_papers.py
 
