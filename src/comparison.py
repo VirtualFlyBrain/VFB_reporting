@@ -4,19 +4,24 @@ import get_catmaid_papers
 
 nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
 
-L1_papers = get_catmaid_papers.gen_cat_paper_report(
-    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT")
-L1_skids = get_catmaid_papers.gen_cat_skid_report(
-    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT")
-'''FAFB_papers = get_catmaid_papers.gen_cat_paper_report(
-    "https://fafb.catmaid.virtualflybrain.org", 1, "papers", "FAFB_CAT")
-FAFB_skids = get_catmaid_papers.gen_cat_skid_report(
-    "https://fafb.catmaid.virtualflybrain.org", 1, "papers", "FAFB_CAT")'''
+L1EM = [get_catmaid_papers.gen_cat_paper_report(
+    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT"),
+    get_catmaid_papers.gen_cat_skid_report(
+    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT"),
+    "L1EM"]
+
+FAFB = [get_catmaid_papers.gen_cat_paper_report(
+    "https://fafb.catmaid.virtualflybrain.org", 1, "Published", "FAFB_CAT"),
+    get_catmaid_papers.gen_cat_skid_report(
+    "https://fafb.catmaid.virtualflybrain.org", 1, "Published", "FAFB_CAT"),
+    "FAFB"]
 
 
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Return a comparison with data in VFB for given sets of papers and skids in CATMAID"""
     # Get table of names of catmaid datasets in VFB
+    outfile = dataset_name + "_comparison.tsv"
+
     pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
                 "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
     q = nc.commit_list([pub_query])
@@ -60,7 +65,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                                'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID'},
                       inplace=True)
     all_papers.index.name = 'Paper_ID'
-    all_papers.to_csv(dataset_name + "_comparison.tsv", sep="\t")
+    all_papers.to_csv(outfile, sep="\t")
 
     # TODO - make table of skids requiring mapping
 
@@ -70,11 +75,11 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     new_papers = all_papers[all_papers.VFB_name.isnull()]
     print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
     print(new_papers["CATMAID_name"])
-    print("See " + dataset_name + "_comparison.tsv for differences in numbers of SKIDs")
+    print("See " + outfile + " for differences in numbers of SKIDs")
 
 
-make_catmaid_vfb_reports(L1_papers, L1_skids, "L1EM")
-
+make_catmaid_vfb_reports(*L1EM)
+make_catmaid_vfb_reports(*FAFB)
 
 
 """

@@ -17,7 +17,7 @@ def gen_cat_paper_report(URL, PROJECT_ID, paper_annotaion, report_name):
             csrf_key = key
     csrftoken = client.cookies[csrf_key]
 
-    print(csrftoken)
+    # print(csrftoken)
 
     # PAPERs
     # pull out paper ids and names -> table and save as tsv
@@ -51,7 +51,7 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
             csrf_key = key
     csrftoken = client.cookies[csrf_key]
 
-    print(csrftoken)
+    # print(csrftoken)
 
     # PAPERs
     # pull out paper ids and names -> table and save as tsv
@@ -59,12 +59,6 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
     call_papers = {"annotated_with": paper_annotaion, "with_annotations": False, "annotation_reference": "name"}
     papers = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                          data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
-
-    df_papers = pd.DataFrame(papers)
-    df_papers = df_papers.set_index("id")
-    df_papers = df_papers.drop("type", axis=1)
-    df_papers = df_papers.sort_values("name")
-    # df_papers.to_csv(dataset_outfile, sep="\t")
 
     call_papers["annotation_reference"] = "id"
     for paper in papers:
