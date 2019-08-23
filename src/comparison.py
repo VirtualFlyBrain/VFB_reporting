@@ -4,6 +4,8 @@ import get_catmaid_papers
 
 nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
 
+# variables for generating reports
+
 L1EM = [get_catmaid_papers.gen_cat_paper_report(
     "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT"),
     get_catmaid_papers.gen_cat_skid_report(
@@ -19,6 +21,7 @@ FAFB = [get_catmaid_papers.gen_cat_paper_report(
 
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Return a comparison with data in VFB for given sets of papers and skids in CATMAID"""
+
     # Get table of names of catmaid datasets in VFB
     outfile = dataset_name + "_comparison.tsv"
 
@@ -59,7 +62,8 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     skids_df = skids_df.applymap(lambda x: len(x))
 
     # make combined table with all info, tidy up and save as tsv
-    all_papers = pd.concat([cat_papers, vfb_papers, skids_df], join="outer", axis=1, sort=True)
+    all_papers = pd.merge(cat_papers, vfb_papers, left_index=True, right_index=True, how='left', sort=True)
+    all_papers = pd.concat([all_papers, skids_df], join="outer", axis=1, sort=True)
     all_papers.rename(columns={'name': 'CATMAID_name', 'VFB_name': 'VFB_name',
                                'skids_in_paper_cat': 'CATMAID_SKIDs', 'skids_in_paper_vfb': 'VFB_SKIDS',
                                'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID'},
