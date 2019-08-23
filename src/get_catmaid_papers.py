@@ -4,7 +4,9 @@ from collections import OrderedDict
 
 
 def gen_cat_paper_report(URL, PROJECT_ID, paper_annotaion, report_name):
+    """Gets IDs and names of papers in CATMAID and returns a dataframe."""
 
+    # FOR SAVING OUTPUT FILE IF DESIRED
     # dataset_outfile = "../VFB_reporting_results/" + report_name + "_datasets.tsv"
     # skid_outfile = "../VFB_reporting_results/" + report_name + "_skids.tsv"
     
@@ -20,7 +22,7 @@ def gen_cat_paper_report(URL, PROJECT_ID, paper_annotaion, report_name):
     # print(csrftoken)
 
     # PAPERs
-    # pull out paper ids and names -> table and save as tsv
+    # pull out paper ids and names
 
     call_papers = {"annotated_with": paper_annotaion, "with_annotations": False, "annotation_reference": "name"}
     papers = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
@@ -30,7 +32,7 @@ def gen_cat_paper_report(URL, PROJECT_ID, paper_annotaion, report_name):
     df_papers = df_papers.set_index("id")
     df_papers = df_papers.drop("type", axis=1)
     df_papers = df_papers.sort_values("name")
-    # df_papers.to_csv(dataset_outfile, sep="\t")
+    # df_papers.to_csv(dataset_outfile, sep="\t")  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_papers
 
     # SKIDs
@@ -38,7 +40,11 @@ def gen_cat_paper_report(URL, PROJECT_ID, paper_annotaion, report_name):
 
 
 def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
+    """Gets IDs and names of papers in CATMAID, then skids for the neurons in each paper and returns a dataframe.
 
+    NB. each skid may feature in multiple papers."""
+
+    # FOR SAVING OUTPUT FILE IF DESIRED
     # dataset_outfile = "../VFB_reporting_results/" + report_name + "_datasets.tsv"
     # skid_outfile = "../VFB_reporting_results/" + report_name + "_skids.tsv"
 
@@ -51,15 +57,14 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
             csrf_key = key
     csrftoken = client.cookies[csrf_key]
 
-    # print(csrftoken)
-
     # PAPERs
-    # pull out paper ids and names -> table and save as tsv
 
+    # pull out paper ids and names from CATMAID
     call_papers = {"annotated_with": paper_annotaion, "with_annotations": False, "annotation_reference": "name"}
     papers = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                          data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
 
+    # get neuron info for each paper
     call_papers["annotation_reference"] = "id"
     for paper in papers:
         call_papers["annotated_with"] = paper["id"]
@@ -82,8 +87,8 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
 
-    df_skids = df_skids.sort_values(["paper_name","skid"])
-    # df_skids.to_csv(skid_outfile, sep="\t", index=False)
+    df_skids = df_skids.sort_values(["paper_name", "skid"])
+    # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_skids
 
     
