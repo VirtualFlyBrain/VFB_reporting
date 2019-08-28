@@ -81,9 +81,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         list(set(sum([[int(skid) for skid in skids_df['skids_in_paper_vfb'][i]] for i in skids_df.index], [])))
 
     # filter cat_skids dataframe (df_skids from get_catmaid_papers) to remove rows where skid in VFB
-    new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)]
-    new_skids_output.sort_values('skid', inplace=True)
-    new_skids_output.to_csv(skids_outfile, sep="\t")  # output file
+    new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
+        .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
+    new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
 
     # TERMINAL OUTPUT
     new_papers = all_papers[all_papers.VFB_name.isnull()]
