@@ -24,12 +24,12 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
     Outputs a file of numbers of SKIDs per paper and a file of CATMAID SKIDs that are not in VFB."""
 
-    # Get table of names of catmaid datasets in VFB
-    #  TODO - switch save location
-    comparison_outfile = dataset_name + "_comparison.tsv"
-    skids_outfile = dataset_name + "_new_skids.tsv"
-    # "../VFB_reporting_results/" + dataset_name + "_comparison.tsv"
+    comparison_outfile = "../VFB_reporting_results/" + dataset_name + "_comparison.tsv"
+    # comparison_outfile = dataset_name + "_comparison.tsv"  # for local use
+    skids_outfile = "../VFB_reporting_results/" + dataset_name + "_new_skids.tsv"
+    # skids_outfile = dataset_name + "_new_skids.tsv"  # for local use
 
+    # Get table of names of catmaid datasets in VFB
     pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
                 "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
     q = nc.commit_list([pub_query])
@@ -63,7 +63,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                                     'cat_not_vfb': cat_not_vfb, 'vfb_not_cat': vfb_not_cat}
 
     # make dataframe of list lengths from skid_df
-    skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')
+    skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
     skids_df_count = skids_df.applymap(lambda x: len(x))
 
     # make combined table with all info, tidy up and save as tsv
@@ -91,6 +91,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     print(new_papers["CATMAID_name"])
     print("See " + comparison_outfile + " for differences in numbers of SKIDs")
     print("See " + skids_outfile + " for new SKIDs that are not yet in VFB")
+
 
 make_catmaid_vfb_reports(*L1EM)
 make_catmaid_vfb_reports(*FAFB)
