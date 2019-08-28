@@ -20,10 +20,15 @@ FAFB = [get_catmaid_papers.gen_cat_paper_report(
 
 
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
-    """Return a comparison with data in VFB for given sets of papers and skids in CATMAID"""
+    """Make comparison with data in VFB for given sets of papers and skids in CATMAID.
+
+    Outputs a file of numbers of SKIDs per paper and a file of CATMAID SKIDs that are not in VFB."""
 
     # Get table of names of catmaid datasets in VFB
-    outfile = dataset_name + "_comparison.tsv"
+    #  TODO - switch save location
+    comparison_outfile = dataset_name + "_comparison.tsv"
+    skids_outfile = dataset_name + "_new_skids.tsv"
+    # "../VFB_reporting_results/" + dataset_name + "_comparison.tsv"
 
     pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
                 "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
@@ -57,57 +62,35 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         skids_by_paper[paper_id] = {'skids_in_paper_cat': skids_in_paper_cat, 'skids_in_paper_vfb': skids_in_paper_vfb,
                                     'cat_not_vfb': cat_not_vfb, 'vfb_not_cat': vfb_not_cat}
 
-    # make dataframe of list lengths from skid_diff
+    # make dataframe of list lengths from skid_df
     skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')
-    skids_df = skids_df.applymap(lambda x: len(x))
+    skids_df_count = skids_df.applymap(lambda x: len(x))
 
     # make combined table with all info, tidy up and save as tsv
     all_papers = pd.merge(cat_papers, vfb_papers, left_index=True, right_index=True, how='left', sort=True)
-    all_papers = pd.concat([all_papers, skids_df], join="outer", axis=1, sort=True)
+    all_papers = pd.concat([all_papers, skids_df_count], join="outer", axis=1, sort=True)
     all_papers.rename(columns={'name': 'CATMAID_name', 'VFB_name': 'VFB_name',
                                'skids_in_paper_cat': 'CATMAID_SKIDs', 'skids_in_paper_vfb': 'VFB_SKIDS',
                                'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID'},
                       inplace=True)
     all_papers.index.name = 'Paper_ID'
-    all_papers.to_csv(outfile, sep="\t")
+    all_papers.to_csv(comparison_outfile, sep="\t")
 
-    # TODO - make table of skids requiring mapping
+    # make unique set of skids in vfb (sum function concatenates empty lists where no skids for a paper)
+    vfb_skid_list = \
+        list(set(sum([[int(skid) for skid in skids_df['skids_in_paper_vfb'][i]] for i in skids_df.index], [])))
+
+    # filter cat_skids dataframe (df_skids from get_catmaid_papers) to remove rows where skid in VFB
+    new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)]
+    new_skids_output.sort_values('skid', inplace=True)
+    new_skids_output.to_csv(skids_outfile, sep="\t")  # output file
 
     # TERMINAL OUTPUT
-
-    # new papers
     new_papers = all_papers[all_papers.VFB_name.isnull()]
     print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
     print(new_papers["CATMAID_name"])
-    print("See " + outfile + " for differences in numbers of SKIDs")
-
+    print("See " + comparison_outfile + " for differences in numbers of SKIDs")
+    print("See " + skids_outfile + " for new SKIDs that are not yet in VFB")
 
 make_catmaid_vfb_reports(*L1EM)
 make_catmaid_vfb_reports(*FAFB)
-
-
-"""
-# SKID details - OBSOLETE?
-# get a list of all skids in VFB
-skid_query = "MATCH ()-[r]->() WHERE r.catmaid_skeleton_ids IS NOT NULL RETURN DISTINCT r.catmaid_skeleton_ids"
-q = nc.commit_list([skid_query])
-skids = results_2_dict_list(q)
-
-skid_list = [s['r.catmaid_skeleton_ids'] for s in skids]  # flatten to a list
-skid_list = [s.replace("[", "") for s in skid_list]  # remove brackets(!)
-skid_list = [s.replace("]", "") for s in skid_list]  # remove brackets(!)
-
-# compare neuron lists
-
-new_skids = CAT_skids.loc[~CAT_skids['skid'].isin(skid_list), ]
-new_skids.to_csv("new_skids.tsv", sep="\t", index=False)
-print(str(len(new_skids.index)) + " new skids in CATMAID that are not in VFB (see \'new_skids.tsv\')")
-
-# old skids in new papers
-
-old_skids_new_papers = CAT_skids.loc[CAT_skids['skid'].isin(skid_list)
-                                     & CAT_skids['paper_id'].isin(new_papers.index), ]
-old_skids_new_papers.to_csv("old_skids_new_papers.tsv", sep="\t", index=False)
-print(str(len(old_skids_new_papers.index)) + " skids that are already in VFB, but have been used by new papers in"
-                                             " CATMAID that are not in VFB (see \'old_skids_new_papers.tsv\')")
-"""
