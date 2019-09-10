@@ -23,7 +23,7 @@ def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
 
     call_types = {"annotated_with": celltype_annotaion, "with_annotations": False, "annotation_reference": "id"}
     celltypes = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
-                         data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+                         data=call_types, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
 
     df_types = pd.DataFrame(celltypes)
     df_types = df_papers.set_index("id")
