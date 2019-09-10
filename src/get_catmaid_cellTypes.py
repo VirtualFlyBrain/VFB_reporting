@@ -18,7 +18,7 @@ def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
 
     print(csrftoken)
 
-    # PAPERs
+    # Cell Types
     # pull out cell types (id) ids and names -> table and save as tsv
 
     call_types = {"annotated_with": celltype_annotaion, "with_annotations": False, "annotation_reference": "id"}
@@ -56,7 +56,7 @@ def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
 
-    df_skids = df_skids.sort_values(["paper_name","skid"])
+    df_skids = df_skids.sort_values(["annotation_name","skid"])
     df_skids.to_csv(skid_outfile, sep="\t", index=False)
 
     
