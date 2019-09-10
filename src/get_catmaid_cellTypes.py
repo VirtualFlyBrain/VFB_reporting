@@ -26,9 +26,9 @@ def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
                          data=call_types, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
 
     df_types = pd.DataFrame(celltypes)
-    df_types = df_papers.set_index("id")
-    df_types = df_papers.drop("type", axis=1)
-    df_types = df_papers.sort_values("name")
+    df_types = df_types.set_index("id")
+    df_types = df_types.drop("type", axis=1)
+    df_types = df_types.sort_values("name")
     df_types.to_csv(dataset_outfile, sep="\t")
 
     # SKIDs
