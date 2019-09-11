@@ -20,7 +20,8 @@ script:
   - python ./test/query_tools_test.py
   - python ./report_runner.py
   - python ./comparison.py
-
+  - python ./get_catmaid_cellTypes.py
+  
 after_success:
   - cd $TRAVIS_BUILD_DIR/VFB_reporting_results
   - if [ $TRAVIS_PULL_REQUEST == false ]; then
