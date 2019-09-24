@@ -138,8 +138,8 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
                 row['paper_id'] = paper['id']
                 row['paper_name'] = paper['name']
                 for annotation in neuron["annotations"]:
-                  if annotation["id"] == paper["id"]:
-                    break
+                  #if annotation["id"] == paper["id"]:
+                  #  break
                   for name in names:
                     if annotation["id"] == name["id"]:
                       row['name'] = name["name"]
