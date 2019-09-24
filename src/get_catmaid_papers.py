@@ -112,7 +112,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
     # NAMES
     # pull out official names
 
-    call_names = {"annotated_with": name_annotaion, "with_annotations": False, "annotation_reference": "name"}
+    call_names = {"annotated_with": name_annotation, "with_annotations": False, "annotation_reference": "name"}
     names = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                          data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
 
