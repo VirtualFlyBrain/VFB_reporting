@@ -142,7 +142,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
                     break
                   for name in names:
                     if annotation["id"] == name["id"]:
-                      row['paper_name'] = name["name"]
+                      row['name'] = name["name"]
                       break
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
