@@ -214,9 +214,9 @@ def gen_cat_skid_report_officialnames_fbbt(URL, PROJECT_ID, paper_annotaion, nam
                     if annotation["id"] == name["id"]:
                       row['name'] = name["name"]
                       break
-                  for cell_type in cell_types:
-                    if annotation["id"] == cell_type["id"]:
-                      row['fbbt_id'] = cell_type["name"]
+                  for celltype in celltypes:
+                    if annotation["id"] == celltype["id"]:
+                      row['fbbt_id'] = celltype["name"]
                       break
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
