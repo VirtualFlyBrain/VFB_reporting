@@ -82,7 +82,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
     # filter cat_skids dataframe (df_skids from get_catmaid_papers) to remove rows where skid in VFB
     new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
-        .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
+        .reindex(columns=(set(cat_skids.columns.tolist() + ['FBbt_ID'])))
     new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
 
     # TERMINAL OUTPUT
