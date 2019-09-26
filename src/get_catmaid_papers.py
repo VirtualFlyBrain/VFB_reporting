@@ -149,5 +149,81 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
     # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_skids
     
+def gen_cat_skid_report_officialnames_fbbt(URL, PROJECT_ID, paper_annotaion, name_annotation, celltype_annotaion, report_name):
+    """Gets IDs and names of papers in CATMAID, then skids for the neurons in each paper and returns a dataframe.
+    This version collects the official names from annotations that are annotaed with a name_annotation 
+    NB. each skid may feature in multiple papers."""
+
+    # FOR SAVING OUTPUT FILE IF DESIRED
+    # skid_outfile = "../VFB_reporting_results/" + report_name + "_skids.tsv"
+
+    # get token
+
+    client = requests.session()
+    client.get("%s" % URL)
+    for key in client.cookies.keys():
+        if key[:4] == 'csrf':
+            csrf_key = key
+    csrftoken = client.cookies[csrf_key]
+
+    # PAPERs
+
+    # pull out paper ids and names from CATMAID
+    call_papers = {"annotated_with": paper_annotaion, "with_annotations": False, "annotation_reference": "name"}
+    papers = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                         data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+
+    # NAMES
+    # pull out official names
+
+    call_names = {"annotated_with": name_annotation, "with_annotations": False, "annotation_reference": "name"}
+    names = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                         data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+    
+    # Cell Types
+    # pull out cell types (id) ids and names -> table and save as tsv
+
+    call_types = {"annotated_with": celltype_annotaion, "with_annotations": False, "annotation_reference": "id"}
+    celltypes = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                         data=call_types, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+
+    # get neuron info for each paper
+    call_papers["annotation_reference"] = "id"
+    call_papers["with_annotations"] = True
+    for paper in papers:
+        call_papers["annotated_with"] = paper["id"]
+        neurons = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                              data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+        paper["neurons"] = neurons
+
+    # empty dataframe for details on each skid
+    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name', 'fbbt_id'])
+
+    # populate dataframe one row at a time
+    for paper in papers:
+        for neuron in paper['neurons']:
+            for skid in neuron['skeleton_ids']:
+                row = OrderedDict()
+                row['skid'] = skid  # could alternatively use neuron id - is in VFB
+                row['name'] = neuron['name']
+                row['paper_id'] = paper['id']
+                row['paper_name'] = paper['name']
+                row['fbbt_id'] = ''
+                for annotation in neuron["annotations"]:
+                  for name in names:
+                    if annotation["id"] == name["id"]:
+                      row['name'] = name["name"]
+                      break
+                  for cell_type in cell_types:
+                    if annotation["id"] == cell_type["id"]:
+                      row['fbbt_id'] = cell_type["name"]
+                      break
+                df_row = pd.DataFrame([row])
+                df_skids = pd.concat([df_skids, df_row])
+
+    df_skids = df_skids.sort_values(["paper_name", "skid"])
+    # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
+    return df_skids  
+  
 # gen_cat_paper_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT")
 # gen_cat_paper_report("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "FAFB_CAT")
