@@ -197,7 +197,7 @@ def gen_cat_skid_report_officialnames_fbbt(URL, PROJECT_ID, paper_annotaion, nam
         paper["neurons"] = neurons
 
     # empty dataframe for details on each skid
-    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name', 'fbbt_id'])
+    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name', 'FBbt_ID'])
 
     # populate dataframe one row at a time
     for paper in papers:
@@ -208,7 +208,7 @@ def gen_cat_skid_report_officialnames_fbbt(URL, PROJECT_ID, paper_annotaion, nam
                 row['name'] = neuron['name']
                 row['paper_id'] = paper['id']
                 row['paper_name'] = paper['name']
-                row['fbbt_id'] = ''
+                row['FBbt_ID'] = ''
                 for annotation in neuron["annotations"]:
                   for name in names:
                     if annotation["id"] == name["id"]:
@@ -216,7 +216,7 @@ def gen_cat_skid_report_officialnames_fbbt(URL, PROJECT_ID, paper_annotaion, nam
                       break
                   for celltype in celltypes:
                     if annotation["id"] == celltype["id"]:
-                      row['fbbt_id'] = celltype["name"]
+                      row['FBbt_ID'] = celltype["name"]
                       break
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
