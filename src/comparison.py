@@ -101,4 +101,4 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
 make_catmaid_vfb_reports(*L1EM)
 make_catmaid_vfb_reports(*FAFB)
-make_catmaid_vfb_reports(*VNC1)
+# make_catmaid_vfb_reports(*VNC1)
