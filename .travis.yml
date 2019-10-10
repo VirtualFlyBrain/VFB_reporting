@@ -21,6 +21,7 @@ script:
   - python ./report_runner.py
   - python ./comparison.py
   - python ./get_catmaid_cellTypes.py
+  - python ./get_catmaid_papers.py
   
 after_success:
   - cd $TRAVIS_BUILD_DIR/VFB_reporting_results
