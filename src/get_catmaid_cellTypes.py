@@ -59,6 +59,6 @@ def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
     df_skids = df_skids.sort_values(["annotation_name","skid"])
     df_skids.to_csv(skid_outfile, sep="\t", index=False)
 
-    
-# gen_cat_report("https://l1em.catmaid.virtualflybrain.org",1,"?","L1_CAT")
-gen_cat_report("https://fafb.catmaid.virtualflybrain.org",1,"11078097","FAFB_CAT")
+if __name__ == '__main__':    
+    # gen_cat_report("https://l1em.catmaid.virtualflybrain.org",1,"?","L1_CAT")
+    gen_cat_report("https://fafb.catmaid.virtualflybrain.org",1,"11078097","FAFB_CAT")
