@@ -148,6 +148,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
     df_skids = df_skids.sort_values(["paper_name", "skid"])
     # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_skids
-    
-# gen_cat_paper_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT")
-# gen_cat_paper_report("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "FAFB_CAT")
+
+if __name__ == '__main__':
+    gen_cat_skid_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "EM_CATMAID_L1")
+    gen_cat_skid_report_officialnames("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "neuron name", "EM_CATMAID_FAFB")
