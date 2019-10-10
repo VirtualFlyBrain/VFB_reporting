@@ -150,5 +150,5 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
     return df_skids
 
 if __name__ == '__main__':
-    gen_cat_skid_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "EM_CATMAID_L1")
-    gen_cat_skid_report_officialnames("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "neuron name", "EM_CATMAID_FAFB")
+    gen_cat_skid_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1EM").to_csv("../VFB_reporting_results/EM_CATMAID_L1_skids.tsv", sep="\t", index=False)
+    gen_cat_skid_report_officialnames("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "neuron name", "FAFB").to_csv("../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep="\t", index=False)
