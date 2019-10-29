@@ -74,9 +74,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000000']
         neuron_only_skids = []
         for skid in unique_skids:
-            if (len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == 1) and \
-                    (len(vfb_skid_classes_df[(vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid)
-                                             & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index) > 0):
+            if len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == \
+                    len(vfb_skid_classes_df[(vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid)
+                                            & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index):
                 neuron_only_skids.append(skid)
 
         skids_in_paper_vfb = [s['r.catmaid_skeleton_ids'] for s in skids_in_paper_vfb]  # flatten to list
