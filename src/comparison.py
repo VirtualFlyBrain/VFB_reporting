@@ -29,10 +29,11 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Make comparison with data in VFB for given sets of papers and skids in CATMAID.
 
     Outputs a file of numbers of SKIDs per paper and a file of CATMAID SKIDs that are not in VFB."""
-    comparison_outfile = "../VFB_reporting_results/" + dataset_name + "_comparison.tsv"
-    # comparison_outfile = dataset_name + "_comparison.tsv"  # for local use
-    skids_outfile = "../VFB_reporting_results/" + dataset_name + "_new_skids.tsv"
-    # skids_outfile = dataset_name + "_new_skids.tsv"  # for local use
+    # save_directory = "../VFB_reporting_results/"
+    save_directory = ""  # for local use
+    comparison_outfile = save_directory + dataset_name + "_comparison.tsv"
+    skids_outfile = save_directory + dataset_name + "_new_skids.tsv"
+    neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
 
     # Get table of names of catmaid datasets in VFB
     pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
@@ -81,6 +82,8 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         skids_in_paper_vfb = [s['r.catmaid_skeleton_ids'] for s in skids_in_paper_vfb]  # flatten to list
         skids_in_paper_vfb = [s.replace("[", "") for s in skids_in_paper_vfb]  # remove brackets
         skids_in_paper_vfb = [s.replace("]", "") for s in skids_in_paper_vfb]  # remove brackets
+        neuron_only_skids = [s.replace("[", "") for s in neuron_only_skids]  # remove brackets
+        neuron_only_skids = [s.replace("]", "") for s in neuron_only_skids]  # remove brackets
 
         # comparison of lists of skids
         cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
@@ -112,6 +115,11 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
         .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
     new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
+
+    # output file with skids only annotated as neuron
+    neuron_skids_output = cat_skids[~cat_skids['skid'].isin(neuron_only_skids)].sort_values('skid') \
+        .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
+    neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
 
     # TERMINAL OUTPUT
     new_papers = all_papers[all_papers.VFB_name.isnull()]
