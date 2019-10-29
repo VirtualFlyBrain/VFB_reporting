@@ -121,7 +121,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         list(set(sum([[int(skid) for skid in skids_df['neuron_only'][i]] for i in skids_df.index], [])))
 
     # output file with skids only annotated as neuron
-    neuron_skids_output = cat_skids[cat_skids['skid'].isin(vfb_neuron_skid_list)].sort_values('skid') \
+    neuron_skids_output = cat_skids[cat_skids['skid'].isin(vfb_neuron_skid_list)].sort_values('paper_id') \
         .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
     neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
 
