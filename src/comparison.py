@@ -29,8 +29,8 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Make comparison with data in VFB for given sets of papers and skids in CATMAID.
 
     Outputs a file of numbers of SKIDs per paper and a file of CATMAID SKIDs that are not in VFB."""
-    # save_directory = "../VFB_reporting_results/"
-    save_directory = ""  # for local use
+    save_directory = "../VFB_reporting_results/"
+    # save_directory = ""  # for local use
     comparison_outfile = save_directory + dataset_name + "_comparison.tsv"
     skids_outfile = save_directory + dataset_name + "_new_skids.tsv"
     neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
