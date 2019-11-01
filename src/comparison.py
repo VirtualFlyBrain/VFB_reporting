@@ -2,7 +2,7 @@ import pandas as pd
 from uk.ac.ebi.vfb.neo4j.neo4j_tools import neo4j_connect, results_2_dict_list
 import get_catmaid_papers
 
-nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
+nc = neo4j_connect('http://pdb.virtualflybrain.org', 'neo4j', 'neo4j')
 
 # variables for generating reports
 
@@ -29,11 +29,11 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Make comparison with data in VFB for given sets of papers and skids in CATMAID.
 
     Outputs a file of numbers of SKIDs per paper and a file of CATMAID SKIDs that are not in VFB."""
-
-    comparison_outfile = "../VFB_reporting_results/" + dataset_name + "_comparison.tsv"
-    # comparison_outfile = dataset_name + "_comparison.tsv"  # for local use
-    skids_outfile = "../VFB_reporting_results/" + dataset_name + "_new_skids.tsv"
-    # skids_outfile = dataset_name + "_new_skids.tsv"  # for local use
+    save_directory = "../VFB_reporting_results/"
+    # save_directory = ""  # for local use
+    comparison_outfile = save_directory + dataset_name + "_comparison.tsv"
+    skids_outfile = save_directory + dataset_name + "_new_skids.tsv"
+    neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
 
     # Get table of names of catmaid datasets in VFB
     pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
@@ -52,21 +52,45 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         skids_in_paper_cat = [str(s) for s in cat_skids[cat_skids['paper_id'] == paper_id]['skid']]
 
         # get skids from VFB KB and reformat to list of strings
+        """
         query = "MATCH (ds:DataSet {catmaid_annotation_id : " + str(paper_id) + \
                 "})<-[:has_source]-()<-[]-()-[r:in_register_with]->() WHERE r.catmaid_skeleton_ids" \
                 " IS NOT NULL RETURN DISTINCT r.catmaid_skeleton_ids"
+        """
+        query = "MATCH (ds:DataSet {catmaid_annotation_id : " + str(paper_id) + \
+                "})<-[:has_source]-(n:Neuron)<-[]-()-[r:in_register_with]->() WHERE r.catmaid_skeleton_ids "\
+                "IS NOT NULL OPTIONAL MATCH (n:Neuron)-[:INSTANCEOF]->(c:Class) RETURN r.catmaid_skeleton_ids, c.iri"
         q = nc.commit_list([query])
         skids_in_paper_vfb = results_2_dict_list(q)
+        vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
+
+        # count skids only annotated as 'neuron'
+        try:
+            unique_skids = list(set([x for x in vfb_skid_classes_df['r.catmaid_skeleton_ids']]))
+        except KeyError:  # if dataframe is empty make empty list of skids and empty df with named columns
+            unique_skids = []
+            vfb_skid_classes_df = pd.DataFrame(columns=['c.iri', 'r.catmaid_skeleton_ids'])
+
+        neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000000']
+        neuron_only_skids = []
+        for skid in unique_skids:
+            if len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == \
+                    len(vfb_skid_classes_df[(vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid)
+                                            & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index):
+                neuron_only_skids.append(skid)
 
         skids_in_paper_vfb = [s['r.catmaid_skeleton_ids'] for s in skids_in_paper_vfb]  # flatten to list
         skids_in_paper_vfb = [s.replace("[", "") for s in skids_in_paper_vfb]  # remove brackets
         skids_in_paper_vfb = [s.replace("]", "") for s in skids_in_paper_vfb]  # remove brackets
+        neuron_only_skids = [s.replace("[", "") for s in neuron_only_skids]  # remove brackets
+        neuron_only_skids = [s.replace("]", "") for s in neuron_only_skids]  # remove brackets
 
         # comparison of lists of skids
         cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
         vfb_not_cat = [s for s in skids_in_paper_vfb if s not in skids_in_paper_cat]
         skids_by_paper[paper_id] = {'skids_in_paper_cat': skids_in_paper_cat, 'skids_in_paper_vfb': skids_in_paper_vfb,
-                                    'cat_not_vfb': cat_not_vfb, 'vfb_not_cat': vfb_not_cat}
+                                    'cat_not_vfb': cat_not_vfb, 'vfb_not_cat': vfb_not_cat,
+                                    'neuron_only': neuron_only_skids}
 
     # make dataframe of list lengths from skid_df
     skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
@@ -77,7 +101,8 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     all_papers = pd.concat([all_papers, skids_df_count], join="outer", axis=1, sort=True)
     all_papers.rename(columns={'name': 'CATMAID_name', 'VFB_name': 'VFB_name',
                                'skids_in_paper_cat': 'CATMAID_SKIDs', 'skids_in_paper_vfb': 'VFB_SKIDS',
-                               'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID'},
+                               'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID',
+                               'neuron_only': 'neuron_only'},
                       inplace=True)
     all_papers.index.name = 'Paper_ID'
     all_papers.to_csv(comparison_outfile, sep="\t")
@@ -90,6 +115,15 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
         .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
     new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
+
+    # make unique set of skids annotated only as neuron in VFB
+    vfb_neuron_skid_list = \
+        list(set(sum([[int(skid) for skid in skids_df['neuron_only'][i]] for i in skids_df.index], [])))
+
+    # output file with skids only annotated as neuron
+    neuron_skids_output = cat_skids[cat_skids['skid'].isin(vfb_neuron_skid_list)].sort_values('paper_id') \
+        .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
+    neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
 
     # TERMINAL OUTPUT
     new_papers = all_papers[all_papers.VFB_name.isnull()]
