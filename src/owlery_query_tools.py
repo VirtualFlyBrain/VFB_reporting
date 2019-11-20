@@ -12,11 +12,12 @@ class OWLeryConnect:
     def __init__(self,
                  endpoint="http://owl.virtualflybrain.org/kbs/vfb/",
                  lookup=None,
-                 obo_curies=None,
+                 obo_curies=('FBbt', 'RO', 'BFO'),
                  curies=None):
         """Endpoint: owlery REST endpoint
            Lookup: Dict of name: ID;
-           obo_curies: list of prefixes for generation of OBO curies
+           obo_curies: list of prefixes for generation of OBO curies.
+                Default: ('FBbt', 'RO')
            curies: Dict of curie: base"""
         self.owlery_endpoint = endpoint
         if not (lookup):
@@ -35,12 +36,17 @@ class OWLeryConnect:
         c = {p : obolib + p + '_' for p in prefixes}
         self.curies.update(c)
 
-    def get_subclasses(self, query, query_by_label=False):
+    def get_subclasses(self, query, query_by_label=False, direct=False):
+        """Get subclasses of  """
         owl_endpoint = self.owlery_endpoint + "subclasses?"
         if query_by_label:
             query = self.labels_2_ids(query)
-        payload = {'object': query, 'prefixes': json.dumps(self.curies), 'direct': False}
+        print("Running query: "+ query)
+        payload = {'object': query, 'prefixes': json.dumps(self.curies),
+                   'direct': direct}
+        #print(payload)
         r = requests.get(url=owl_endpoint, params=payload)
+        print("Query URL: " + r.url)
         if r.status_code == 200:
             return r.json()['superClassOf']
         else:
