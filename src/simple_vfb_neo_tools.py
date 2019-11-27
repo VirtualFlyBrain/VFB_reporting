@@ -29,11 +29,16 @@ def gen_simple_report(terms):
     query = """MATCH (n:Class) WHERE n.iri in %s WITH n 
                 OPTIONAL MATCH  (n)-[r]->(p:pub) WHERE r.typ = 'syn' 
                 WITH n, 
-                collect({ synonym: r.synonym, PMID: 'PMID:' + p.PMID, 
+                COLLECT({ synonym: r.synonym, PMID: 'PMID:' + p.PMID, 
                     miniref: p.label}) AS syns 
                 OPTIONAL MATCH (n)-[r]-(p:pub) WHERE r.typ = 'def' 
-                return n.short_form, n.label, n.description, syns,  
-                collect({ PMID: 'PMID:' + p.PMID, miniref: p.label}) as pubs""" % str(terms)
+                with n, syns, 
+                collect({ PMID: 'PMID:' + p.PMID, miniref: p.label}) as pubs
+                OPTIONAL MATCH (n)-[:SUBCLASSOF]->(super:Class)
+                RETURN n.short_form as short_form, n.label as label, 
+                n.description as description, syns, pubs,
+                super.label, super.short_form
+                 """ % str(terms)
     #print(query)
     q = nc.commit_list([query])
     return results_2_dict_list(q)
@@ -61,6 +66,11 @@ def get_subclasses(term,  direct = False):
     terms = oc.get_subclasses("'%s'" % term, query_by_label=True)
     return gen_simple_report(terms)
 
+def get_superclasses(term,  direct = False):
+    """Generate JSOn report of all subclasses of the submitted term."""
+    oc = OWLeryConnect(lookup=get_lookup(limit_by_prefix=['FBbt']))
+    terms = oc.get_subclasses("'%s'" % term, query_by_label=True)
+    return gen_simple_report(terms)
 
 
 

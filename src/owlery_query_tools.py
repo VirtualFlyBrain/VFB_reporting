@@ -36,22 +36,36 @@ class OWLeryConnect:
         c = {p : obolib + p + '_' for p in prefixes}
         self.curies.update(c)
 
-    def get_subclasses(self, query, query_by_label=False, direct=False):
-        """Get subclasses of  """
-        owl_endpoint = self.owlery_endpoint + "subclasses?"
+    def query(self, query_type, return_type,
+              query, query_by_label=False, direct=False):
+        owl_endpoint = self.owlery_endpoint + query_type +"?"
         if query_by_label:
             query = self.labels_2_ids(query)
-        print("Running query: "+ query)
+        print("Running query: " + query)
         payload = {'object': query, 'prefixes': json.dumps(self.curies),
                    'direct': direct}
-        #print(payload)
+        # print(payload)
         r = requests.get(url=owl_endpoint, params=payload)
         print("Query URL: " + r.url)
         if r.status_code == 200:
-            return r.json()['superClassOf']
+            return r.json()[return_type]
         else:
             warnings.warn(str(r.content))
             return False
+
+    def get_subclasses(self, query, query_by_label=False, direct=False):
+        """Get subclasses of
+           """
+        return self.query(query_type='subclasses', return_type='superClassOf',
+                          query=query, query_by_label=query_by_label,
+                          direct=direct)
+
+    def get_superclasses(self, query, query_by_label=False, direct=False):
+        """Get subclasses of
+           """
+        return self.query(query_type='superclasses', return_type='subClassOf',
+                          query=query, query_by_label=query_by_label,
+                          direct=direct)
 
     def labels_2_ids(self, query_string):
         """Substitutes labels for IDs in a query string"""
