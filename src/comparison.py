@@ -36,8 +36,12 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
 
     # Get table of names of catmaid datasets in VFB
-    pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
-                "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
+    #pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
+    #           "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
+
+    pub_query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet) " \
+                "WHERE api.short_form in ['fafb_catmaid_api', 'l1em_catmaid_api']" \
+                "RETURN dsxref.accession as CATMAID_ID, ds.short_form as VFB_name"
     q = nc.commit_list([pub_query])
     papers = results_2_dict_list(q)
 
@@ -57,9 +61,21 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                 "})<-[:has_source]-()<-[]-()-[r:in_register_with]->() WHERE r.catmaid_skeleton_ids" \
                 " IS NOT NULL RETURN DISTINCT r.catmaid_skeleton_ids"
         """
-        query = "MATCH (ds:DataSet {catmaid_annotation_id : " + str(paper_id) + \
-                "})<-[:has_source]-(n:Neuron)<-[]-()-[r:in_register_with]->() WHERE r.catmaid_skeleton_ids "\
-                "IS NOT NULL OPTIONAL MATCH (n:Neuron)-[:INSTANCEOF]->(c:Class) RETURN r.catmaid_skeleton_ids, c.iri"
+#        query = "MATCH (ds:DataSet {catmaid_annotation_id : " + str(paper_id) + \
+#                "})<-[:has_source]-(n:Neuron)<-[]-()-[r:in_register_with]->() " \
+#                "WHERE r.catmaid_skeleton_ids "\
+#                "IS NOT NULL OPTIONAL MATCH (n:Neuron)-[:INSTANCEOF]->(c:Class) " \
+#                "RETURN r.catmaid_skeleton_ids, c.iri"
+
+        query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
+                "<-[:has_source]-(i:Individual)" \
+                "-[skid:hasDbXref]->(s:Site) " \
+                "WHERE api.short_form in ['fafb_catmaid_api', 'l1em_catmaid_api'] " \
+                "AND s.short_form in ['catmaid_fafb', 'catmaid_l1em'] " \
+                "AND dsxref.accession = '" + str(paper_id) +"' WITH i, skid " \
+                "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
+                "RETURN distinct skid.accession AS `r.catmaid_skeleton_ids`, c.iri"
+
         q = nc.commit_list([query])
         skids_in_paper_vfb = results_2_dict_list(q)
         vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
@@ -80,10 +96,10 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                 neuron_only_skids.append(skid)
 
         skids_in_paper_vfb = [s['r.catmaid_skeleton_ids'] for s in skids_in_paper_vfb]  # flatten to list
-        skids_in_paper_vfb = [s.replace("[", "") for s in skids_in_paper_vfb]  # remove brackets
-        skids_in_paper_vfb = [s.replace("]", "") for s in skids_in_paper_vfb]  # remove brackets
-        neuron_only_skids = [s.replace("[", "") for s in neuron_only_skids]  # remove brackets
-        neuron_only_skids = [s.replace("]", "") for s in neuron_only_skids]  # remove brackets
+        # skids_in_paper_vfb = [s.replace("[", "") for s in skids_in_paper_vfb]  # remove brackets
+        # skids_in_paper_vfb = [s.replace("]", "") for s in skids_in_paper_vfb]  # remove brackets
+        # neuron_only_skids = [s.replace("[", "") for s in neuron_only_skids]  # remove brackets
+        # neuron_only_skids = [s.replace("]", "") for s in neuron_only_skids]  # remove brackets
 
         # comparison of lists of skids
         cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
