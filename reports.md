@@ -97,3 +97,5 @@ For each EM dataset the followinf reports are generated:
   entities.name -> 	CATMAID_name
 
 
+-------------
+Note: the reports readme.md is automatically generated on each run. Please edit [reports.md](https://github.com/VirtualFlyBrain/VFB_reporting/blob/master/reports.md) if changes are needed.
