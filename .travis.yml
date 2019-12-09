@@ -25,6 +25,12 @@ script:
   
 after_success:
   - cd $TRAVIS_BUILD_DIR/VFB_reporting_results
+  - ls -lh *.tsv
   - if [ $TRAVIS_PULL_REQUEST == false ]; then
       $TRAVIS_BUILD_DIR/src/push.sh;
+    else
+      for file in *.tsv; do
+        echo $file;
+        cat $file;
+      done;
     fi;
