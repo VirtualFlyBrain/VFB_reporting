@@ -152,3 +152,4 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
 if __name__ == '__main__':
     gen_cat_skid_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1EM").to_csv("../VFB_reporting_results/EM_CATMAID_L1_skids.tsv", sep="\t", index=False)
     gen_cat_skid_report_officialnames("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "neuron name", "FAFB").to_csv("../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep="\t", index=False)
+    gen_cat_skid_report_officialnames("https://vnc1.catmaid.virtualflybrain.org", 1, "publication", "neuron name", "VNC1").to_csv("../VFB_reporting_results/EM_CATMAID_VNC1_skids.tsv", sep="\t", index=False)
