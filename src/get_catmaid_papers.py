@@ -62,8 +62,12 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
     call_papers["annotation_reference"] = "id"
     for paper in papers:
         call_papers["annotated_with"] = paper["id"]
-        neurons = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+        neurons = []
+        try:
+            neurons = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                               data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+        except:
+            print("An exception occurred getting skids from " + str(URL) + " annotated with paper id:" + str(paper["id"]))
         paper["neurons"] = neurons
 
     # empty dataframe for details on each skid
