@@ -95,7 +95,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                                             & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index):
                 neuron_only_skids.append(skid)
 
-        skids_in_paper_vfb = [s['r.catmaid_skeleton_ids'] for s in skids_in_paper_vfb]  # flatten to list
+        skids_in_paper_vfb = unique_skids # take unique records only
         # skids_in_paper_vfb = [s.replace("[", "") for s in skids_in_paper_vfb]  # remove brackets
         # skids_in_paper_vfb = [s.replace("]", "") for s in skids_in_paper_vfb]  # remove brackets
         # neuron_only_skids = [s.replace("[", "") for s in neuron_only_skids]  # remove brackets
