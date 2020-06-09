@@ -87,7 +87,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
             unique_skids = []
             vfb_skid_classes_df = pd.DataFrame(columns=['c.iri', 'r.catmaid_skeleton_ids'])
 
-        neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000000']
+        neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000540']
         neuron_only_skids = []
         for skid in unique_skids:
             if len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == \
