@@ -6,7 +6,7 @@ nc = Neo4jConnect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
 curator = 'https://orcid.org/0000-0002-1373-1705'
 
 """
-Makes curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
+Makes image curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
 These should be transferred to curation repo for loading.
 
 Ignores any skids whose catmaid paper ID is not associated with a DataSet in VFB.
@@ -16,13 +16,11 @@ This should not be automatically run every day (makes dated files for curation).
 # date for filenames
 today = datetime.date.today()
 datestring = today.strftime("%y%m%d")
-print(datestring)
 
 # open file of new FAFB skids
 new_skids = pd.read_csv("../../VFB_reporting_results/FAFB_new_skids.tsv", sep='\t')\
     .applymap(str)
 paper_ids = set(list(new_skids['paper_id']))
-print(paper_ids)
 
 # check whether all datasets in KB
 comparison_table = pd.read_csv("../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t')
