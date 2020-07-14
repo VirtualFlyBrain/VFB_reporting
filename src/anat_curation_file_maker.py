@@ -3,7 +3,7 @@ import datetime
 from vfb_connect.neo.neo4j_tools import Neo4jConnect, dict_cursor
 
 nc = Neo4jConnect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
-curator = 'https://orcid.org/0000-0002-1373-1705'
+curator = 'https://orcid.org/0000-0002-1373-1705'  # change if needed
 
 """
 Makes image curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
@@ -27,18 +27,17 @@ comparison_table = pd.read_csv("../../VFB_reporting_results/FAFB_comparison.tsv"
 if comparison_table['VFB_name'].isnull().values.any():
     print("One or more FAFB dataset(s) not in KB - these will be skipped.")
 
-# get dataset names from vfb
+# get dataset name for paper from vfb
 for paper_id in paper_ids:
     query = "MATCH (ds:DataSet {catmaid_annotation_id:%s}) \
         RETURN ds.short_form as dataset" % paper_id
-
     q = nc.commit_list([query])
     try:
-        DataSet = dict_cursor(q)[0]['dataset']
+        DataSet = dict_cursor(q)[0]['dataset']  # dataset name in VFB
     except IndexError:
-        continue
+        continue  # if no VFB dataset for paper
 
-    single_ds_data = new_skids[new_skids['paper_id']==paper_id]
+    single_ds_data = new_skids[new_skids['paper_id'] == paper_id]
     curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                 'label': single_ds_data['name'], 'is_a': 'neuron',
                                 'part_of': 'female organism|adult brain'})
