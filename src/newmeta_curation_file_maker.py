@@ -8,8 +8,8 @@ curator = 'https://orcid.org/0000-0002-1373-1705'  # change if needed
 """
 Makes newmeta curation record(s) for skids in VFB_reporting_results/FAFB_CAT_cellType_skids.tsv.
 These should be transferred to curation repo for loading.
-
-Only adds new is_a annotations and ignores any skids that are not yet in VFB.
+Run anat_curation_file_maker.py first to get any new skids into VFB.
+Only adds new (not in VFB) is_a annotations.
 This should not be automatically run every day (makes dated files for curation).
 """
 
@@ -17,22 +17,20 @@ This should not be automatically run every day (makes dated files for curation).
 today = datetime.date.today()
 datestring = today.strftime("%y%m%d")
 
-# open file of new FAFB skids
-typed_skids = pd.read_csv("../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv", sep='\t')\
+# open file of new FAFB skids (no paper ids)
+typed_skids = pd.read_csv("../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv", sep='\t') \
     .applymap(str)
 
-# open file of all skids with paper detail
-all_skids = pd.read_csv("../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t')\
+# open file of all skids, including paper ids
+all_skids = pd.read_csv("../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t') \
     .applymap(str)
-paper_ids = set(list(all_skids['paper_id']))
-print(paper_ids)
 
-# merge info from all skids into typed skids
-typed_skids_detail = pd.merge(left=typed_skids, right=all_skids, on='skid', how='left')
-typed_skids_detail = typed_skids_detail.drop(['annotaion_id', 'annotation_id', 'paper_name'], axis=1)
+# merge info from all skids into typed skids, remove excess cols
+typed_skids = pd.merge(left=typed_skids, right=all_skids, on='skid', how='left')
+typed_skids = typed_skids.drop(['annotaion_id', 'annotation_id', 'paper_name'], axis=1)
 
 # get FBbt labels from VFB
-FBbt_list = [str(x).replace(':', '_') for x in set(typed_skids_detail['annotation_name'])]
+FBbt_list = [str(x).replace(':', '_') for x in set(typed_skids['annotation_name'])]
 query = "MATCH (c:Class) WHERE c.short_form IN %s \
     RETURN c.short_form AS FBbt_id, c.label AS FBbt_name" % FBbt_list
 
@@ -41,15 +39,56 @@ labels = dict_cursor(q)
 labels_df = pd.DataFrame(labels)
 labels_df = labels_df.applymap(lambda x: x.replace('_', ':'))
 
-# remove old labels from mapping table and merge in new (then reorder cols)
-typed_skids_detail = pd.merge(left=typed_skids_detail, right=labels_df,
-                              how='left', left_on='annotation_name', right_on='FBbt_id')
-print(typed_skids_detail[:10])
-typed_skids_detail.to_csv("typing.csv", index=None)
+# merge FBbt labels into typed skids dataframe on FBbt ID
+typed_skids = pd.merge(left=typed_skids, right=labels_df,
+                       how='left', left_on='annotation_name', right_on='FBbt_id')
+# typed_skids.to_csv("typing.csv", index=None)  # for checking mappings
+
+# drop any annotations that are already in the KB (avoids proliferation of curation files)
+# find all current skids and annotations (copied from comparison.py)
+paper_ids = set(list(typed_skids['paper_id']))
+query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
+        "<-[:has_source]-(i:Individual)" \
+        "-[skid:hasDbXref]->(s:Site) " \
+        "WHERE api.short_form in ['fafb_catmaid_api', 'l1em_catmaid_api'] " \
+        "AND s.short_form in ['catmaid_fafb', 'catmaid_l1em'] " \
+        "AND dsxref.accession in %s WITH i, skid " \
+        "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
+        "RETURN distinct skid.accession AS `skid`, c.short_form AS `FBbt_id`" \
+        % ('[' + ', '.join(paper_ids) + ']')
+
+q = nc.commit_list([query])
+skids_in_paper_vfb = dict_cursor(q)
+vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
+vfb_skid_classes_df = vfb_skid_classes_df.applymap(lambda x: str(x).replace('_', ':'))
+vfb_skid_classes_df['VFB'] = 'VFB'  # for identifying matches
+
+# merge existing mappings into typed skids df and delete any rows that matched
+all_skid_mappings = pd.merge(
+    left=typed_skids, right=vfb_skid_classes_df, on=['FBbt_id', 'skid'], how='left')
+new_skid_mappings = all_skid_mappings[all_skid_mappings['VFB'].isnull()]  # rows that not in VFB
+
 # get dataset names from vfb
-"""
+paper_ids = set(list(new_skid_mappings['paper_id']))
 for paper_id in paper_ids:
     query = "MATCH (ds:DataSet {catmaid_annotation_id:%s}) \
         RETURN ds.short_form as dataset" % paper_id
-"""
-# THESE TYPE AND CATMAID NAME MAPPINGS ARE OUT OF DATE
+    q = nc.commit_list([query])
+    try:
+        DataSet = dict_cursor(q)[0]['dataset']  # dataset name in VFB
+    except IndexError:
+        continue  # if no VFB dataset for paper
+
+    single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == paper_id]
+    curation_df = pd.DataFrame({'subject_external_db': 'catmaid_fafb',
+                                'subject_external_id': single_ds_data['skid'],
+                                'relation': 'is_a',
+                                'object': single_ds_data['FBbt_name']})
+
+    output_filename = './newmeta_%s_%s' % (DataSet, datestring)
+
+    curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
+
+    with open(output_filename + '.yaml', 'w') as file:
+        file.write("DataSet: %s\n" % DataSet)
+        file.write("Curator: %s\n" % curator)
