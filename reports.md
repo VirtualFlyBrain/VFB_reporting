@@ -24,8 +24,6 @@ For each EM dataset the following reports are generated:
 
 ### Reports:
 
-  \# Note: Seem to have proliferated - can we  simplify?!!
-
 #### {source}\_comparison.tsv 
   A general overview for each dataset listing the number of included neuron skeletons (skids) in the relevant CATMAID instance vs VFB KnowledgeBase (KB).  For neurons in VFB, it lists which neurons are classified only under 'neuron' - i.e. which are candidates for deepening annotations.
   
@@ -36,8 +34,7 @@ For each EM dataset the following reports are generated:
   Neurons imported  into VFB - but only annotated as 'neuron'.  These are candidates for curation.
   
 #### EM_CATMAID\_{source}_skids.tsv
-
-   \# Why is this  needed - is is  still updated?
+  A complete list of skids published on the relivant VFB CATMAID site with their relivant publications. a simple diff with previous versions in github shows any changes between releases and the dates of thouse changes. 
 
 #### {source}\_CAT_cellType_skids.tsv
 
