@@ -96,10 +96,6 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                 neuron_only_skids.append(skid)
 
         skids_in_paper_vfb = unique_skids # take unique records only
-        # skids_in_paper_vfb = [s.replace("[", "") for s in skids_in_paper_vfb]  # remove brackets
-        # skids_in_paper_vfb = [s.replace("]", "") for s in skids_in_paper_vfb]  # remove brackets
-        # neuron_only_skids = [s.replace("[", "") for s in neuron_only_skids]  # remove brackets
-        # neuron_only_skids = [s.replace("]", "") for s in neuron_only_skids]  # remove brackets
 
         # comparison of lists of skids
         cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
@@ -123,9 +119,11 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     all_papers.index.name = 'Paper_ID'
     all_papers.to_csv(comparison_outfile, sep="\t")
 
-    # make unique set of skids in vfb (sum function concatenates empty lists where no skids for a paper)
-    vfb_skid_list = \
-        list(set(sum([[int(skid) for skid in skids_df['skids_in_paper_vfb'][i]] for i in skids_df.index], [])))
+    # make unique set of skids in vfb
+    vfb_skid_list = [skid for skidlist in skids_df['skids_in_paper_vfb'] for skid in skidlist
+                     if skid is not None]
+    vfb_skid_list = list(set(vfb_skid_list))
+    vfb_skid_list = [int(x) for x in vfb_skid_list]
 
     # filter cat_skids dataframe (df_skids from get_catmaid_papers) to remove rows where skid in VFB
     new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
@@ -133,8 +131,10 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
 
     # make unique set of skids annotated only as neuron in VFB
-    vfb_neuron_skid_list = \
-        list(set(sum([[int(skid) for skid in skids_df['neuron_only'][i]] for i in skids_df.index], [])))
+    vfb_neuron_skid_list = [skid for skidlist in skids_df['neuron_only'] for skid in skidlist
+                     if skid is not None]
+    vfb_neuron_skid_list = list(set(vfb_neuron_skid_list))
+    vfb_neuron_skid_list = [int(x) for x in vfb_neuron_skid_list]
 
     # output file with skids only annotated as neuron
     neuron_skids_output = cat_skids[cat_skids['skid'].isin(vfb_neuron_skid_list)].sort_values('paper_id') \
