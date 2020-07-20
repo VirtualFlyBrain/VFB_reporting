@@ -40,7 +40,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     #           "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
 
     pub_query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet) " \
-                "WHERE api.short_form in ['fafb_catmaid_api', 'l1em_catmaid_api']" \
+                "WHERE api.short_form ends with '_catmaid_api' " \
                 "RETURN dsxref.accession as CATMAID_ID, ds.short_form as VFB_name"
     q = nc.commit_list([pub_query])
     papers = results_2_dict_list(q)
