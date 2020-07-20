@@ -1,9 +1,10 @@
 import pandas as pd
 import datetime
+import numpy
 from vfb_connect.neo.neo4j_tools import Neo4jConnect, dict_cursor
 
 nc = Neo4jConnect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
-curator = 'https://orcid.org/0000-0002-1373-1705'  # change if needed
+curator = 'cp390'  # change if needed
 
 """
 Makes newmeta curation record(s) for skids in VFB_reporting_results/FAFB_CAT_cellType_skids.tsv.
@@ -25,6 +26,11 @@ typed_skids = pd.read_csv("../../VFB_reporting_results/FAFB_CAT_cellType_skids.t
 all_skids = pd.read_csv("../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t') \
     .applymap(str)
 
+# get mapping of dataset name (in VFB) to id (as index) from FAFB_comparison.tsv
+comparison_table = pd.read_csv("../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t',
+                               index_col='Paper_ID').applymap(str)
+comparison_table.index = comparison_table.index.map(str)
+
 # merge info from all skids into typed skids, remove excess cols
 typed_skids = pd.merge(left=typed_skids, right=all_skids, on='skid', how='left')
 typed_skids = typed_skids.drop(['annotaion_id', 'annotation_id', 'paper_name'], axis=1)
@@ -38,6 +44,7 @@ q = nc.commit_list([query])
 labels = dict_cursor(q)
 labels_df = pd.DataFrame(labels)
 labels_df = labels_df.applymap(lambda x: x.replace('_', ':'))
+labels_df = labels_df.applymap(lambda x: x.replace('\\', ''))
 
 # merge FBbt labels into typed skids dataframe on FBbt ID
 typed_skids = pd.merge(left=typed_skids, right=labels_df,
@@ -70,16 +77,12 @@ new_skid_mappings = all_skid_mappings[all_skid_mappings['VFB'].isnull()]  # rows
 
 # get dataset names from vfb
 paper_ids = set(list(new_skid_mappings['paper_id']))
-for paper_id in paper_ids:
-    query = "MATCH (ds:DataSet {catmaid_annotation_id:%s}) \
-        RETURN ds.short_form as dataset" % paper_id
-    q = nc.commit_list([query])
-    try:
-        DataSet = dict_cursor(q)[0]['dataset']  # dataset name in VFB
-    except IndexError:
+for i in paper_ids:
+    DataSet = comparison_table['VFB_name'][i]  # dataset name in VFB
+    if DataSet == str(numpy.nan):
         continue  # if no VFB dataset for paper
 
-    single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == paper_id]
+    single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == i]
     curation_df = pd.DataFrame({'subject_external_db': 'catmaid_fafb',
                                 'subject_external_id': single_ds_data['skid'],
                                 'relation': 'is_a',

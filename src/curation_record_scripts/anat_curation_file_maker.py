@@ -1,9 +1,8 @@
 import pandas as pd
 import datetime
-from vfb_connect.neo.neo4j_tools import Neo4jConnect, dict_cursor
+import numpy
 
-nc = Neo4jConnect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
-curator = 'https://orcid.org/0000-0002-1373-1705'  # change if needed
+curator = 'cp390'  # change if needed
 
 """
 Makes image curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
@@ -22,22 +21,18 @@ new_skids = pd.read_csv("../../VFB_reporting_results/FAFB_new_skids.tsv", sep='\
     .applymap(str)
 paper_ids = set(list(new_skids['paper_id']))
 
-# check whether all datasets in KB
-comparison_table = pd.read_csv("../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t')
-if comparison_table['VFB_name'].isnull().values.any():
-    print("One or more FAFB dataset(s) not in KB - these will be skipped.")
+# get mapping of ds name (in VFB) to id (as index) from FAFB_comparison.tsv
+comparison_table = pd.read_csv("../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t',
+                               index_col='Paper_ID').applymap(str)
+comparison_table.index = comparison_table.index.map(str)
 
 # get dataset name for paper from vfb
-for paper_id in paper_ids:
-    query = "MATCH (ds:DataSet {catmaid_annotation_id:%s}) \
-        RETURN ds.short_form as dataset" % paper_id
-    q = nc.commit_list([query])
-    try:
-        DataSet = dict_cursor(q)[0]['dataset']  # dataset name in VFB
-    except IndexError:
+for i in paper_ids:
+    DataSet = comparison_table['VFB_name'][i]  # dataset name in VFB
+    if DataSet == str(numpy.nan):
         continue  # if no VFB dataset for paper
 
-    single_ds_data = new_skids[new_skids['paper_id'] == paper_id]
+    single_ds_data = new_skids[new_skids['paper_id'] == i]
     curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                 'label': single_ds_data['name'], 'is_a': 'neuron',
                                 'part_of': 'female organism|adult brain'})
