@@ -70,8 +70,8 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
                 "<-[:has_source]-(i:Individual)" \
                 "-[skid:hasDbXref]->(s:Site) " \
-                "WHERE api.short_form in ['fafb_catmaid_api', 'l1em_catmaid_api'] " \
-                "AND s.short_form in ['catmaid_fafb', 'catmaid_l1em'] " \
+                "WHERE api.short_form ends with '_catmaid_api' " \
+                "AND s.short_form starts with 'catmaid_' " \
                 "AND dsxref.accession = " + str(paper_id) +" WITH i, skid " \
                 "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
                 "RETURN distinct skid.accession AS `r.catmaid_skeleton_ids`, c.iri"
