@@ -3,6 +3,7 @@ import datetime
 import numpy
 
 curator = 'cp390'  # change if needed
+template = 'JRC2018Unisex'
 
 """
 Makes image curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
@@ -44,4 +45,6 @@ for i in paper_ids:
     with open(output_filename + '.yaml', 'w') as file:
         file.write("DataSet: %s\n" % DataSet)
         file.write("Curator: %s\n" % curator)
+        file.write("Imaging_type: TEM\n")
+        file.write("Template: %s\n" % template)
 
