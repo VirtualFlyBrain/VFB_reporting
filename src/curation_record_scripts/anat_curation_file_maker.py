@@ -3,7 +3,7 @@ import datetime
 import numpy
 
 curator = 'cp390'  # change if needed
-template = 'JRC2018Unisex'
+template = 'JRC2018Unisex_c'
 
 """
 Makes image curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
