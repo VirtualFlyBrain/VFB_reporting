@@ -56,17 +56,6 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         skids_in_paper_cat = [str(s) for s in cat_skids[cat_skids['paper_id'] == paper_id]['skid']]
 
         # get skids from VFB KB and reformat to list of strings
-        """
-        query = "MATCH (ds:DataSet {catmaid_annotation_id : " + str(paper_id) + \
-                "})<-[:has_source]-()<-[]-()-[r:in_register_with]->() WHERE r.catmaid_skeleton_ids" \
-                " IS NOT NULL RETURN DISTINCT r.catmaid_skeleton_ids"
-        """
-#        query = "MATCH (ds:DataSet {catmaid_annotation_id : " + str(paper_id) + \
-#                "})<-[:has_source]-(n:Neuron)<-[]-()-[r:in_register_with]->() " \
-#                "WHERE r.catmaid_skeleton_ids "\
-#                "IS NOT NULL OPTIONAL MATCH (n:Neuron)-[:INSTANCEOF]->(c:Class) " \
-#                "RETURN r.catmaid_skeleton_ids, c.iri"
-
         query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
                 "<-[:has_source]-(i:Individual)" \
                 "-[skid:hasDbXref]->(s:Site) " \
