@@ -5,7 +5,7 @@ import numpy
 
 def make_anat_records(site, curator):
     """
-    Makes image curation record(s) for new skids in VFB_reporting_results/FAFB_new_skids.tsv.
+    Makes image curation record(s) for new skids in VFB_reporting_results/<site>_new_skids.tsv.
     These should be transferred to curation repo for loading.
 
     Ignores any skids whose catmaid paper ID is not associated with a DataSet in VFB.
@@ -41,10 +41,12 @@ def make_anat_records(site, curator):
             entity = 'female organism|adult brain'
             template = 'JRC2018Unisex_c'
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
-                                    'label': single_ds_data['name'], 'is_a': 'neuron',
+                                    'label': single_ds_data['name'],
+                                    'is_a': 'neuron',
                                     'part_of': entity})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
+        curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
         output_filename = './anat_%s_%s' % (DataSet, datestring)
 
