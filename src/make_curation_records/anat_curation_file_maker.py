@@ -12,25 +12,25 @@ def make_anat_records(site, curator):
     This should not be automatically run every day (makes dated files for curation).
     """
     if site not in ['L1EM', 'FAFB']:
-        raise KeyError('dataset must be L1EM or FAFB')
+        raise KeyError('site must be L1EM or FAFB')
     # date for filenames
     today = datetime.date.today()
     datestring = today.strftime("%y%m%d")
 
-    # open file of new FAFB skids
+    # open file of new skids
     new_skids = pd.read_csv("../../../VFB_reporting_results/%s_new_skids.tsv" % site, sep='\t')\
         .applymap(str)
     paper_ids = set(list(new_skids['paper_id']))
 
-    # get mapping of ds name (in VFB) to id (as index) from FAFB_comparison.tsv
+    # get mapping of ds name (in VFB) to id (as index) from <site>_comparison.tsv
     comparison_table = pd.read_csv("../../../VFB_reporting_results/%s_comparison.tsv" % site,
                                    sep='\t', index_col='Paper_ID').applymap(str)
     comparison_table.index = comparison_table.index.map(str)
 
     # get dataset name for paper from vfb
     for i in paper_ids:
-        DataSet = comparison_table['VFB_name'][i]  # dataset name in VFB
-        if DataSet == str(numpy.nan):
+        ds = comparison_table['VFB_name'][i]  # dataset name in VFB
+        if ds == str(numpy.nan):
             continue  # if no VFB dataset for paper
 
         single_ds_data = new_skids[new_skids['paper_id'] == i]
@@ -48,12 +48,12 @@ def make_anat_records(site, curator):
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
-        output_filename = './anat_%s_%s' % (DataSet, datestring)
+        output_filename = './anat_%s_%s' % (ds, datestring)
 
         curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
 
         with open(output_filename + '.yaml', 'w') as file:
-            file.write("DataSet: %s\n" % DataSet)
+            file.write("DataSet: %s\n" % ds)
             file.write("Curator: %s\n" % curator)
             file.write("Imaging_type: TEM\n")
             file.write("Template: %s\n" % template)

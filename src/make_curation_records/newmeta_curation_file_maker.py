@@ -78,8 +78,8 @@ new_skid_mappings = all_skid_mappings[all_skid_mappings['VFB'].isnull()]  # rows
 # get dataset names from vfb
 paper_ids = set(list(new_skid_mappings['paper_id']))
 for i in paper_ids:
-    DataSet = comparison_table['VFB_name'][i]  # dataset name in VFB
-    if DataSet == str(numpy.nan):
+    ds = comparison_table['VFB_name'][i]  # dataset name in VFB
+    if ds == str(numpy.nan):
         continue  # if no VFB dataset for paper
 
     single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == i]
@@ -88,10 +88,10 @@ for i in paper_ids:
                                 'relation': 'is_a',
                                 'object': single_ds_data['FBbt_name']})
 
-    output_filename = './newmeta_%s_%s' % (DataSet, datestring)
+    output_filename = './newmeta_%s_%s' % (ds, datestring)
 
     curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
 
     with open(output_filename + '.yaml', 'w') as file:
-        file.write("DataSet: %s\n" % DataSet)
+        file.write("DataSet: %s\n" % ds)
         file.write("Curator: %s\n" % curator)
