@@ -19,15 +19,15 @@ today = datetime.date.today()
 datestring = today.strftime("%y%m%d")
 
 # open file of new FAFB skids (no paper ids)
-typed_skids = pd.read_csv("../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv", sep='\t') \
+typed_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv", sep='\t') \
     .applymap(str)
 
 # open file of all skids, including paper ids
-all_skids = pd.read_csv("../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t') \
+all_skids = pd.read_csv("../../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t') \
     .applymap(str)
 
 # get mapping of dataset name (in VFB) to id (as index) from FAFB_comparison.tsv
-comparison_table = pd.read_csv("../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t',
+comparison_table = pd.read_csv("../../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t',
                                index_col='Paper_ID').applymap(str)
 comparison_table.index = comparison_table.index.map(str)
 

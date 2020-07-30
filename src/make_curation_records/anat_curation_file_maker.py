@@ -18,12 +18,12 @@ def make_anat_records(site, curator):
     datestring = today.strftime("%y%m%d")
 
     # open file of new FAFB skids
-    new_skids = pd.read_csv("../../VFB_reporting_results/%s_new_skids.tsv" % site, sep='\t')\
+    new_skids = pd.read_csv("../../../VFB_reporting_results/%s_new_skids.tsv" % site, sep='\t')\
         .applymap(str)
     paper_ids = set(list(new_skids['paper_id']))
 
     # get mapping of ds name (in VFB) to id (as index) from FAFB_comparison.tsv
-    comparison_table = pd.read_csv("../../VFB_reporting_results/%s_comparison.tsv" % site,
+    comparison_table = pd.read_csv("../../../VFB_reporting_results/%s_comparison.tsv" % site,
                                    sep='\t', index_col='Paper_ID').applymap(str)
     comparison_table.index = comparison_table.index.map(str)
 
@@ -60,4 +60,4 @@ def make_anat_records(site, curator):
 
 
 if __name__ == "__main__":
-    make_anat_records('L1EM', 'cp390')
+    make_anat_records('FAFB', 'cp390')
