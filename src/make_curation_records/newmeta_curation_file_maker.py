@@ -44,7 +44,6 @@ q = nc.commit_list([query])
 labels = dict_cursor(q)
 labels_df = pd.DataFrame(labels)
 labels_df = labels_df.applymap(lambda x: x.replace('_', ':'))
-labels_df = labels_df.applymap(lambda x: x.replace('\\', ''))
 
 # merge FBbt labels into typed skids dataframe on FBbt ID
 typed_skids = pd.merge(left=typed_skids, right=labels_df,
