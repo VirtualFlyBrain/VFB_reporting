@@ -115,7 +115,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     vfb_skid_list = [int(x) for x in vfb_skid_list]
 
     # filter cat_skids dataframe (df_skids from get_catmaid_papers) to remove rows where skid in VFB
-    new_skids_output = cat_skids[~str(cat_skids['skid']).isin(vfb_skid_list)].sort_values('skid') \
+    new_skids_output = cat_skids[~cat_skids['skid'].str.isin(vfb_skid_list)].sort_values('skid') \
         .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
     new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
 
@@ -126,7 +126,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     vfb_neuron_skid_list = [int(x) for x in vfb_neuron_skid_list]
 
     # output file with skids only annotated as neuron
-    neuron_skids_output = cat_skids[str(cat_skids['skid']).isin(vfb_neuron_skid_list)].sort_values('paper_id') \
+    neuron_skids_output = cat_skids[cat_skids['skid'].str.isin(vfb_neuron_skid_list)].sort_values('paper_id') \
         .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
     neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
 
