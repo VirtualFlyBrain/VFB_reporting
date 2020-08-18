@@ -36,12 +36,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
 
     # Get table of names of catmaid datasets in VFB
-    #pub_query = "MATCH (ds:DataSet) WHERE ds.catmaid_annotation_id IS NOT NULL " \
-    #           "RETURN ds.catmaid_annotation_id as CATMAID_ID, ds.short_form as VFB_name"
-
     pub_query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet) " \
                 "WHERE api.short_form ends with '_catmaid_api' " \
-                "RETURN dsxref.accession as CATMAID_ID, ds.short_form as VFB_name"
+                "RETURN toInteger(dsxref.accession) as CATMAID_ID, ds.short_form as VFB_name"
     q = nc.commit_list([pub_query])
     papers = results_2_dict_list(q)
 
