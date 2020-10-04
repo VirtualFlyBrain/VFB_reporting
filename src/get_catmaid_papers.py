@@ -76,14 +76,15 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
     # populate dataframe one row at a time
     for paper in papers:
         for neuron in paper['neurons']:
-            for skid in neuron['skeleton_ids']:
-                row = OrderedDict()
-                row['skid'] = skid  # could alternatively use neuron id - is in VFB
-                row['name'] = neuron['name']
-                row['paper_id'] = paper['id']
-                row['paper_name'] = paper['name']
-                df_row = pd.DataFrame([row])
-                df_skids = pd.concat([df_skids, df_row])
+            if neuron['type'] == 'neuron':
+                for skid in neuron['skeleton_ids']:
+                    row = OrderedDict()
+                    row['skid'] = skid  # could alternatively use neuron id - is in VFB
+                    row['name'] = neuron['name']
+                    row['paper_id'] = paper['id']
+                    row['paper_name'] = paper['name']
+                    df_row = pd.DataFrame([row])
+                    df_skids = pd.concat([df_skids, df_row])
 
     df_skids = df_skids.sort_values(["paper_name", "skid"])
     # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
