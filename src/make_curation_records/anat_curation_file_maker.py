@@ -11,8 +11,8 @@ def make_anat_records(site, curator):
     Ignores any skids whose catmaid paper ID is not associated with a DataSet in VFB.
     This should not be automatically run every day (makes dated files for curation).
     """
-    if site not in ['L1EM', 'FAFB']:
-        raise KeyError('site must be L1EM or FAFB')
+    if site not in ['L1EM', 'FAFB', 'FANC', 'VNC1']:
+        raise KeyError('site must be L1EM, FAFB, FANC OR VNC1')
     # date for filenames
     today = datetime.date.today()
     datestring = today.strftime("%y%m%d")
@@ -40,6 +40,9 @@ def make_anat_records(site, curator):
         elif site == 'FAFB':
             entity = 'female organism|adult brain'
             template = 'JRC2018Unisex_c'
+        elif site in ['FANC', 'VNC1']:
+            entity = 'female organism|adult ventral nervous system'
+            template = 'JRC2018UnisexVNC_c'
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'],
                                     'is_a': 'neuron',
