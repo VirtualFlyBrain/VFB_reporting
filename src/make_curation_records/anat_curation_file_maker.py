@@ -3,7 +3,7 @@ import datetime
 import numpy
 
 
-def make_anat_records(site, curator):
+def make_anat_records(site, curator, output_filename = './anat'):
     """
     Makes image curation record(s) for new skids in VFB_reporting_results/<site>_new_skids.tsv.
     These should be transferred to curation repo for loading.
@@ -51,7 +51,8 @@ def make_anat_records(site, curator):
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
-        output_filename = './anat_%s_%s' % (ds, datestring)
+        if output_filename = "./anat":
+            output_filename = './anat_%s_%s' % (ds, datestring)
 
         curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
 
@@ -63,4 +64,6 @@ def make_anat_records(site, curator):
 
 
 if __name__ == "__main__":
-    make_anat_records('FAFB', 'cp390')
+    make_anat_records('FAFB', 'travis', './anat_fafb_missing')
+    make_anat_records('L1EM', 'travis', './anat_l1em_missing')
+    make_anat_records('VNC1', 'travis', './anat_vnc1_missing')
