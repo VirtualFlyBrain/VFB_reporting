@@ -55,7 +55,8 @@ def make_anat_records(site, curator, output_filename = './anat'):
 
         if output_filename == "./anat":
             output_filename = './anat_%s_%s' % (ds, datestring)
-
+        else:
+            output_filename += '_%s' % ds
         curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
 
         with open(output_filename + '.yaml', 'w') as file:
