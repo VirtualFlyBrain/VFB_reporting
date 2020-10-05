@@ -17,13 +17,15 @@ def make_anat_records(site, curator, output_filename = './anat'):
     today = datetime.date.today()
     datestring = today.strftime("%y%m%d")
 
+    save_directory = "../VFB_reporting_results/"
+    
     # open file of new skids
-    new_skids = pd.read_csv("../../../VFB_reporting_results/%s_new_skids.tsv" % site, sep='\t')\
+    new_skids = pd.read_csv("%s%s_new_skids.tsv" % (save_directory,site), sep='\t')\
         .applymap(str)
     paper_ids = set(list(new_skids['paper_id']))
 
     # get mapping of ds name (in VFB) to id (as index) from <site>_comparison.tsv
-    comparison_table = pd.read_csv("../../../VFB_reporting_results/%s_comparison.tsv" % site,
+    comparison_table = pd.read_csv("%s%s_comparison.tsv" % (save_directory,site),
                                    sep='\t', index_col='Paper_ID').applymap(str)
     comparison_table.index = comparison_table.index.map(str)
 
@@ -64,6 +66,6 @@ def make_anat_records(site, curator, output_filename = './anat'):
 
 
 if __name__ == "__main__":
-    make_anat_records('FAFB', 'travis', './anat_fafb_missing')
-    make_anat_records('L1EM', 'travis', './anat_l1em_missing')
-    make_anat_records('VNC1', 'travis', './anat_vnc1_missing')
+    make_anat_records('FAFB', 'travis', '../VFB_reporting_results/anat_fafb_missing')
+    make_anat_records('L1EM', 'travis', '../VFB_reporting_results/anat_l1em_missing')
+    make_anat_records('VNC1', 'travis', '../VFB_reporting_results/anat_vnc1_missing')
