@@ -51,7 +51,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
-        if output_filename = "./anat":
+        if output_filename == "./anat":
             output_filename = './anat_%s_%s' % (ds, datestring)
 
         curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
