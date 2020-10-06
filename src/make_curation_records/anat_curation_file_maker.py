@@ -54,12 +54,12 @@ def make_anat_records(site, curator, output_filename = './anat'):
         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
         if output_filename == "./anat":
-            output_filename = './anat_%s_%s' % (ds, datestring)
+            output_filename1 = './anat_%s_%s' % (ds, datestring)
         else:
-            output_filename += '_%s' % ds
-        curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
+            output_filename1 = output_filename + '_' + ds
+        curation_df.to_csv(output_filename1 + '.tsv', sep='\t', index=None)
 
-        with open(output_filename + '.yaml', 'w') as file:
+        with open(output_filename1 + '.yaml', 'w') as file:
             file.write("DataSet: %s\n" % ds)
             file.write("Curator: %s\n" % curator)
             file.write("Imaging_type: TEM\n")
