@@ -22,6 +22,8 @@ script:
   - python ./comparison.py
   - python ./get_catmaid_cellTypes.py
   - python ./get_catmaid_papers.py
+  - rm -vf $TRAVIS_BUILD_DIR/VFB_reporting_results/anat_*.tsv
+  - rm -vf $TRAVIS_BUILD_DIR/VFB_reporting_results/anat_*.yaml
   - python ./make_curation_records/anat_curation_file_maker.py
   
 after_success:
