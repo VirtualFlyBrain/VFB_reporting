@@ -90,7 +90,7 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
     # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_skids
 
-def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaions, name_annotation, report_name):
+def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_annotations, report_name):
     """Gets IDs and names of papers in CATMAID, then skids for the neurons in each paper and returns a dataframe.
     This version collects the official names from annotations that are annotated with one of the name_annotations 
     NB. each skid may feature in multiple papers."""
