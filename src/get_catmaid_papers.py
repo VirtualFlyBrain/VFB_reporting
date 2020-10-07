@@ -117,6 +117,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
     # NAMES
     # pull out official names
     o=0
+    names_list = []
     for name_annotation in name_annotations:
         call_names = {"annotated_with": name_annotation, "with_annotations": False, "annotation_reference": "name"}
         results = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
