@@ -90,9 +90,9 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotaion, report_name):
     # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_skids
 
-def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_annotation, report_name):
+def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaions, name_annotation, report_name):
     """Gets IDs and names of papers in CATMAID, then skids for the neurons in each paper and returns a dataframe.
-    This version collects the official names from annotations that are annotaed with a name_annotation 
+    This version collects the official names from annotations that are annotated with one of the name_annotations 
     NB. each skid may feature in multiple papers."""
 
     # FOR SAVING OUTPUT FILE IF DESIRED
@@ -116,10 +116,14 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
 
     # NAMES
     # pull out official names
-
-    call_names = {"annotated_with": name_annotation, "with_annotations": False, "annotation_reference": "name"}
-    names = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
-                         data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
+    o=0
+    for name_annotation in name_annotations:
+        call_names = {"annotated_with": name_annotation, "with_annotations": False, "annotation_reference": "name"}
+        results = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                         data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()
+        if "entities" in results.keys():
+            names_list[c] = results["entities"]
+            c+=1
 
     # get neuron info for each paper
     call_papers["annotation_reference"] = "id"
@@ -143,10 +147,12 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
                 row['paper_id'] = paper['id']
                 row['paper_name'] = paper['name']
                 for annotation in neuron["annotations"]:
-                  for name in names:
-                    if annotation["id"] == name["id"]:
-                      row['name'] = name["name"]
-                      break
+                  for names in names_list:
+                      for name in names:
+                        if annotation["id"] == name["id"]:
+                          row['synonyms'] = row['name']
+                          row['name'] = name["name"]
+                          break
                 df_row = pd.DataFrame([row])
                 df_skids = pd.concat([df_skids, df_row])
 
@@ -156,5 +162,5 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
 
 if __name__ == '__main__':
     gen_cat_skid_report("https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1EM").to_csv("../VFB_reporting_results/EM_CATMAID_L1_skids.tsv", sep="\t", index=False)
-    gen_cat_skid_report_officialnames("https://fafb.catmaid.virtualflybrain.org", 1, "Published", "neuron name", "FAFB").to_csv("../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep="\t", index=False)
+    gen_cat_skid_report_officialnames("https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"], "FAFB").to_csv("../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep="\t", index=False)
     gen_cat_skid_report("https://vnc1.catmaid.virtualflybrain.org", 1, "publication", "VNC1").to_csv("../VFB_reporting_results/EM_CATMAID_VNC1_skids.tsv", sep="\t", index=False)
