@@ -116,18 +116,15 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
 
     # NAMES
     # pull out official names
-    c=0
     names_list = []
     for name_annotation in name_annotations:
         call_names = {"annotated_with": name_annotation, "with_annotations": False, "annotation_reference": "name"}
         results = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                          data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()
         if "entities" in results.keys():
-            names_list[c] = results["entities"]
-            c+=1
+            names_list.append(results["entities"]);
 
     # get neuron info for each paper
-    call_papers["annotation_reference"] = "id"
     call_papers["with_annotations"] = True
     for paper in papers:
         call_papers["annotated_with"] = paper["id"]
