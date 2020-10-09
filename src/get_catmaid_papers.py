@@ -134,8 +134,8 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
             paper["neurons"] = neurons
         except:
             print("Error handling finding neurons for paper: " + paper["name"])
-            print("Json returned: " + client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
-                              data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json())
+            print("Json returned: " + json.dumps(client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                              data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json(), indent=4))
 
     # empty dataframe for details on each skid
     df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name'])
