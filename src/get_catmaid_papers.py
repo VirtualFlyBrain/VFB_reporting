@@ -123,7 +123,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
         results = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
                          data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()
         if "entities" in results.keys():
-            names_list.append(results["entities"]);
+            names_list.append(results["entities"])
         else:
             print("entities missing from result:")
             print(URL)
@@ -161,7 +161,10 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
                   for names in names_list:
                       for name in names:
                         if annotation["id"] == name["id"]:
-                          row['synonyms'] = row['name']
+                          if row['synonyms'] != null:
+                            row['synonyms'] = row['synonyms'] + '|' + row['name']
+                          else:
+                            row['synonyms'] = row['name']
                           row['name'] = name["name"]
                           break
                 df_row = pd.DataFrame([row])
