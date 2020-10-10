@@ -124,6 +124,11 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
                          data=call_names, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()
         if "entities" in results.keys():
             names_list.append(results["entities"]);
+        else:
+            print("entities missing from result:")
+            print(URL)
+            print(name_annotation)
+            print(json.dumps(results, indent=4))
 
     # get neuron info for each paper
     call_papers["with_annotations"] = True
