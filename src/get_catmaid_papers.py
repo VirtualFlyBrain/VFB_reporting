@@ -127,6 +127,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
 
     # get neuron info for each paper
     call_papers["with_annotations"] = True
+    call_papers["annotation_reference"] = "id"
     for paper in papers:
         call_papers["annotated_with"] = paper["id"]
         try:    
