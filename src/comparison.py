@@ -15,7 +15,7 @@ L1EM = [get_catmaid_papers.gen_cat_paper_report(
 FAFB = [get_catmaid_papers.gen_cat_paper_report(
     "https://fafb.catmaid.virtualflybrain.org", 1, "Published", "FAFB_CAT"),
     get_catmaid_papers.gen_cat_skid_report_officialnames(
-    "https://fafb.catmaid.virtualflybrain.org", 1, "Published", "neuron name", "FAFB_CAT"),
+    "https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"], "FAFB_CAT"),
     "FAFB"]
 
 VNC1 = [get_catmaid_papers.gen_cat_paper_report(
