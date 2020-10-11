@@ -161,7 +161,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
                   for names in names_list:
                       for name in names:
                         if annotation["id"] == name["id"]:
-                          if row['synonyms'] != null:
+                          if 'synonyms' in row.keys():
                             row['synonyms'] = row['synonyms'] + '|' + row['name']
                           else:
                             row['synonyms'] = row['name']
