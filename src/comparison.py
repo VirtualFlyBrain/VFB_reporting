@@ -8,8 +8,8 @@ nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
 
 L1EM = [get_catmaid_papers.gen_cat_paper_report(
     "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT"),
-    get_catmaid_papers.gen_cat_skid_report(
-    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT"),
+    get_catmaid_papers.gen_cat_skid_report_officialnames(
+    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", ["neuron name", "MB nomenclature"], "L1_CAT"),
     "L1EM"]
 
 FAFB = [get_catmaid_papers.gen_cat_paper_report(
@@ -20,8 +20,8 @@ FAFB = [get_catmaid_papers.gen_cat_paper_report(
 
 VNC1 = [get_catmaid_papers.gen_cat_paper_report(
    "https://vnc1.catmaid.virtualflybrain.org", 1, "publication", "VNC1_CAT"),
-   get_catmaid_papers.gen_cat_skid_report(
-   "https://vnc1.catmaid.virtualflybrain.org", 1, "publication", "VNC1_CAT"),
+   get_catmaid_papers.gen_cat_skid_report_officialnames(
+   "https://vnc1.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"], "VNC1_CAT"),
    "VNC1"]
 
 
