@@ -137,8 +137,13 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
         call_papers["annotated_with"] = paper["id"]
         try:    
             neurons = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
-                              data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
-            paper["neurons"] = neurons
+                              data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()
+            if "entities" in neurons.keys():
+                paper["neurons"] = neurons["entities"]
+            else:
+                print(URL)
+                print("Error handling finding neurons for paper: " + paper["name"])
+                print("Json returned: \n" + json.dumps(neurons, indent=4))
         except:
             print(URL)
             print("Error handling finding neurons for paper: " + paper["name"])
@@ -151,25 +156,29 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotaion, name_ann
     # populate dataframe one row at a time
     for paper in papers:
         for neuron in paper['neurons']:
-            for skid in neuron['skeleton_ids']:
-                row = OrderedDict()
-                row['skid'] = skid  # could alternatively use neuron id - is in VFB
-                row['name'] = neuron['name']
-                row['paper_id'] = paper['id']
-                row['paper_name'] = paper['name']
-                for annotation in neuron["annotations"]:
-                  for names in names_list:
-                      for name in names:
-                        if annotation["id"] == name["id"]:
-                          if 'synonyms' in row.keys():
-                            row['synonyms'] = row['synonyms'] + '|' + row['name']
-                          else:
-                            row['synonyms'] = row['name']
-                          row['name'] = name["name"]
-                          break
-                df_row = pd.DataFrame([row])
-                df_skids = pd.concat([df_skids, df_row])
-
+            if 'skeleton_ids' in neuron.keys():
+                for skid in neuron['skeleton_ids']:
+                    row = OrderedDict()
+                    row['skid'] = skid  # could alternatively use neuron id - is in VFB
+                    row['name'] = neuron['name']
+                    row['paper_id'] = paper['id']
+                    row['paper_name'] = paper['name']
+                    for annotation in neuron["annotations"]:
+                      for names in names_list:
+                          for name in names:
+                            if annotation["id"] == name["id"]:
+                              if 'synonyms' in row.keys():
+                                row['synonyms'] = row['synonyms'] + '|' + row['name']
+                              else:
+                                row['synonyms'] = row['name']
+                              row['name'] = name["name"]
+                              break
+                    df_row = pd.DataFrame([row])
+                    df_skids = pd.concat([df_skids, df_row])
+            else:
+                print("skeleton_ids missing from:")
+                print(json.dumps(neuron, indent=4))
+                
     df_skids = df_skids.sort_values(["paper_name", "skid"])
     # df_skids.to_csv(skid_outfile, sep="\t", index=False)  # FOR SAVING OUTPUT FILE IF DESIRED
     return df_skids
