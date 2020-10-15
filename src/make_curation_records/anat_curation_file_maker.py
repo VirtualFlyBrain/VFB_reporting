@@ -46,12 +46,15 @@ def make_anat_records(site, curator, output_filename = './anat'):
             entity = 'female organism|adult ventral nervous system'
             template = 'JRC2018UnisexVNC_c'
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
-                                    'label': single_ds_data['name'] + ' (' + single_ds_data['skid'] + ')',
+                                    'label': single_ds_data['name'],
                                     'is_a': 'neuron',
                                     'part_of': entity})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
-        curation_df['synonyms'] = single_ds_data['synonyms']
+        if 'synonyms' in single_ds_data.keys():
+            curation_df['synonyms'] = single_ds_data['synonyms']
+        if not single_ds_data['skid'] in curation_df['label']:
+            curation_df['label'] = curation_df['label'] + ' (' + single_ds_data['skid'] + ')'
 #         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
         if output_filename == "./anat":
