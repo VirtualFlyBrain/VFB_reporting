@@ -51,7 +51,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
                                     'part_of': entity})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
-        curation_df['synonyms'] = curation_df['synonyms']
+        curation_df['synonyms'] = single_ds_data['synonyms']
 #         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
         if output_filename == "./anat":
