@@ -54,7 +54,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
-            curation_df['label'] = curation_df['label'] + ' (' + single_ds_data['skid'] + ')'
+            curation_df['label'] = curation_df['label'] + ' (skeleton_id:' + single_ds_data['skid'] + ')'
 #         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
         if output_filename == "./anat":
