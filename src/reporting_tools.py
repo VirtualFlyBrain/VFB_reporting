@@ -34,7 +34,7 @@ def gen_dataset_report(server,
 
     po = ''
     if production_only:
-        po = " "
+        po = " WHERE ds.production is true "
     return gen_report(
         server,
         query="MATCH (ds:DataSet) with ds " + po +
@@ -57,7 +57,7 @@ def gen_dataset_report(server,
 def gen_dataset_report_prod(server, report_name):
     return gen_report(
         server,
-        query="MATCH (ds:DataSet) WITH ds "
+        query="MATCH (ds:DataSet) WHERE ds.production = True WITH ds "
               "OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) "
               "WITH ds, p "
               "OPTIONAL MATCH (a:Class)-[:has_reference]->(p) "
