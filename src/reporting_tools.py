@@ -34,7 +34,7 @@ def gen_dataset_report(server,
 
     po = ''
     if production_only:
-        po = " WHERE ds.production is true "
+        po = " WHERE ds.production[0] = true "
     return gen_report(
         server,
         query="MATCH (ds:DataSet) with ds " + po +
@@ -43,7 +43,7 @@ def gen_dataset_report(server,
         "OPTIONAL MATCH (ds)-[:has_license]->(l:License) "
         "WITH ds, p, l "
         "OPTIONAL MATCH (ds)<-[:has_source]-(i:Individual) " +
-        " RETURN ds.short_form, ds.label, ds.production, "
+        " RETURN ds.short_form, ds.label, ds.production[0], "
         "l.label as license,  p.short_form as pub, "
         "count(i) as individuals order by ds.short_form",
         report_name=report_name, column_order=['ds.short_form',
@@ -57,7 +57,7 @@ def gen_dataset_report(server,
 def gen_dataset_report_prod(server, report_name):
     return gen_report(
         server,
-        query="MATCH (ds:DataSet) WHERE ds.production = True WITH ds "
+        query="MATCH (ds:DataSet) WHERE ds.production[0] = true WITH ds "
               "OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) "
               "WITH ds, p "
               "OPTIONAL MATCH (a:Class)-[:has_reference]->(p) "
