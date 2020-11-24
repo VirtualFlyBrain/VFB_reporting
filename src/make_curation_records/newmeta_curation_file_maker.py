@@ -56,12 +56,12 @@ paper_ids = set(list(typed_skids['paper_id']))
 query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
         "<-[:has_source]-(i:Individual)" \
         "-[skid:hasDbXref]->(s:Site) " \
-        "WHERE api.short_form in ['fafb_catmaid_api', 'l1em_catmaid_api'] " \
-        "AND s.short_form in ['catmaid_fafb', 'catmaid_l1em'] " \
+        "WHERE api.short_form ends with '_catmaid_api' " \
+        "AND s.short_form starts with 'catmaid_' " \
         "AND dsxref.accession in %s WITH i, skid " \
         "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
         "RETURN distinct skid.accession AS `skid`, c.short_form AS `FBbt_id`" \
-        % ('[' + ', '.join(paper_ids) + ']')
+        % ('[\'' + '\', \''.join(paper_ids) + '\']')
 
 q = nc.commit_list([query])
 skids_in_paper_vfb = dict_cursor(q)
