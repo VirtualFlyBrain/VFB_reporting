@@ -74,23 +74,45 @@ all_skid_mappings = pd.merge(
     left=typed_skids, right=vfb_skid_classes_df, on=['FBbt_id', 'skid'], how='left')
 new_skid_mappings = all_skid_mappings[all_skid_mappings['VFB'].isnull()]  # rows that not in VFB
 
+# get reference (FBrf or doi) for dataset publications (as dataframe)
+dataset_names = list(set(list(comparison_table['VFB_name']))) # all ds names
+query2 = ("MATCH (ds:DataSet)-[has_reference]->(p:pub) WHERE ds.short_form IN %s "
+         "RETURN ds.short_form, p.DOI, p.FlyBase"
+          % ('[\'' + '\', \''.join(dataset_names) + '\']'))
+
+q2 = nc.commit_list([query2])
+dataset_refs = dict_cursor(q2)
+dataset_ref_df = pd.DataFrame.from_dict(dataset_refs).set_index('ds.short_form')
+
 # get dataset names from vfb
 paper_ids = set(list(new_skid_mappings['paper_id']))
 for i in paper_ids:
     ds = comparison_table['VFB_name'][i]  # dataset name in VFB
     if ds == str(numpy.nan):
         continue  # if no VFB dataset for paper
+    if dataset_ref_df['p.FlyBase'][ds]:
+        ds_ref = 'FlyBase:' + dataset_ref_df['p.FlyBase'][ds]
+    elif dataset_ref_df['p.DOI'][ds]:
+        ds_ref = 'doi:' + dataset_ref_df['p.DOI'][ds]
+    else:
+        ds_ref = ""
 
     single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == i]
     curation_df = pd.DataFrame({'subject_external_db': 'catmaid_fafb',
                                 'subject_external_id': single_ds_data['skid'],
-                                'relation': 'is_a',
+                                'relation': 'is_a', 'pub': ds_ref,
                                 'object': single_ds_data['FBbt_name']})
 
     output_filename = './newmeta_%s_%s' % (ds, datestring)
 
-    curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
+    # drop any rows without a mapping and save file if it has rows
+    curation_df = curation_df[curation_df['object'].notnull()]
+    if len(curation_df.index) > 0:
+        curation_df.to_csv(output_filename + '.tsv', sep='\t', index=None)
 
-    with open(output_filename + '.yaml', 'w') as file:
-        file.write("DataSet: %s\n" % ds)
-        file.write("Curator: %s\n" % curator)
+        with open(output_filename + '.yaml', 'w') as file:
+            file.write("DataSet: %s\n" % ds)
+            file.write("Curator: %s\n" % curator)
+
+    else:
+        continue
