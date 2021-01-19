@@ -43,7 +43,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
             entity = 'female organism|adult brain'
             template = 'JRC2018Unisex_c'
         elif site in ['FANC', 'VNC1']:
-            entity = 'female organism|adult ventral nervous system'
+            entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'],
