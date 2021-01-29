@@ -8,6 +8,7 @@ VFB_server = ('http://pdb.virtualflybrain.org', 'neo4j', 'neo4j')
 
 class VFBContentReport:
     """Class for storing data about the amount of content in VFB."""
+
     def __init__(self, server):
         self.server = server
         self.timestamp = None
@@ -25,6 +26,10 @@ class VFBContentReport:
         self.neuron_projection_bundle_pub_number = None
         self.cell_body_rind_number = None
         self.cell_body_rind_pub_number = None
+        self.all_image_number = None
+        self.all_image_ds_number = None
+        self.split_image_number = None
+        self.split_image_class_number = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -113,44 +118,72 @@ class VFBContentReport:
         self.cell_body_rind_number = cell_body_rinds['regions'][0]
         self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
 
+        # images
+        all_images = gen_report(server=self.server,
+                                query=("MATCH (i:Individual)-[]->(n:DataSet) "
+                                       "WHERE n.production "
+                                       "RETURN count(distinct i) as images, "
+                                       "count(distinct n) as ds"),
+                                report_name='all_images')
+
+        split_images = gen_report(server=self.server,
+                                  query=("MATCH (n:DataSet)<-[]-(i:Split)-"
+                                         "[:INSTANCEOF]->(c:Class) "
+                                         "WHERE n.production "
+                                         "RETURN count(distinct i) as images, "
+                                         "count(distinct c) as split_classes"),
+                                  report_name='split_images')
+
+        self.all_image_number = all_images['images'][0]
+        self.all_image_ds_number = all_images['ds'][0]
+        self.split_image_number = split_images['images'][0]
+        self.split_image_class_number = split_images['split_classes'][0]
 
     def prepare_report(self, filename):
         """Put content data into an output file"""
         f = mdutils.MdUtils(file_name=filename, title='VFB Content Report ' +
                                                       self.timestamp.date().isoformat())
-        f.new_paragraph("Report of content found on ``%s`` as at ``%s``"
+        f.new_paragraph("Report of content found at ``%s`` on ``%s``"
                         % (self.server[0],
                            self.timestamp.strftime("%a, %d %b %Y %H:%M:%S")))
-        # table for ontology content
         f.new_line()
-        table_content = ['Anatomy', 'Classes', 'Publications']
-        table_content.extend(['All Neurons',
-                              str(self.total_neuron_number),
-                              str(self.total_neuron_pub_number)])
-        table_content.extend(['Characterised Neurons',
-                              str(self.characterised_neuron_number),
-                              str(self.characterised_neuron_pub_number)])
-        table_content.extend(['Provisional Neurons',
-                              str(self.provisional_neuron_number),
-                              str(self.provisional_neuron_pub_number)])
-        table_content.extend(['All Regions',
-                              str(self.all_region_number),
-                              str(self.all_region_pub_number)])
-        table_content.extend(['Synaptic Neuropils',
-                              str(self.synaptic_neuropil_number),
-                              str(self.synaptic_neuropil_pub_number)])
-        table_content.extend(['Neuron Projection Bundles',
-                              str(self.neuron_projection_bundle_number),
-                              str(self.neuron_projection_bundle_pub_number)])
-        table_content.extend(['Cell Body Rinds',
-                              str(self.cell_body_rind_number),
-                              str(self.cell_body_rind_pub_number)])
-        print(table_content)
-        f.new_table(columns=3, rows=8, text=table_content, text_align='left')
+        f.new_line("Ontology Content", bold_italics_code='bic')
+        f.new_line()
+        anatomy_table_content = ['Anatomy', 'Classes', 'Publications']
+        anatomy_table_content.extend(['All Neurons',
+                                      str(self.total_neuron_number),
+                                      str(self.total_neuron_pub_number)])
+        anatomy_table_content.extend(['Characterised Neurons',
+                                      str(self.characterised_neuron_number),
+                                      str(self.characterised_neuron_pub_number)])
+        anatomy_table_content.extend(['Provisional Neurons',
+                                      str(self.provisional_neuron_number),
+                                      str(self.provisional_neuron_pub_number)])
+        anatomy_table_content.extend(['All Regions',
+                                      str(self.all_region_number),
+                                      str(self.all_region_pub_number)])
+        anatomy_table_content.extend(['Synaptic Neuropils',
+                                      str(self.synaptic_neuropil_number),
+                                      str(self.synaptic_neuropil_pub_number)])
+        anatomy_table_content.extend(['Neuron Projection Bundles',
+                                      str(self.neuron_projection_bundle_number),
+                                      str(self.neuron_projection_bundle_pub_number)])
+        anatomy_table_content.extend(['Cell Body Rinds',
+                                      str(self.cell_body_rind_number),
+                                      str(self.cell_body_rind_pub_number)])
+        f.new_table(columns=3, rows=8, text=anatomy_table_content, text_align='left')
+
+        f.new_line()
+        f.new_line("Image Content", bold_italics_code='bic')
+        f.new_line()
+        f.new_line('**%s** total images from **%s** datasets'
+                   % (str(self.all_image_number), str(self.all_image_ds_number)))
+        f.new_line('**%s** images of **%s** split combinations'
+                   % (str(self.split_image_number), str(self.split_image_class_number)))
+
         f.create_md_file()
 
 
 report = VFBContentReport(server=VFB_server)
 report.get_info()
 report.prepare_report(filename=output_file)
-
