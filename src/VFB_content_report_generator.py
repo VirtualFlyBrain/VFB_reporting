@@ -28,8 +28,12 @@ class VFBContentReport:
         self.cell_body_rind_pub_number = None
         self.all_image_number = None
         self.all_image_ds_number = None
+        self.single_neuron_image_number = None
+        self.single_neuron_image_type_number = None
+        self.exp_pattern_number = None
+        self.split_exp_pattern_driver_number = None
         self.split_image_number = None
-        self.split_image_class_number = None
+        self.split_image_driver_number = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -126,6 +130,24 @@ class VFBContentReport:
                                        "count(distinct n) as ds"),
                                 report_name='all_images')
 
+        single_neuron_images = gen_report(server=self.server,
+                                          query=("MATCH (n:DataSet)<-[]-"
+                                                 "(i:Individual:Neuron)-"
+                                                 "[:INSTANCEOF]->(c:Class) "
+                                                 "WHERE n.production "
+                                                 "RETURN count(distinct i) as images, "
+                                                 "count(distinct c) as types"),
+                                          report_name='single_neuron_images')
+
+        exp_pattern_images = gen_report(server=self.server,
+                                        query=("MATCH (n:DataSet)<-[]-"
+                                               "(i:Individual:Expression_pattern)-"
+                                               "[:INSTANCEOF]->(c:Class) "
+                                               "WHERE n.production "
+                                               "RETURN count(distinct i) as images, "
+                                               "count(distinct c) as drivers"),
+                                        report_name='exp_pattern_images')
+
         split_images = gen_report(server=self.server,
                                   query=("MATCH (n:DataSet)<-[]-(i:Split)-"
                                          "[:INSTANCEOF]->(c:Class) "
@@ -136,8 +158,12 @@ class VFBContentReport:
 
         self.all_image_number = all_images['images'][0]
         self.all_image_ds_number = all_images['ds'][0]
+        self.single_neuron_image_number = single_neuron_images['images'][0]
+        self.single_neuron_image_type_number = single_neuron_images['types'][0]
+        self.exp_pattern_number = exp_pattern_images['images'][0]
+        self.split_exp_pattern_driver_number = exp_pattern_images['drivers'][0]
         self.split_image_number = split_images['images'][0]
-        self.split_image_class_number = split_images['split_classes'][0]
+        self.split_image_driver_number = split_images['split_classes'][0]
 
     def prepare_report(self, filename):
         """Put content data into an output file"""
@@ -177,9 +203,17 @@ class VFBContentReport:
         f.new_line("Image Content", bold_italics_code='bic')
         f.new_line()
         f.new_line('**%s** total images from **%s** datasets'
-                   % (str(self.all_image_number), str(self.all_image_ds_number)))
-        f.new_line('**%s** images of **%s** split combinations'
-                   % (str(self.split_image_number), str(self.split_image_class_number)))
+                   % (str(self.all_image_number),
+                      str(self.all_image_ds_number)))
+        f.new_line('**%s** single neuron images of **%s** cell types'
+                   % (str(self.single_neuron_image_number),
+                      str(self.single_neuron_image_type_number)))
+        f.new_line('**%s** images of expression patterns of **%s** drivers'
+                   % (str(self.exp_pattern_number),
+                      str(self.split_exp_pattern_driver_number)))
+        f.new_line('**%s** images of expression patterns of **%s** split combinations'
+                   % (str(self.split_image_number),
+                      str(self.split_image_driver_number)))
 
         f.create_md_file()
 
