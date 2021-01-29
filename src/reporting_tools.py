@@ -35,7 +35,7 @@ def gen_dataset_report(server,
     po = ''
     if production_only:
         po = " WHERE ds.production[0] = true "
-    qr = "MATCH (ds:DataSet) with ds " + po +
+    qr = ("MATCH (ds:DataSet) with ds " + po +
         "OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) "
         "WITH ds, p "   
         "OPTIONAL MATCH (ds)-[:has_license]->(l:License) "
@@ -43,7 +43,7 @@ def gen_dataset_report(server,
         "OPTIONAL MATCH (ds)<-[:has_source]-(i:Individual) " +
         " RETURN ds.short_form, ds.label, ds.production[0] as ds.production, "
         "l.label as license,  p.short_form as pub, "
-        "count(i) as individuals order by ds.short_form"
+        "count(i) as individuals order by ds.short_form")
     if 'KB' in server:
         qr = qr.replace("production[0]","production")
     return gen_report(
