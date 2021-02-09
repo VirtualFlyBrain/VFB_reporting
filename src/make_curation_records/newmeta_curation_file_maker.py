@@ -19,16 +19,16 @@ today = datetime.date.today()
 datestring = today.strftime("%y%m%d")
 
 # open file of new FAFB skids (no paper ids)
-typed_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv", sep='\t') \
-    .applymap(str)
+typed_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv",
+                          sep='\t').applymap(str)
 
 # open file of all skids, including paper ids
-all_skids = pd.read_csv("../../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t') \
-    .applymap(str)
+all_skids = pd.read_csv("../../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv",
+                        sep='\t').applymap(str)
 
 # get mapping of dataset name (in VFB) to id (as index) from FAFB_comparison.tsv
-comparison_table = pd.read_csv("../../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t',
-                               index_col='Paper_ID').applymap(str)
+comparison_table = pd.read_csv("../../../VFB_reporting_results/FAFB_comparison.tsv",
+                               sep='\t', index_col='Paper_ID').applymap(str)
 comparison_table.index = comparison_table.index.map(str)
 
 # merge info from all skids into typed skids, remove excess cols
@@ -47,7 +47,8 @@ labels_df = labels_df.applymap(lambda x: x.replace('_', ':'))
 
 # merge FBbt labels into typed skids dataframe on FBbt ID
 typed_skids = pd.merge(left=typed_skids, right=labels_df,
-                       how='left', left_on='annotation_name', right_on='FBbt_id')
+                       how='left', left_on='annotation_name',
+                       right_on='FBbt_id').applymap(str)
 # typed_skids.to_csv("typing.csv", index=None)  # for checking mappings
 
 # drop any annotations that are already in the KB (avoids proliferation of curation files)
