@@ -15,7 +15,9 @@ def gen_report(server, query, report_name, column_order=None):
         report_name: df.name
         column_order: optionally specify column order in df."""
     nc = neo4j_connect(*server)
+    print(query)
     r = nc.commit_list([query])
+    print(r)
     dc = results_2_dict_list(r)
     report = pd.DataFrame.from_records(dc)
     report.replace(np.nan, '', regex=True, inplace=True)
