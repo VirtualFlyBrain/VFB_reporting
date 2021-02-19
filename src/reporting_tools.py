@@ -33,17 +33,17 @@ def gen_dataset_report(server,
                        production_only=False):
 
     qr = "MATCH (ds:DataSet) with ds "
-         "OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) "
-         "WITH ds, p "   
-         "OPTIONAL MATCH (ds)-[:has_license]->(l:License) "
-         "WITH ds, p, l "
-         "OPTIONAL MATCH (ds)<-[:has_source]-(i:Individual) "
-         " RETURN ds.short_form, ds.label, ds.production[0] as ds.production, "
-         "l.label as license,  p.short_form as pub, "
-         "count(i) as individuals order by ds.short_form"
+    "OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) "
+    "WITH ds, p "
+    "OPTIONAL MATCH (ds)-[:has_license]->(l:License) "
+    "WITH ds, p, l "
+    "OPTIONAL MATCH (ds)<-[:has_source]-(i:Individual) "
+    " RETURN ds.short_form, ds.label, ds.production[0] as ds.production, "
+    "l.label as license,  p.short_form as pub, "
+    "count(i) as individuals order by ds.short_form"
     if production_only:
         qr = qr.replace("MATCH (ds:DataSet) with ds ", "MATCH (ds:DataSet) with ds WHERE ds.production[0] = true ")
-    
+
     if 'KB' in server:
         qr = qr.replace("production[0]","production")
     return gen_report(
@@ -66,7 +66,7 @@ def gen_dataset_report_prod(server, report_name):
               "OPTIONAL MATCH (a:Class)-[:has_reference]->(p) "
               "WITH ds, p, count(distinct a) as ontology_terms "
               "OPTIONAL MATCH (:Individual)-[r:overlaps { pub: p.short_form}]->(:Expression_pattern) "
-              "WITH ds, p, ontology_terms, COUNT (distinct r) as exp_cur "         
+              "WITH ds, p, ontology_terms, COUNT (distinct r) as exp_cur "
               "OPTIONAL MATCH (ds)-[:has_license]->(l:License) "
               "WITH ds, p, exp_cur, ontology_terms, l "
               "OPTIONAL MATCH (ds)<-[:has_source]-(i:Individual) "
