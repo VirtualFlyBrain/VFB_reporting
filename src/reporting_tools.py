@@ -45,7 +45,7 @@ def gen_dataset_report(server,
     "count(i) as individuals order by ds.short_form")
     if production_only:
         qr = qr.replace("MATCH (ds:DataSet) with ds ", "MATCH (ds:DataSet) with ds WHERE ds.production[0] = true ")
-    if 'KB' in server or 'kb' in server:
+    if 'KB' in server[0].upper():
         qr = qr.replace("production[0]","production")
     return gen_report(
         server,
