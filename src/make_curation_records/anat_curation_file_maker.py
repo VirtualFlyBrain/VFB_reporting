@@ -39,12 +39,15 @@ def make_anat_records(site, curator, output_filename = './anat'):
         if site == 'L1EM':
             entity = 'embryonic/larval nervous system'
             template = 'L1 larval CNS ssTEM - Cardona/Janelia_c'
+            instance = 'L1EM'
         elif site == 'FAFB':
             entity = 'female organism|adult brain'
             template = 'JRC2018Unisex_c'
+            instance = 'FAFB'
         elif site in ['FANC', 'VNC1']:
             entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
+            instance = 'FANC'
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'],
                                     'is_a': 'neuron',
@@ -54,7 +57,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
-            curation_df['label'] = curation_df['label'] + ' (skeleton_id:' + single_ds_data['skid'] + ')'
+            curation_df['label'] = curation_df['label'] + ' (' + instance + ':' + single_ds_data['skid'] + ')'
 #         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
 
         if output_filename == "./anat":
