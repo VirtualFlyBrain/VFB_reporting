@@ -76,18 +76,20 @@ all_skid_mappings = pd.merge(
 new_skid_mappings = all_skid_mappings[all_skid_mappings['VFB'].isnull()]  # rows that not in VFB
 
 # get reference (FBrf or doi) for dataset publications (as dataframe)
-dataset_names = list(set(list(comparison_table['VFB_name']))) # all ds names
+dataset_names = list(set(list(comparison_table['VFB_name'])))  # all ds names
 query2 = ("MATCH (ds:DataSet)-[has_reference]->(p:pub) WHERE ds.short_form IN %s "
-         "RETURN ds.short_form, p.DOI, p.FlyBase"
+          "RETURN ds.short_form, p.DOI, p.FlyBase"
           % ('[\'' + '\', \''.join(dataset_names) + '\']'))
 
 q2 = nc.commit_list([query2])
 dataset_refs = dict_cursor(q2)
 dataset_ref_df = pd.DataFrame.from_dict(dataset_refs).set_index('ds.short_form')
 
-# get dataset names from vfb
+# make a curation record for each dataset
 paper_ids = set(list(new_skid_mappings['paper_id']))
 for i in paper_ids:
+
+    # get VFB dataset names and references
     ds = comparison_table['VFB_name'][i]  # dataset name in VFB
     if ds == str(numpy.nan):
         continue  # if no VFB dataset for paper
@@ -99,9 +101,12 @@ for i in paper_ids:
         ds_ref = ""
 
     single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == i]
+
+    # build dataframe of info for curation record
+    # no longer adding dataset ref pub for mapping
     curation_df = pd.DataFrame({'subject_external_db': 'catmaid_fafb',
                                 'subject_external_id': single_ds_data['skid'],
-                                'relation': 'is_a', 'pub': ds_ref,
+                                'relation': 'is_a',  # 'pub': ds_ref,
                                 'object': single_ds_data['FBbt_name']})
 
     output_filename = './newmeta_%s_%s' % (ds, datestring)
