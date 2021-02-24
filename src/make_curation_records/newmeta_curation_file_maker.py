@@ -19,16 +19,16 @@ today = datetime.date.today()
 datestring = today.strftime("%y%m%d")
 
 # open file of new FAFB skids (no paper ids)
-typed_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv", sep='\t') \
-    .applymap(str)
+typed_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_CAT_cellType_skids.tsv",
+                          sep='\t').applymap(str)
 
 # open file of all skids, including paper ids
-all_skids = pd.read_csv("../../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv", sep='\t') \
-    .applymap(str)
+all_skids = pd.read_csv("../../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv",
+                        sep='\t').applymap(str)
 
 # get mapping of dataset name (in VFB) to id (as index) from FAFB_comparison.tsv
-comparison_table = pd.read_csv("../../../VFB_reporting_results/FAFB_comparison.tsv", sep='\t',
-                               index_col='Paper_ID').applymap(str)
+comparison_table = pd.read_csv("../../../VFB_reporting_results/FAFB_comparison.tsv",
+                               sep='\t', index_col='Paper_ID').applymap(str)
 comparison_table.index = comparison_table.index.map(str)
 
 # merge info from all skids into typed skids, remove excess cols
@@ -47,7 +47,8 @@ labels_df = labels_df.applymap(lambda x: x.replace('_', ':'))
 
 # merge FBbt labels into typed skids dataframe on FBbt ID
 typed_skids = pd.merge(left=typed_skids, right=labels_df,
-                       how='left', left_on='annotation_name', right_on='FBbt_id')
+                       how='left', left_on='annotation_name',
+                       right_on='FBbt_id').applymap(str)
 # typed_skids.to_csv("typing.csv", index=None)  # for checking mappings
 
 # drop any annotations that are already in the KB (avoids proliferation of curation files)
@@ -75,18 +76,20 @@ all_skid_mappings = pd.merge(
 new_skid_mappings = all_skid_mappings[all_skid_mappings['VFB'].isnull()]  # rows that not in VFB
 
 # get reference (FBrf or doi) for dataset publications (as dataframe)
-dataset_names = list(set(list(comparison_table['VFB_name']))) # all ds names
+dataset_names = list(set(list(comparison_table['VFB_name'])))  # all ds names
 query2 = ("MATCH (ds:DataSet)-[has_reference]->(p:pub) WHERE ds.short_form IN %s "
-         "RETURN ds.short_form, p.DOI, p.FlyBase"
+          "RETURN ds.short_form, p.DOI, p.FlyBase"
           % ('[\'' + '\', \''.join(dataset_names) + '\']'))
 
 q2 = nc.commit_list([query2])
 dataset_refs = dict_cursor(q2)
 dataset_ref_df = pd.DataFrame.from_dict(dataset_refs).set_index('ds.short_form')
 
-# get dataset names from vfb
+# make a curation record for each dataset
 paper_ids = set(list(new_skid_mappings['paper_id']))
 for i in paper_ids:
+
+    # get VFB dataset names and references
     ds = comparison_table['VFB_name'][i]  # dataset name in VFB
     if ds == str(numpy.nan):
         continue  # if no VFB dataset for paper
@@ -98,9 +101,12 @@ for i in paper_ids:
         ds_ref = ""
 
     single_ds_data = new_skid_mappings[new_skid_mappings['paper_id'] == i]
+
+    # build dataframe of info for curation record
+    # no longer adding dataset ref pub for mapping
     curation_df = pd.DataFrame({'subject_external_db': 'catmaid_fafb',
                                 'subject_external_id': single_ds_data['skid'],
-                                'relation': 'is_a', 'pub': ds_ref,
+                                'relation': 'is_a',  # 'pub': ds_ref,
                                 'object': single_ds_data['FBbt_name']})
 
     output_filename = './newmeta_%s_%s' % (ds, datestring)
