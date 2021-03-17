@@ -26,6 +26,9 @@ class VFBContentReport:
         self.neuron_projection_bundle_pub_number = None
         self.cell_body_rind_number = None
         self.cell_body_rind_pub_number = None
+        self.non_isa_relationship_number = None
+        self.isa_relationship_number = None
+        self.all_relationship_number = None
         self.all_image_number = None
         self.all_image_ds_number = None
         self.single_neuron_image_number = None
@@ -122,6 +125,28 @@ class VFBContentReport:
         self.cell_body_rind_number = cell_body_rinds['regions'][0]
         self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
 
+        # relationships in ontology
+        non_isa_relationships = gen_report(server=self.server,
+                                 query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+'"
+                                        " and (r.type = 'Related') return count (distinct r) as total"),
+                                 report_name='non_isa_relationships')
+
+        isa_relationships = gen_report(server=self.server,
+                                 query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
+                                        "and (type(r) = 'SUBCLASSOF') return count (distinct r) as total"),
+                                 report_name='isa_relationships')
+
+        all_relationships = gen_report(server=self.server,
+                                 query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
+                                        "and ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
+                                        "return count (distinct r) as total"),
+                                 report_name='all_relationships')
+
+        self.non_isa_relationship_number = non_isa_relationships['total'][0]
+        self.isa_relationship_number = isa_relationships['total'][0]
+        self.all_relationship_number = all_relationships['total'][0]
+
+
         # images
         all_images = gen_report(server=self.server,
                                 query=("MATCH (i:Individual)-[]->(n:DataSet) "
@@ -198,6 +223,12 @@ class VFBContentReport:
                                       str(self.cell_body_rind_number),
                                       str(self.cell_body_rind_pub_number)])
         f.new_table(columns=3, rows=8, text=anatomy_table_content, text_align='left')
+        f.new_line()
+        f.new_line('**%s** formal assertions, of which **%s** are SubClassOf assertions and **%s** are '
+                   'other relationship types'
+                   % (str(self.all_relationship_number),
+                      str(self.isa_relationship_number),
+                      str(self.non_isa_relationship_number)))
 
         f.new_line()
         f.new_line("Image Content", bold_italics_code='bic')
