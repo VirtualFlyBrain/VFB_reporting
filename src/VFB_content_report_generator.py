@@ -12,6 +12,10 @@ class VFBContentReport:
     def __init__(self, server):
         self.server = server
         self.timestamp = None
+        self.all_terms_number = None
+        self.all_terms_pubs = None
+        self.all_nervous_system_number = None
+        self.all_nervous_system_pubs = None
         self.total_neuron_number = None
         self.total_neuron_pub_number = None
         self.provisional_neuron_number = None
@@ -26,6 +30,8 @@ class VFBContentReport:
         self.neuron_projection_bundle_pub_number = None
         self.cell_body_rind_number = None
         self.cell_body_rind_pub_number = None
+        self.sense_organ_number = None
+        self.sense_organ_pubs = None
         self.non_isa_relationship_number = None
         self.isa_relationship_number = None
         self.all_relationship_number = None
@@ -41,6 +47,30 @@ class VFBContentReport:
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
         self.timestamp = datetime.datetime.now(tz=datetime.timezone.utc)
+
+        # all terms
+        all_terms = gen_report(server=self.server,
+                                        query=("MATCH (c:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                               "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
+                                               "RETURN count(distinct c) as parts, "
+                                               "count (distinct p) as pubs"),
+                                        report_name='all_terms')
+        self.all_terms_number = all_terms['parts'][0]
+        self.all_terms_pubs = all_terms['pubs'][0]
+
+        # total nervous system parts
+        all_nervous_system = gen_report(server=self.server,
+                                 query=("MATCH (c:Class)-[:SUBCLASSOF|:part_of*]"
+                                            "->(b:Class) "
+                                            "WHERE c.short_form =~ 'FBbt.+' "
+                                            "AND b.short_form = 'FBbt_00005093'"
+                                            "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
+                                            "RETURN count(distinct c) as parts, "
+                                            "count (distinct p) as pubs"),
+                                 report_name='all_nervous_system')
+
+        self.all_nervous_system_number = all_nervous_system['parts'][0]
+        self.all_nervous_system_pubs = all_nervous_system['pubs'][0]
 
         # numbers of neurons
         all_neurons = gen_report(server=self.server,
@@ -125,6 +155,21 @@ class VFBContentReport:
         self.cell_body_rind_number = cell_body_rinds['regions'][0]
         self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
 
+
+        # sense organs
+        sense_organs = gen_report(server=self.server,
+                                        query=("MATCH (c:Class)-[:SUBCLASSOF*]"
+                                               "->(b:Class) "
+                                               "WHERE c.short_form =~ 'FBbt.+' "
+                                               "AND b.short_form = 'FBbt_00005155'"
+                                               "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
+                                               "RETURN count(distinct c) as types, "
+                                               "count (distinct p) as pubs"),
+                                        report_name='sense_organs')
+
+        self.sense_organ_number = sense_organs['types'][0]
+        self.sense_organ_pubs = sense_organs['pubs'][0]
+
         # relationships in ontology
         non_isa_relationships = gen_report(server=self.server,
                                  query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+'"
@@ -201,6 +246,12 @@ class VFBContentReport:
         f.new_line("Ontology Content", bold_italics_code='bic')
         f.new_line()
         anatomy_table_content = ['Anatomy', 'Classes', 'Publications']
+        anatomy_table_content.extend(['All Terms',
+                                      str(self.all_terms_number),
+                                      str(self.all_terms_pubs)])
+        anatomy_table_content.extend(['All Nervous System Parts',
+                                      str(self.all_nervous_system_number),
+                                      str(self.all_nervous_system_pubs)])
         anatomy_table_content.extend(['All Neurons',
                                       str(self.total_neuron_number),
                                       str(self.total_neuron_pub_number)])
@@ -210,7 +261,7 @@ class VFBContentReport:
         anatomy_table_content.extend(['Provisional Neurons',
                                       str(self.provisional_neuron_number),
                                       str(self.provisional_neuron_pub_number)])
-        anatomy_table_content.extend(['All Regions',
+        anatomy_table_content.extend(['All Nervous System Regions',
                                       str(self.all_region_number),
                                       str(self.all_region_pub_number)])
         anatomy_table_content.extend(['Synaptic Neuropils',
@@ -222,7 +273,10 @@ class VFBContentReport:
         anatomy_table_content.extend(['Cell Body Rinds',
                                       str(self.cell_body_rind_number),
                                       str(self.cell_body_rind_pub_number)])
-        f.new_table(columns=3, rows=8, text=anatomy_table_content, text_align='left')
+        anatomy_table_content.extend(['Sense Organs',
+                                      str(self.sense_organ_number),
+                                      str(self.sense_organ_pubs)])
+        f.new_table(columns=3, rows=11, text=anatomy_table_content, text_align='left')
         f.new_line()
         f.new_line('**%s** formal assertions, of which **%s** are SubClassOf assertions and **%s** are '
                    'other relationship types'
