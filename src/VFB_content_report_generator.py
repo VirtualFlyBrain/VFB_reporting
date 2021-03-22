@@ -43,6 +43,15 @@ class VFBContentReport:
         self.split_exp_pattern_driver_number = None
         self.split_image_number = None
         self.split_image_driver_number = None
+        self.split_neuron_annotations_split_number = None
+        self.split_neuron_annotations_annotation_number = None
+        self.split_neuron_annotations_neuron_number = None
+        self.driver_anatomy_annotations_EP_number = None
+        self.driver_anatomy_annotations_annotation_number = None
+        self.driver_anatomy_annotations_anatomy_number = None
+        self.driver_neuron_annotations_EP_number = None
+        self.driver_neuron_annotations_annotation_number = None
+        self.driver_neuron_annotations_neuron_number = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -235,6 +244,42 @@ class VFBContentReport:
         self.split_image_number = split_images['images'][0]
         self.split_image_driver_number = split_images['split_classes'][0]
 
+        # annotations
+
+        split_neuron_annotations = gen_report(server=self.server,
+                                query=("MATCH p=(split:Class:Split)<-[r:part_of]-(j:Individual)-"
+                                       "[:INSTANCEOF]->(n:Neuron:Class) WHERE exists(r.pub) "
+                                       "RETURN count(distinct split) AS Splits, count(r) AS "
+                                       "annotations, count(distinct n) as neurons"),
+                                report_name='split_neuron_annotations')
+
+        driver_anatomy_annotations = gen_report(server=self.server,
+                                              query=("MATCH p=(ep:Class:Expression_pattern)<-"
+                                                     "[r:part_of|overlaps]-(j:Individual)-[:INSTANCEOF]->(n:Class) "
+                                                     "WHERE exists(r.pub) "
+                                                     "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
+                                                     "count(distinct n) as anatomy"),
+                                              report_name='driver_anatomy_annotations')
+
+        driver_neuron_annotations = gen_report(server=self.server,
+                                                query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of]-"
+                                                       "(j:Individual)-[:INSTANCEOF]->(n:Neuron:Class) "
+                                                       "WHERE exists(r.pub) "
+                                                       "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
+                                                       "count(distinct n) as neurons"),
+                                                report_name='driver_neuron_annotations')
+
+        self.split_neuron_annotations_split_number = split_neuron_annotations['Splits'][0]
+        self.split_neuron_annotations_annotation_number = split_neuron_annotations['annotations'][0]
+        self.split_neuron_annotations_neuron_number = split_neuron_annotations['neurons'][0]
+        self.driver_anatomy_annotations_EP_number = driver_anatomy_annotations['EPs'][0]
+        self.driver_anatomy_annotations_annotation_number = driver_anatomy_annotations['annotations'][0]
+        self.driver_anatomy_annotations_anatomy_number = driver_anatomy_annotations['anatomy'][0]
+        self.driver_neuron_annotations_EP_number = driver_neuron_annotations['EPs'][0]
+        self.driver_neuron_annotations_annotation_number = driver_neuron_annotations['annotations'][0]
+        self.driver_neuron_annotations_neuron_number = driver_neuron_annotations['neurons'][0]
+
+
     def prepare_report(self, filename):
         """Put content data into an output file"""
         f = mdutils.MdUtils(file_name=filename, title='VFB Content Report ' +
@@ -299,6 +344,25 @@ class VFBContentReport:
         f.new_line('**%s** images of expression patterns of **%s** split combinations'
                    % (str(self.split_image_number),
                       str(self.split_image_driver_number)))
+
+        f.new_line()
+        f.new_line("Annotations", bold_italics_code='bic')
+        f.new_line()
+        f.new_line('**%s** annotations recording **%s** types of neurons that **%s** specific '
+                   'split combinations are expressed in.'
+                   % (str(self.split_neuron_annotations_annotation_number),
+                      str(self.split_neuron_annotations_neuron_number),
+                      str(self.split_neuron_annotations_split_number)))
+        f.new_line('**%s** annotations recording **%s** types of anatomical structures that '
+                   '**%s** specific driver lines are expressed in.'
+                   % (str(self.driver_anatomy_annotations_annotation_number),
+                      str(self.driver_anatomy_annotations_anatomy_number),
+                      str(self.driver_anatomy_annotations_EP_number)))
+        f.new_line('**%s** annotations recording **%s** types of neurons that '
+                   '**%s** specific driver lines are expressed in.'
+                   % (str(self.driver_neuron_annotations_annotation_number),
+                      str(self.driver_neuron_annotations_neuron_number),
+                      str(self.driver_neuron_annotations_EP_number)))
 
         f.create_md_file()
 
