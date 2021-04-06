@@ -59,7 +59,8 @@ class VFBContentReport:
 
         # all terms
         all_terms = gen_report(server=self.server,
-                                        query=("MATCH (c:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                        query=("MATCH (c:Class) "
+                                               "WHERE c.short_form =~ 'FBbt.+' "
                                                "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
                                                "RETURN count(distinct c) as parts, "
                                                "count (distinct p) as pubs"),
@@ -69,10 +70,8 @@ class VFBContentReport:
 
         # total nervous system parts
         all_nervous_system = gen_report(server=self.server,
-                                 query=("MATCH (c:Class)-[:SUBCLASSOF|:part_of*]"
-                                            "->(b:Class) "
-                                            "WHERE c.short_form =~ 'FBbt.+' "
-                                            "AND b.short_form = 'FBbt_00005093'"
+                                 query=("MATCH (c:Nervous_system) "
+                                               "WHERE c.short_form =~ 'FBbt.+' "
                                             "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
                                             "RETURN count(distinct c) as parts, "
                                             "count (distinct p) as pubs"),
