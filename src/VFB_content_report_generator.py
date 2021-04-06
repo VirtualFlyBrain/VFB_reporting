@@ -59,23 +59,23 @@ class VFBContentReport:
 
         # all terms
         all_terms = gen_report(server=self.server,
-                                        query=("MATCH (c:Class) "
-                                               "WHERE c.short_form =~ 'FBbt.+' "
-                                               "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                               "RETURN count(distinct c) as parts, "
-                                               "count (distinct p) as pubs"),
-                                        report_name='all_terms')
+                               query=("MATCH (c:Class) "
+                                      "WHERE c.short_form =~ 'FBbt.+' "
+                                      "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
+                                      "RETURN count(distinct c) as parts, "
+                                      "count (distinct p) as pubs"),
+                               report_name='all_terms')
         self.all_terms_number = all_terms['parts'][0]
         self.all_terms_pubs = all_terms['pubs'][0]
 
         # total nervous system parts
         all_nervous_system = gen_report(server=self.server,
-                                 query=("MATCH (c:Nervous_system) "
+                                        query=("MATCH (c:Nervous_system) "
                                                "WHERE c.short_form =~ 'FBbt.+' "
-                                            "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                            "RETURN count(distinct c) as parts, "
-                                            "count (distinct p) as pubs"),
-                                 report_name='all_nervous_system')
+                                               "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
+                                               "RETURN count(distinct c) as parts, "
+                                               "count (distinct p) as pubs"),
+                                        report_name='all_nervous_system')
 
         self.all_nervous_system_number = all_nervous_system['parts'][0]
         self.all_nervous_system_pubs = all_nervous_system['pubs'][0]
@@ -163,42 +163,40 @@ class VFBContentReport:
         self.cell_body_rind_number = cell_body_rinds['regions'][0]
         self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
 
-
         # sense organs
         sense_organs = gen_report(server=self.server,
-                                        query=("MATCH (c:Class)-[:SUBCLASSOF*]"
-                                               "->(b:Class) "
-                                               "WHERE c.short_form =~ 'FBbt.+' "
-                                               "AND b.short_form = 'FBbt_00005155'"
-                                               "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                               "RETURN count(distinct c) as types, "
-                                               "count (distinct p) as pubs"),
-                                        report_name='sense_organs')
+                                  query=("MATCH (c:Class)-[:SUBCLASSOF*]"
+                                         "->(b:Class) "
+                                         "WHERE c.short_form =~ 'FBbt.+' "
+                                         "AND b.short_form = 'FBbt_00005155'"
+                                         "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
+                                         "RETURN count(distinct c) as types, "
+                                         "count (distinct p) as pubs"),
+                                  report_name='sense_organs')
 
         self.sense_organ_number = sense_organs['types'][0]
         self.sense_organ_pubs = sense_organs['pubs'][0]
 
         # relationships in ontology
         non_isa_relationships = gen_report(server=self.server,
-                                 query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+'"
-                                        " and (r.type = 'Related') return count (distinct r) as total"),
-                                 report_name='non_isa_relationships')
+                                           query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+'"
+                                                  " and (r.type = 'Related') return count (distinct r) as total"),
+                                           report_name='non_isa_relationships')
 
         isa_relationships = gen_report(server=self.server,
-                                 query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
-                                        "and (type(r) = 'SUBCLASSOF') return count (distinct r) as total"),
-                                 report_name='isa_relationships')
+                                       query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
+                                              "and (type(r) = 'SUBCLASSOF') return count (distinct r) as total"),
+                                       report_name='isa_relationships')
 
         all_relationships = gen_report(server=self.server,
-                                 query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
-                                        "and ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
-                                        "return count (distinct r) as total"),
-                                 report_name='all_relationships')
+                                       query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
+                                              "and ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
+                                              "return count (distinct r) as total"),
+                                       report_name='all_relationships')
 
         self.non_isa_relationship_number = non_isa_relationships['total'][0]
         self.isa_relationship_number = isa_relationships['total'][0]
         self.all_relationship_number = all_relationships['total'][0]
-
 
         # images
         all_images = gen_report(server=self.server,
@@ -246,27 +244,27 @@ class VFBContentReport:
         # annotations
 
         split_neuron_annotations = gen_report(server=self.server,
-                                query=("MATCH p=(split:Class:Split)<-[r:part_of]-(j:Individual)-"
-                                       "[:INSTANCEOF]->(n:Neuron:Class) WHERE exists(r.pub) "
-                                       "RETURN count(distinct split) AS Splits, count(r) AS "
-                                       "annotations, count(distinct n) as neurons"),
-                                report_name='split_neuron_annotations')
+                                              query=("MATCH p=(split:Class:Split)<-[r:part_of]-(j:Individual)-"
+                                                     "[:INSTANCEOF]->(n:Neuron:Class) WHERE exists(r.pub) "
+                                                     "RETURN count(distinct split) AS Splits, count(r) AS "
+                                                     "annotations, count(distinct n) as neurons"),
+                                              report_name='split_neuron_annotations')
 
         driver_anatomy_annotations = gen_report(server=self.server,
-                                              query=("MATCH p=(ep:Class:Expression_pattern)<-"
-                                                     "[r:part_of|overlaps]-(j:Individual)-[:INSTANCEOF]->(n:Class) "
-                                                     "WHERE exists(r.pub) "
-                                                     "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
-                                                     "count(distinct n) as anatomy"),
-                                              report_name='driver_anatomy_annotations')
-
-        driver_neuron_annotations = gen_report(server=self.server,
-                                                query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of]-"
-                                                       "(j:Individual)-[:INSTANCEOF]->(n:Neuron:Class) "
+                                                query=("MATCH p=(ep:Class:Expression_pattern)<-"
+                                                       "[r:part_of|overlaps]-(j:Individual)-[:INSTANCEOF]->(n:Class) "
                                                        "WHERE exists(r.pub) "
                                                        "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
-                                                       "count(distinct n) as neurons"),
-                                                report_name='driver_neuron_annotations')
+                                                       "count(distinct n) as anatomy"),
+                                                report_name='driver_anatomy_annotations')
+
+        driver_neuron_annotations = gen_report(server=self.server,
+                                               query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of]-"
+                                                      "(j:Individual)-[:INSTANCEOF]->(n:Neuron:Class) "
+                                                      "WHERE exists(r.pub) "
+                                                      "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
+                                                      "count(distinct n) as neurons"),
+                                               report_name='driver_neuron_annotations')
 
         self.split_neuron_annotations_split_number = split_neuron_annotations['Splits'][0]
         self.split_neuron_annotations_annotation_number = split_neuron_annotations['annotations'][0]
@@ -277,7 +275,6 @@ class VFBContentReport:
         self.driver_neuron_annotations_EP_number = driver_neuron_annotations['EPs'][0]
         self.driver_neuron_annotations_annotation_number = driver_neuron_annotations['annotations'][0]
         self.driver_neuron_annotations_neuron_number = driver_neuron_annotations['neurons'][0]
-
 
     def prepare_report(self, filename):
         """Put content data into an output file"""
