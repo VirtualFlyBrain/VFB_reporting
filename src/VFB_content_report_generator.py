@@ -35,6 +35,9 @@ class VFBContentReport:
         self.non_isa_relationship_number = None
         self.isa_relationship_number = None
         self.all_relationship_number = None
+        self.ns_non_isa_relationship_number = None
+        self.ns_isa_relationship_number = None
+        self.ns_all_relationship_number = None
         self.all_image_number = None
         self.all_image_ds_number = None
         self.single_neuron_image_number = None
@@ -198,6 +201,31 @@ class VFBContentReport:
         self.isa_relationship_number = isa_relationships['total'][0]
         self.all_relationship_number = all_relationships['total'][0]
 
+        # nervous system relationships in ontology
+        ns_non_isa_relationships = gen_report(server=self.server,
+                                              query=(
+                                                  "MATCH (c:Nervous_system)-[r]->(d:Class) "
+                                                  "where c.short_form =~ 'FBbt.+'"
+                                                  " and (r.type = 'Related') return count (distinct r) as total"),
+                                              report_name='non_isa_relationships')
+
+        ns_isa_relationships = gen_report(server=self.server,
+                                          query=(
+                                              "MATCH (c:Nervous_system)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
+                                              "and (type(r) = 'SUBCLASSOF') return count (distinct r) as total"),
+                                          report_name='isa_relationships')
+
+        ns_all_relationships = gen_report(server=self.server,
+                                          query=(
+                                              "MATCH (c:Nervous_system)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
+                                              "and ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
+                                              "return count (distinct r) as total"),
+                                          report_name='all_relationships')
+
+        self.ns_non_isa_relationship_number = ns_non_isa_relationships['total'][0]
+        self.ns_isa_relationship_number = ns_isa_relationships['total'][0]
+        self.ns_all_relationship_number = ns_all_relationships['total'][0]
+
         # images
         all_images = gen_report(server=self.server,
                                 query=("MATCH (i:Individual)-[]->(n:DataSet) "
@@ -324,6 +352,12 @@ class VFBContentReport:
                    % (str(self.all_relationship_number),
                       str(self.isa_relationship_number),
                       str(self.non_isa_relationship_number)))
+        f.new_line()
+        f.new_line('**%s** formal assertions on nervous system components, of which **%s** are SubClassOf '
+                   'assertions and **%s** are other relationship types'
+                   % (str(self.ns_all_relationship_number),
+                      str(self.ns_isa_relationship_number),
+                      str(self.ns_non_isa_relationship_number)))
 
         f.new_line()
         f.new_line("Image Content", bold_italics_code='bic')
