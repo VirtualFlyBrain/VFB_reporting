@@ -55,6 +55,8 @@ class VFBContentReport:
         self.driver_neuron_annotations_EP_number = None
         self.driver_neuron_annotations_annotation_number = None
         self.driver_neuron_annotations_neuron_number = None
+        self.neurons_with_connectivity_neuron_number = None
+        self.neurons_with_connectivity_synapse_number = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -304,6 +306,19 @@ class VFBContentReport:
         self.driver_neuron_annotations_annotation_number = driver_neuron_annotations['annotations'][0]
         self.driver_neuron_annotations_neuron_number = driver_neuron_annotations['neurons'][0]
 
+        # connectivity
+
+        synaptic_connections = gen_report(server=self.server,
+                                               query=("MATCH (i:Individual)-[r:synapsed_to]->(j:Individual) "
+                                                      "WITH collect(r) AS rels, collect(distinct i) AS fu, "
+                                                      "collect(distinct j) AS bar "
+                                                      "RETURN size(apoc.coll.union(fu,bar)) AS inds, "
+                                                      "size(rels) AS connections"),
+                                               report_name='synaptic_connections')
+
+        self.neurons_with_connectivity_neuron_number = synaptic_connections['inds'][0]
+        self.neurons_with_connectivity_synapse_number = synaptic_connections['connections'][0]
+
     def prepare_report(self, filename):
         """Put content data into an output file"""
         f = mdutils.MdUtils(file_name=filename, title='VFB Content Report ' +
@@ -393,6 +408,13 @@ class VFBContentReport:
                    % (str(self.driver_neuron_annotations_annotation_number),
                       str(self.driver_neuron_annotations_neuron_number),
                       str(self.driver_neuron_annotations_EP_number)))
+
+        f.new_line()
+        f.new_line("Connectivity", bold_italics_code='bic')
+        f.new_line()
+        f.new_line('**%s** synaptic connections between **%s** neurons.'
+                   % (str(self.neurons_with_connectivity_synapse_number),
+                      str(self.neurons_with_connectivity_neuron_number)))
 
         f.create_md_file()
 
