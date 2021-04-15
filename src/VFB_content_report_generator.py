@@ -55,8 +55,17 @@ class VFBContentReport:
         self.driver_neuron_annotations_EP_number = None
         self.driver_neuron_annotations_annotation_number = None
         self.driver_neuron_annotations_neuron_number = None
-        self.neurons_with_connectivity_neuron_number = None
-        self.neurons_with_connectivity_synapse_number = None
+        self.neuron_connections_neuron_number = None
+        self.neuron_connections_connection_number = None
+        self.region_connections_neuron_number = None
+        self.region_connections_region_number = None
+        self.region_connections_connection_number = None
+        self.muscle_connections_neuron_number = None
+        self.muscle_connections_muscle_number = None
+        self.muscle_connections_connection_number = None
+        self.sensory_connections_neuron_number = None
+        self.sensory_connections_sense_organ_number = None
+        self.sensory_connections_connection_number = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -308,16 +317,59 @@ class VFBContentReport:
 
         # connectivity
 
-        synaptic_connections = gen_report(server=self.server,
-                                               query=("MATCH (i:Individual)-[r:synapsed_to]->(j:Individual) "
-                                                      "WITH collect(r) AS rels, collect(distinct i) AS fu, "
-                                                      "collect(distinct j) AS bar "
-                                                      "RETURN size(apoc.coll.union(fu,bar)) AS inds, "
+        neuron_connections = gen_report(server=self.server,
+                                               query=("MATCH (i:Individual:Neuron)-[r:synapsed_to]->"
+                                                      "(j:Individual:Neuron) "
+                                                      "WITH collect(r) AS rels, collect(distinct i) AS ci, "
+                                                      "collect(distinct j) AS cj "
+                                                      "RETURN size(apoc.coll.union(ci,cj)) AS neurons, "
                                                       "size(rels) AS connections"),
                                                report_name='synaptic_connections')
 
-        self.neurons_with_connectivity_neuron_number = synaptic_connections['inds'][0]
-        self.neurons_with_connectivity_synapse_number = synaptic_connections['connections'][0]
+        self.neuron_connections_neuron_number = neuron_connections['neurons'][0]
+        self.neuron_connections_connection_number = neuron_connections['connections'][0]
+
+        region_connections = gen_report(server=self.server,
+                                        query=("MATCH (n:Individual:Neuron)-"
+                                               "[r:has_presynaptic_terminals_in|:has_postsynaptic_terminal_in]"
+                                               "->(m:Individual) "
+                                               "RETURN count(distinct n) AS neurons, count(distinct m) AS regions, "
+                                               "count(distinct r) AS connections"),
+                                        report_name='synaptic_connections')
+
+        self.region_connections_neuron_number = region_connections['neurons'][0]
+        self.region_connections_region_number = region_connections['regions'][0]
+        self.region_connections_connection_number = region_connections['connections'][0]
+
+        muscle_connections = gen_report(server=self.server,
+                                               query=("MATCH (n:Neuron)-[r:synapsed_to|"
+                                                      ":synapsed_via_type_Is_bouton_to|"
+                                                      ":synapsed_via_type_Ib_bouton_to|"
+                                                      ":synapsed_via_type_II_bouton_to|"
+                                                      ":synapsed_via_type_III_bouton_to]->(m:Muscle) "
+                                                      "WITH n, r, m OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
+                                                      "WITH collect(r) AS rels, collect(distinct n) AS cn, "
+                                                      "collect(distinct n2) AS cn2, collect(distinct m) AS cm "
+                                                      "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
+                                                      "size(cm) AS muscles, size(rels) AS connections"),
+                                               report_name='muscle_connections')
+
+        self.muscle_connections_neuron_number = muscle_connections['neurons'][0]
+        self.muscle_connections_muscle_number = muscle_connections['muscles'][0]
+        self.muscle_connections_connection_number = muscle_connections['connections'][0]
+
+        sensory_connections = gen_report(server=self.server,
+                                        query=("MATCH (n:Neuron)-[r:has_sensory_dendrite_in]->(s:Sense_organ) "
+                                               "WITH n, r, s OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
+                                               "WITH collect(r) AS rels, collect(distinct n) AS cn, "
+                                               "collect(distinct n2) AS cn2, collect(distinct s) AS cs "
+                                               "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
+                                               "size(cs) AS sense_organs, size(rels) AS connections"),
+                                        report_name='sensory_connections')
+
+        self.sensory_connections_neuron_number = sensory_connections['neurons'][0]
+        self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
+        self.sensory_connections_connection_number = sensory_connections['connections'][0]
 
     def prepare_report(self, filename):
         """Put content data into an output file"""
@@ -411,10 +463,25 @@ class VFBContentReport:
 
         f.new_line()
         f.new_line("Connectivity", bold_italics_code='bic')
+
         f.new_line()
-        f.new_line('**%s** synaptic connections between **%s** neurons.'
-                   % (str(self.neurons_with_connectivity_synapse_number),
-                      str(self.neurons_with_connectivity_neuron_number)))
+        connectivity_table_content = ['Neuron', 'Number of Neurons', 'Input/Output Entity',
+                                      'Number of Entities', 'Connections']
+        connectivity_table_content.extend(['Any neuron (individuals)', str(self.neuron_connections_neuron_number),
+                                           'Any neuron (individuals)', str(self.neuron_connections_neuron_number),
+                                           str(self.neuron_connections_connection_number)])
+        connectivity_table_content.extend(['Any neuron (individuals)', str(self.region_connections_neuron_number),
+                                           'Region (individuals)', str(self.region_connections_region_number),
+                                           str(self.region_connections_connection_number)])
+        connectivity_table_content.extend(['Any neuron (classes)', str(self.muscle_connections_neuron_number),
+                                           'Muscle (classes)', str(self.muscle_connections_muscle_number),
+                                           str(self.muscle_connections_connection_number)])
+        connectivity_table_content.extend(['Any neuron (classes)', str(self.sensory_connections_neuron_number),
+                                           'Sense organ (classes)', str(self.sensory_connections_sense_organ_number),
+                                           str(self.sensory_connections_connection_number)])
+
+        f.new_table(columns=5, rows=5, text=connectivity_table_content, text_align='left')
+        f.new_line()
 
         f.create_md_file()
 
