@@ -22,7 +22,7 @@ def multi_annotation_report_gen(source):
     multi_annotated_inds['Skid'] = multi_annotated_inds['Individual_label'].\
         map(lambda x: re.search(comp_pattern, x).group(1))
     multi_annotated_inds = multi_annotated_inds[[
-        'Individual_id', 'Individual_label', 'Skid', 'FBbt_ids', 'FBbt_labels']]
+        'Individual_id', 'Individual_label', 'External_id', 'FBbt_ids', 'FBbt_labels']]
 
     multi_annotated_inds.to_csv(output_file, sep='\t', index=None)
 
