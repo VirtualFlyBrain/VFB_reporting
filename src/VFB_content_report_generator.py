@@ -348,7 +348,7 @@ class VFBContentReport:
                                                       ":synapsed_via_type_II_bouton_to|"
                                                       ":synapsed_via_type_III_bouton_to]->(m:Muscle) "
                                                       "WITH n, r, m OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
-                                                      "WITH collect(r) AS rels, collect(distinct n) AS cn, "
+                                                      "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
                                                       "collect(distinct n2) AS cn2, collect(distinct m) AS cm "
                                                       "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
                                                       "size(cm) AS muscles, size(rels) AS connections"),
