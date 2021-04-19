@@ -318,13 +318,13 @@ class VFBContentReport:
         # connectivity
 
         neuron_connections = gen_report(server=self.server,
-                                               query=("MATCH (i:Individual:Neuron)-[r:synapsed_to]->"
-                                                      "(j:Individual:Neuron) "
-                                                      "WITH collect(r) AS rels, collect(distinct i) AS ci, "
-                                                      "collect(distinct j) AS cj "
-                                                      "RETURN size(apoc.coll.union(ci,cj)) AS neurons, "
-                                                      "size(rels) AS connections"),
-                                               report_name='synaptic_connections')
+                                        query=("MATCH (i:Individual:Neuron)-[r:synapsed_to]->"
+                                               "(j:Individual:Neuron) "
+                                               "WITH collect(r) AS rels, collect(distinct i) AS ci, "
+                                               "collect(distinct j) AS cj "
+                                               "RETURN size(apoc.coll.union(ci,cj)) AS neurons, "
+                                               "size(rels) AS connections"),
+                                        report_name='synaptic_connections')
 
         self.neuron_connections_neuron_number = neuron_connections['neurons'][0]
         self.neuron_connections_connection_number = neuron_connections['connections'][0]
@@ -342,30 +342,30 @@ class VFBContentReport:
         self.region_connections_connection_number = region_connections['connections'][0]
 
         muscle_connections = gen_report(server=self.server,
-                                               query=("MATCH (n:Neuron)-[r:synapsed_to|"
-                                                      ":synapsed_via_type_Is_bouton_to|"
-                                                      ":synapsed_via_type_Ib_bouton_to|"
-                                                      ":synapsed_via_type_II_bouton_to|"
-                                                      ":synapsed_via_type_III_bouton_to]->(m:Muscle) "
-                                                      "WITH n, r, m OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
-                                                      "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
-                                                      "collect(distinct n2) AS cn2, collect(distinct m) AS cm "
-                                                      "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
-                                                      "size(cm) AS muscles, size(rels) AS connections"),
-                                               report_name='muscle_connections')
+                                        query=("MATCH (n:Neuron)-[r:synapsed_to|"
+                                               ":synapsed_via_type_Is_bouton_to|"
+                                               ":synapsed_via_type_Ib_bouton_to|"
+                                               ":synapsed_via_type_II_bouton_to|"
+                                               ":synapsed_via_type_III_bouton_to]->(m:Muscle) "
+                                               "WITH n, r, m OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
+                                               "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
+                                               "collect(distinct n2) AS cn2, collect(distinct m) AS cm "
+                                               "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
+                                               "size(cm) AS muscles, size(rels) AS connections"),
+                                        report_name='muscle_connections')
 
         self.muscle_connections_neuron_number = muscle_connections['neurons'][0]
         self.muscle_connections_muscle_number = muscle_connections['muscles'][0]
         self.muscle_connections_connection_number = muscle_connections['connections'][0]
 
         sensory_connections = gen_report(server=self.server,
-                                        query=("MATCH (n:Neuron)-[r:has_sensory_dendrite_in]->(s:Sense_organ) "
-                                               "WITH n, r, s OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
-                                               "WITH collect(r) AS rels, collect(distinct n) AS cn, "
-                                               "collect(distinct n2) AS cn2, collect(distinct s) AS cs "
-                                               "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
-                                               "size(cs) AS sense_organs, size(rels) AS connections"),
-                                        report_name='sensory_connections')
+                                         query=("MATCH (n:Neuron)-[r:has_sensory_dendrite_in]->(s:Sense_organ) "
+                                                "WITH n, r, s OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
+                                                "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
+                                                "collect(distinct n2) AS cn2, collect(distinct s) AS cs "
+                                                "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
+                                                "size(cs) AS sense_organs, size(rels) AS connections"),
+                                         report_name='sensory_connections')
 
         self.sensory_connections_neuron_number = sensory_connections['neurons'][0]
         self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
