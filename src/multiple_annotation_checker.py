@@ -19,7 +19,7 @@ def multi_annotation_report_gen(source):
     # add column with skid
     pattern = '%s:([0-9]+)' % source
     comp_pattern = re.compile(pattern)
-    multi_annotated_inds['Skid'] = multi_annotated_inds['Individual_label'].\
+    multi_annotated_inds['External_id'] = multi_annotated_inds['Individual_label'].\
         map(lambda x: re.search(comp_pattern, x).group(1))
     multi_annotated_inds = multi_annotated_inds[[
         'Individual_id', 'Individual_label', 'External_id', 'FBbt_ids', 'FBbt_labels']]
