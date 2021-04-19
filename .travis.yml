@@ -26,7 +26,7 @@ script:
   - rm -vf $TRAVIS_BUILD_DIR/VFB_reporting_results/anat_*.yaml
   - python ./make_curation_records/anat_curation_file_maker.py
   - python ./VFB_content_report_generator.py
-
+  
 after_success:
   - cd $TRAVIS_BUILD_DIR/VFB_reporting_results
   - ls -lh *.tsv
