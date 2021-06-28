@@ -6,11 +6,14 @@ nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
 
 # variables for generating reports
 
-L1EM = [get_catmaid_papers.gen_cat_paper_report(
-    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", "L1_CAT"),
+# dict of sources and project IDs for larval datasets
+larval_sources = {'l1em': 1, 'abd1.5': 1, 'iav-robo': 1, 'iav-tnt': 2}
+# 'l3vnc' to add (project ID = 2), but currently no annotations (2021/06/28)
+larval_reports = [[get_catmaid_papers.gen_cat_paper_report(
+    "https://" + s + ".catmaid.virtualflybrain.org", larval_sources[s], "papers", s.upper() + "_CAT"),
     get_catmaid_papers.gen_cat_skid_report_officialnames(
-    "https://l1em.catmaid.virtualflybrain.org", 1, "papers", ["neuron name", "MB nomenclature"], "L1_CAT"),
-    "L1EM"]
+    "https://" + s + ".catmaid.virtualflybrain.org", larval_sources[s], "papers", ["neuron name", "MB nomenclature"],
+    s.upper() + "_CAT"), s.upper()] for s in larval_sources.keys()]
 
 FAFB = [get_catmaid_papers.gen_cat_paper_report(
     "https://fafb.catmaid.virtualflybrain.org", 1, "Published", "FAFB_CAT"),
@@ -134,7 +137,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     print("See " + comparison_outfile + " for differences in numbers of SKIDs")
     print("See " + skids_outfile + " for new SKIDs that are not yet in VFB")
 
-
-make_catmaid_vfb_reports(*L1EM)
+for l in larval_reports:
+    make_catmaid_vfb_reports(*l)
 make_catmaid_vfb_reports(*FAFB)
 make_catmaid_vfb_reports(*VNC1)
