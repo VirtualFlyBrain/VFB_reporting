@@ -7,7 +7,7 @@ nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
 # variables for generating reports
 
 # dict of sources and project IDs for larval datasets
-larval_sources = {'l1em': 1, 'abd1.5': 1, 'iav-robo': 1, 'iav-tnt': 2}
+larval_sources = {'l1em': 1, 'abd1.5': 1, 'iav-robo': 1, 'iav-tnt': 2, 'l3vnc': 2}
 # 'l3vnc' to add (project ID = 2), but currently no annotations (2021/06/28)
 larval_reports = [[get_catmaid_papers.gen_cat_paper_report(
     "https://" + s + ".catmaid.virtualflybrain.org", larval_sources[s], "papers"),
