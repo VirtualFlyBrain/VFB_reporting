@@ -25,7 +25,7 @@ typed_skids = pd.read_csv("../../../Management/FAFB/FAFB_skid_FBbt.tsv",
                           sep='\t').dropna().applymap(str)
 
 # open file of all skids, including paper ids
-all_skids = pd.read_csv("../../../VFB_reporting_results/EM_CATMAID_FAFB_skids.tsv",
+all_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_all_skids_officialnames.tsv",
                         sep='\t').applymap(str)
 
 # get mapping of dataset name (in VFB) to id (as index) from FAFB_comparison.tsv
