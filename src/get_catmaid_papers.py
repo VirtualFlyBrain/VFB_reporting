@@ -10,7 +10,7 @@ from collections import OrderedDict
 def gen_cat_paper_report(URL, PROJECT_ID, paper_annotation, report=False):
     """Gets IDs and names of papers in CATMAID and returns a dataframe."""
 
-    print("Getting Papers from %s..." % URL)
+    print("Getting Papers from %s ..." % URL)
     
     # get token
     client = requests.session()
