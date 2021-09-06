@@ -9,7 +9,7 @@ pdb_report = gen_dataset_report_prod(["http://pdb.virtualflybrain.org", "neo4j",
 save_report(pdb_report, "../VFB_reporting_results/pdb_report.tsv")
 
 try:
-  pipeline_output_report = gen_dataset_report_prod(["http://pdb.p2.virtualflybrain.org", "neo4j", "neo4j"], 'staging')
+  pipeline_output_report = gen_dataset_report_prod(["http://pdb.p2.virtualflybrain.org", "neo4j", "neo4j"], 'pipeline_output')
   save_report(pipeline_output_report, "../VFB_reporting_results/pipeline_output_report.tsv")
   pipeline_output_diff = diff_report(pdb_report, pipeline_output_report)
   save_report(pipeline_output_diff.pipeline_output_not_pdb, '../VFB_reporting_results/pipeline_output_diff.tsv')
