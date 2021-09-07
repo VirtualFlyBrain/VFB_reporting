@@ -65,7 +65,7 @@ def gen_dataset_report_prod(server, report_name):
                "WITH ds, p "
                "OPTIONAL MATCH (a:Class)-[:has_reference]->(p) "
                "WITH ds, p, count(distinct a) as ontology_terms "
-               "OPTIONAL MATCH (:Individual)-[r:overlaps { pub: p.short_form}]->(:Expression_pattern) "
+               "OPTIONAL MATCH (:Individual)-[r:overlaps|part_of { pub: p.short_form}]->(:Expression_pattern) "
                "WITH ds, p, ontology_terms, COUNT (distinct r) as exp_cur "
                "OPTIONAL MATCH (ds)-[]->(l:License) "
                "WITH ds, p, exp_cur, ontology_terms, l "
