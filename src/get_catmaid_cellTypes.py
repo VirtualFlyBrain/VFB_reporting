@@ -4,8 +4,8 @@ from collections import OrderedDict
 
 def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
 
-    dataset_outfile = "../VFB_reporting_results/" + report_name + "_cellTypes.tsv"
-    skid_outfile = "../VFB_reporting_results/" + report_name + "_cellType_skids.tsv"
+    dataset_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + report_name + "_cellTypes.tsv"
+    skid_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + report_name + "_cellType_skids.tsv"
     
     # get token
 
@@ -60,5 +60,4 @@ def gen_cat_report(URL, PROJECT_ID, celltype_annotaion, report_name):
     df_skids.to_csv(skid_outfile, sep="\t", index=False)
 
 if __name__ == '__main__':    
-    # gen_cat_report("https://l1em.catmaid.virtualflybrain.org",1,"?","L1_CAT")
     gen_cat_report("https://fafb.catmaid.virtualflybrain.org",1,"11078097","FAFB_CAT")
