@@ -189,6 +189,8 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
     if report:
         skid_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + report + "_all_skids_officialnames.tsv"
         df_skids.to_csv(skid_outfile, sep="\t", index=False)
+    else:
+        print("ERROR: No report created for " + report)
     return df_skids
 
 
