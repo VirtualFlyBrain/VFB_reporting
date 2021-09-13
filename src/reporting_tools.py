@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from uk.ac.ebi.vfb.neo4j.neo4j_tools import neo4j_connect, results_2_dict_list
-from collections import namedtuple
 import pandas as pd
 import numpy as np
 
@@ -85,14 +84,24 @@ def gen_dataset_report_prod(server, report_name):
 
 def diff_report(report1: pd.DataFrame, report2: pd.DataFrame):
     """Compare two dataframes. Each dataframe must have a .name attribute.
-    Returns a """
-    ## see Stack Overflow 36891977
+    Returns a dataframe of rows where there is a difference between the two servers."""
     merged = report1.merge(report2, indicator=True, how='outer')
-    left_only = merged[merged['_merge'] == 'left_only']
-    right_only = merged[merged['_merge'] == 'right_only']
-    out = {report1.name + '_not_' + report2.name: left_only.drop(columns=['_merge']),
-           report2.name + '_not_' + report1.name: right_only.drop(columns=['_merge'])}
-    return namedtuple('out', out.keys())(*out.values())
+    merged = merged[merged['_merge'] != 'both']
+    merged['server'] = merged['_merge'].map({'left_only': report1.name, 'right_only': report2.name})
+    merged.drop('_merge', axis=1, inplace=True)
+    merged = merged[[list(merged.columns.values)[0], 'server'] + list(merged.columns.values)[1:-1]]  # column order
+    merged.sort_values(['ds.short_form', 'server'], inplace=True)
+    return merged
+
+
+"""
+## see Stack Overflow 36891977
+left_only = merged[merged['_merge'] == 'left_only']
+right_only = merged[merged['_merge'] == 'right_only']
+out = {report1.name + '_not_' + report2.name: left_only.drop(columns=['_merge']),
+       report2.name + '_not_' + report1.name: right_only.drop(columns=['_merge'])}
+return namedtuple('out', out.keys())(*out.values())
+"""
 
 
 def save_report(report, filename):
