@@ -12,7 +12,7 @@ try:
   pipeline_output_report = gen_dataset_report_prod(["http://pdb.p2.virtualflybrain.org", "neo4j", "neo4j"], 'pipeline_output')
   save_report(pipeline_output_report, "../VFB_reporting_results/pipeline_output_report.tsv")
   pipeline_output_diff = diff_report(pdb_report, pipeline_output_report)
-  save_report(pipeline_output_diff.pipeline_output_not_pdb, '../VFB_reporting_results/pipeline_output_diff.tsv')
+  save_report(pipeline_output_diff, '../VFB_reporting_results/pdb_pipeline_output_diff.tsv')
 except:
   print("An exception occurred running pipeline output report!")
 
@@ -20,7 +20,7 @@ try:
   staging_report = gen_dataset_report_prod(["http://pdb-alpha.virtualflybrain.org", "neo4j", "neo4j"], 'staging')
   save_report(staging_report, "../VFB_reporting_results/staging_report.tsv")
   staging_diff = diff_report(pdb_report, staging_report)
-  save_report(staging_diff.staging_not_pdb, '../VFB_reporting_results/staging_diff.tsv')
+  save_report(staging_diff, '../VFB_reporting_results/pdb_staging_diff.tsv')
 except:
   print("An exception occurred running staging report!")
 
@@ -28,7 +28,7 @@ try:
   dev_report = gen_dataset_report_prod(["http://pdb-dev.virtualflybrain.org", "neo4j", "neo4j"], 'dev')
   save_report(dev_report, "../VFB_reporting_results/dev_report.tsv")
   dev_diff = diff_report(pdb_report, dev_report)
-  save_report(dev_diff.dev_not_pdb, '../VFB_reporting_results/dev_diff.tsv')
+  save_report(dev_diff, '../VFB_reporting_results/pdb_dev_diff.tsv')
 except:
   print("An exception occurred running dev report!")
   
