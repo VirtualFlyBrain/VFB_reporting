@@ -32,7 +32,7 @@ def gen_cat_paper_report(URL, PROJECT_ID, paper_annotation, report=False):
     df_papers = df_papers.drop("type", axis=1)
     df_papers = df_papers.sort_values("name")
     if report:
-        dataset_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + URL + "_datasets.tsv"
+        dataset_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + URL.replace("https://","").replace(".catmaid.virtualflybrain.org", "") + "_datasets.tsv"
         df_papers.to_csv(dataset_outfile, sep="\t")
 
     return df_papers
@@ -91,7 +91,7 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotation, report=False):
     df_skids = df_skids.sort_values(["paper_name", "skid"])
 
     if report:
-        skid_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + URL + "_all_skids.tsv"
+        skid_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + URL.replace("https://","").replace(".catmaid.virtualflybrain.org", "") + "_all_skids.tsv"
         df_skids.to_csv(skid_outfile, sep="\t", index=False)
     return df_skids
 
@@ -187,7 +187,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
 
     df_skids = df_skids.sort_values(["paper_name", "skid"])
     if report:
-        skid_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + URL + "_all_skids_officialnames.tsv"
+        skid_outfile = "../VFB_reporting_results/CATMAID_SKID_reports/" + URL.replace("https://","").replace(".catmaid.virtualflybrain.org", "") + "_all_skids_officialnames.tsv"
         df_skids.to_csv(skid_outfile, sep="\t", index=False)
     else:
         print("ERROR: No report created for " + URL)
