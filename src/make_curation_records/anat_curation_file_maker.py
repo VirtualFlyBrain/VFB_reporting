@@ -17,7 +17,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
     today = datetime.date.today()
     datestring = today.strftime("%y%m%d")
 
-    save_directory = "../VFB_reporting_results/"
+    save_directory = "../VFB_reporting_results/CATMAID_SKID_reports/"
     
     # open file of new skids
     new_skids = pd.read_csv("%s%s_new_skids.tsv" % (save_directory,site), sep='\t')\
