@@ -2,11 +2,20 @@ from reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_
 
 
 kb_report = gen_dataset_report(["http://kb.virtualflybrain.org", "neo4j", "neo4j"], 'kb')
-
 save_report(kb_report, "../VFB_reporting_results/kb_report.tsv")
 
 pdb_report = gen_dataset_report_prod(["http://pdb.virtualflybrain.org", "neo4j", "neo4j"], 'pdb')
 save_report(pdb_report, "../VFB_reporting_results/pdb_report.tsv")
+
+
+try:
+  kb2_report = gen_dataset_report(["http://kb2.virtualflybrain.org", "neo4j", "neo4j"], 'kb2')
+  save_report(kb2_report, "../VFB_reporting_results/kb2_report.tsv")
+  kb2_diff = diff_report(kb_report, kb2_report)
+  save_report(kb2_diff, '../VFB_reporting_results/kb_kb2_diff.tsv')
+except:
+  print("An exception occurred running kb2 report!")
+
 
 try:
   pipeline_output_report = gen_dataset_report_prod(["http://pdb.p2.virtualflybrain.org", "neo4j", "neo4j"], 'pipeline_output')
