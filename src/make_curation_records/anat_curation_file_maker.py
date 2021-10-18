@@ -3,7 +3,7 @@ import datetime
 import numpy
 
 
-def make_anat_records(site, curator, output_filename = './anat'):
+def make_anat_records(site, curator, output_filename='./anat'):
     """
     Makes image curation record(s) for new skids in VFB_reporting_results/<site>_new_skids.tsv.
     These should be transferred to curation repo for loading.
@@ -11,8 +11,8 @@ def make_anat_records(site, curator, output_filename = './anat'):
     Ignores any skids whose catmaid paper ID is not associated with a DataSet in VFB.
     This should not be automatically run every day (makes dated files for curation).
     """
-    if site not in ['L1EM', 'FAFB', 'FANC', 'VNC1']:
-        raise KeyError('site must be L1EM, FAFB, FANC OR VNC1')
+    if site not in ['L1EM', 'FAFB', 'FANC1', 'FANC2', 'VNC1']:
+        raise KeyError('site must be L1EM, FAFB, FANC1 OR FANC2')
     # date for filenames
     today = datetime.date.today()
     datestring = today.strftime("%y%m%d")
@@ -44,7 +44,7 @@ def make_anat_records(site, curator, output_filename = './anat'):
             entity = 'female organism|adult brain'
             template = 'JRC2018Unisex_c'
             instance = 'FAFB'
-        elif site in ['FANC', 'VNC1']:
+        elif site in ['FANC1', 'FANC2']:
             entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
             instance = 'FANC'
@@ -76,4 +76,4 @@ def make_anat_records(site, curator, output_filename = './anat'):
 if __name__ == "__main__":
     make_anat_records('FAFB', 'travis', '../VFB_reporting_results/anat_fafb_missing')
     make_anat_records('L1EM', 'travis', '../VFB_reporting_results/anat_l1em_missing')
-    make_anat_records('VNC1', 'travis', '../VFB_reporting_results/anat_vnc1_missing')
+    make_anat_records('FANC1', 'travis', '../VFB_reporting_results/anat_fanc1_missing')
