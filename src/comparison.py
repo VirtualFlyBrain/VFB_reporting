@@ -20,17 +20,11 @@ FAFB = [get_catmaid_papers.gen_cat_paper_report(
     "https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"]),
     "FAFB"]
 
-FANC1 = [get_catmaid_papers.gen_cat_paper_report(
-   "https://fanc.catmaid.virtualflybrain.org", 1, "publication"),
+VNC1 = [get_catmaid_papers.gen_cat_paper_report(
+   "https://vnc1.catmaid.virtualflybrain.org", 1, "publication"),
    get_catmaid_papers.gen_cat_skid_report_officialnames(
-   "https://fanc.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"]),
-   "FANC1"]
-
-FANC2 = [get_catmaid_papers.gen_cat_paper_report(
-   "https://fanc.catmaid.virtualflybrain.org", 2, "publication"),
-   get_catmaid_papers.gen_cat_skid_report_officialnames(
-   "https://fanc.catmaid.virtualflybrain.org", 2, "publication", ["neuron name"]),
-   "FANC2"]
+   "https://vnc1.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"]),
+   "VNC1"]
 
 
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
@@ -145,5 +139,4 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 for r in larval_reports:
     make_catmaid_vfb_reports(*r)
 make_catmaid_vfb_reports(*FAFB)
-make_catmaid_vfb_reports(*FANC1)
-make_catmaid_vfb_reports(*FANC2)
+make_catmaid_vfb_reports(*VNC1)
