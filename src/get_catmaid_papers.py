@@ -205,12 +205,10 @@ if __name__ == '__main__':
                       for s in larval_sources.keys()]
 
     FAFB = ["https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"], "FAFB"]
-    FANC1 = ["https://fanc.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"], "FANC1"]
-    FANC2 = ["https://fanc.catmaid.virtualflybrain.org", 2, "publication", ["neuron name"], "FANC2"]
+    VNC1 = ["https://vnc1.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"], "VNC1"]
 
     # make reports
     for r in larval_reports:
         gen_cat_skid_report_officialnames(*r)
     gen_cat_skid_report_officialnames(*FAFB)
-    gen_cat_skid_report_officialnames(*FANC1)
-    gen_cat_skid_report_officialnames(*FANC2)
+    gen_cat_skid_report_officialnames(*VNC1)
