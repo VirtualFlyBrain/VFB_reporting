@@ -77,3 +77,4 @@ if __name__ == "__main__":
     make_anat_records('FAFB', 'travis', '../VFB_reporting_results/anat_fafb_missing')
     make_anat_records('L1EM', 'travis', '../VFB_reporting_results/anat_l1em_missing')
     make_anat_records('FANC1', 'travis', '../VFB_reporting_results/anat_fanc1_missing')
+    make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
