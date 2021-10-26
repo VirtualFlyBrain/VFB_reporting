@@ -163,7 +163,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
                                          headers={"Referer": URL, "X-CSRFToken": csrftoken}).json(), indent=4))
 
     # empty dataframe for details on each skid
-    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name'])
+    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name', 'annotations'])
 
     # populate dataframe one row at a time
     for paper in papers:
@@ -185,6 +185,10 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
                                         row['synonyms'] = row['name']
                                     row['name'] = name["name"]
                                     break
+                    for annotation in neuron['annotations']:
+                        if not row['annotations'] == "":
+                            row['annotations'] += ", "
+                        row['annotations'] += annotation['name'] + " (" + annotation['id'] + ")"
                     df_row = pd.DataFrame([row])
                     df_skids = pd.concat([df_skids, df_row])
             else:
