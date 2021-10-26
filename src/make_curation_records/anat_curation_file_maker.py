@@ -13,7 +13,7 @@ def find_available_leaf_term(annotations=""):
     names = []
     results = ""
     for annotation in annotations.to_string().split(', '):
-        if not annotation in names:
+        if not annotation.split(' (')[0] in names:
             names.append(annotation.split(' (')[0])
     for name in names:
         try:
