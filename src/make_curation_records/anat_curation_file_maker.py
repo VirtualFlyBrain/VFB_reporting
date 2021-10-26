@@ -12,7 +12,7 @@ def find_available_leaf_term(annotations=""):
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     names = []
     leaf = ""
-    for annotation in annotations.split(', '):
+    for annotation in str(annotations).split(', '):
         names.append(annotation.split(' (')[0])
     for name in names:
         try:
