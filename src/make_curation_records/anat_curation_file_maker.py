@@ -7,19 +7,21 @@ from vfb_connect.cross_server_tools import VfbConnect
 
 def find_available_leaf_term(annotations=""):
     """
-    Return the longest annotation label that exists as an FBbt term in pdb.ug
+    Return a | delimited list of annotation labels that exists as an FBbt term in pdb.ug
     """
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     names = []
-    leaf = ""
+    results = ""
     for annotation in annotations.to_string().split(', '):
         names.append(annotation.split(' (')[0])
     for name in names:
         try:
             id = vc.lookup_id(name)
             if 'FBbt' in id:
-                if len(name) > len(leaf):
-                    leaf = name
+                if results == "":
+                    results = name
+                else:
+                    results += '|' + name
         except:
             pass # TBD: record missing annotations
     return leaf
