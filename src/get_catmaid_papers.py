@@ -60,6 +60,7 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotation, report=False):
 
     # get neuron info for each paper
     call_papers["annotation_reference"] = "id"
+    call_papers["with_annotations"] = True
     for paper in papers:
         call_papers["annotated_with"] = paper["id"]
         neurons = []
@@ -73,7 +74,7 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotation, report=False):
         paper["neurons"] = neurons
 
     # empty dataframe for details on each skid
-    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name'])
+    df_skids = pd.DataFrame(columns=['skid', 'name', 'paper_id', 'paper_name', 'annotations'])
 
     # populate dataframe one row at a time
     for paper in papers:
@@ -85,6 +86,11 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotation, report=False):
                     row['name'] = neuron['name']
                     row['paper_id'] = paper['id']
                     row['paper_name'] = paper['name']
+                    row['annotations'] = ""
+                    for annotation in neuron['annotations']:
+                        if not row['annotations'] == "":
+                            row['annotations'] += ", "
+                        row['annotations'] += annotation['name'] + " (" + annotation['id'] + ")"
                     df_row = pd.DataFrame([row])
                     df_skids = pd.concat([df_skids, df_row])
 
