@@ -90,7 +90,7 @@ def gen_cat_skid_report(URL, PROJECT_ID, paper_annotation, report=False):
                     for annotation in neuron['annotations']:
                         if not row['annotations'] == "":
                             row['annotations'] += ", "
-                        row['annotations'] += annotation['name'] + " (" + annotation['id'] + ")"
+                        row['annotations'] += annotation['name'] + " (" + str(annotation['id']) + ")"
                     df_row = pd.DataFrame([row])
                     df_skids = pd.concat([df_skids, df_row])
 
@@ -189,7 +189,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
                     for annotation in neuron['annotations']:
                         if not row['annotations'] == "":
                             row['annotations'] += ", "
-                        row['annotations'] += annotation['name'] + " (" + annotation['id'] + ")"
+                        row['annotations'] += annotation['name'] + " (" + str(annotation['id']) + ")"
                     df_row = pd.DataFrame([row])
                     df_skids = pd.concat([df_skids, df_row])
             else:
