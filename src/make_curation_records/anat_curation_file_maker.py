@@ -21,6 +21,7 @@ def find_available_leaf_term(annotations=""):
                     leaf = name
 		except:
 			# TBD: record missing annotations
+            pass
 	return leaf
 
 def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
