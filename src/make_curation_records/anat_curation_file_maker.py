@@ -1,9 +1,26 @@
 import pandas as pd
 import datetime
 import numpy
+from vfb_connect.cross_server_tools import VfbConnect
 
+def find_available_leaf_term(annotations=""):
+    """
+    Return the longest annotation label that exists as an FBbt term in pdb.ug 
+    """
+    vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
+    names = []
+    leaf = ""
+    for annotation in annotations.split(', '):
+        names.append(annotation.split(' (')[0])  
+    for name in names:
+        try:
+            id = vc.lookup_id(name)
+            if 'FBbt' in id:
+                if len(name) > len(leaf):
+                    leaf = name
+    return leaf
 
-def make_anat_records(site, curator, output_filename='./anat'):
+def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
     """
     Makes image curation record(s) for new skids in VFB_reporting_results/<site>_new_skids.tsv.
     These should be transferred to curation repo for loading.
@@ -56,6 +73,14 @@ def make_anat_records(site, curator, output_filename='./anat'):
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
+        if 'annotations' in single_ds_data.keys():
+            term = find_available_leaf_term(single_ds_data['annotations'])
+            if len(term) > 0:
+                # if term contains 'neuron' (default is_a) then just replace or else add both terms
+                if curation_df['is_a'] in term:
+                    curation_df['is_a'] = term
+                else:
+                    curation_df['is_a'] += '|' + term 
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
             curation_df['label'] = curation_df['label'] + ' (' + instance + ':' + single_ds_data['skid'] + ')'
 #         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
@@ -77,4 +102,4 @@ if __name__ == "__main__":
     make_anat_records('FAFB', 'travis', '../VFB_reporting_results/anat_fafb_missing')
     make_anat_records('L1EM', 'travis', '../VFB_reporting_results/anat_l1em_missing')
     make_anat_records('FANC1', 'travis', '../VFB_reporting_results/anat_fanc1_missing')
-    make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
+    make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing', ["motor neuron","sensory neuron"])
