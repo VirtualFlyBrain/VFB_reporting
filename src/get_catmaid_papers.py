@@ -185,6 +185,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
                                         row['synonyms'] = row['name']
                                     row['name'] = name["name"]
                                     break
+                    row['annotations'] = ""
                     for annotation in neuron['annotations']:
                         if not row['annotations'] == "":
                             row['annotations'] += ", "
