@@ -13,7 +13,8 @@ def find_available_leaf_term(annotations=""):
     names = []
     results = ""
     for annotation in annotations.to_string().split(', '):
-        names.append(annotation.split(' (')[0])
+        if not annotation in names:
+            names.append(annotation.split(' (')[0])
     for name in names:
         try:
             id = vc.lookup_id(name)
