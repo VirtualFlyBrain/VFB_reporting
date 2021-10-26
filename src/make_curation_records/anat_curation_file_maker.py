@@ -4,21 +4,23 @@ import numpy
 from vfb_connect.cross_server_tools import VfbConnect
 
 def find_available_leaf_term(annotations=""):
-    """
-    Return the longest annotation label that exists as an FBbt term in pdb.ug 
-    """
-    vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
-    names = []
-    leaf = ""
-    for annotation in annotations.split(', '):
-        names.append(annotation.split(' (')[0])  
-    for name in names:
-        try:
-            id = vc.lookup_id(name)
-            if 'FBbt' in id:
+	"""
+	Return the longest annotation label that exists as an FBbt term in pdb.ug 
+	"""
+	vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
+	names = []
+	leaf = ""
+	for annotation in annotations.split(', '):
+	    names.append(annotation.split(' (')[0])  
+	for name in names:
+	    try:
+	        id = vc.lookup_id(name)
+	        if 'FBbt' in id:
                 if len(name) > len(leaf):
                     leaf = name
-    return leaf
+		except:
+			# TBD: record missing annotations
+	return leaf
 
 def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
     """
