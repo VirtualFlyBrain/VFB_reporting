@@ -18,8 +18,8 @@ def find_available_leaf_term(annotations=""):
         try:
             id = vc.lookup_id(name)
             if 'FBbt' in id:
-            if len(name) > len(leaf):
-                leaf = name
+                if len(name) > len(leaf):
+                    leaf = name
             except:
                 # TBD: record missing annotations
         pass
