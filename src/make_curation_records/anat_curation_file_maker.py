@@ -20,9 +20,8 @@ def find_available_leaf_term(annotations=""):
             if 'FBbt' in id:
                 if len(name) > len(leaf):
                     leaf = name
-            except:
-                # TBD: record missing annotations
-        pass
+        except:
+            pass # TBD: record missing annotations
     return leaf
 
 
