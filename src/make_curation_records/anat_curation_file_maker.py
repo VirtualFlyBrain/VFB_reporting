@@ -1,17 +1,18 @@
 import pandas as pd
 import datetime
 import numpy
+import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 
 def find_available_leaf_term(annotations=""):
 	"""
-	Return the longest annotation label that exists as an FBbt term in pdb.ug 
+	Return the longest annotation label that exists as an FBbt term in pdb.ug
 	"""
 	vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
 	names = []
 	leaf = ""
 	for annotation in annotations.split(', '):
-	    names.append(annotation.split(' (')[0])  
+	    names.append(annotation.split(' (')[0])
 	for name in names:
 	    try:
 	        id = vc.lookup_id(name)
@@ -37,7 +38,7 @@ def make_anat_records(site, curator, output_filename='./anat', class_annotation=
     datestring = today.strftime("%y%m%d")
 
     save_directory = "../VFB_reporting_results/CATMAID_SKID_reports/"
-    
+
     # open file of new skids
     new_skids = pd.read_csv("%s%s_new_skids.tsv" % (save_directory,site), sep='\t')\
         .applymap(str)
@@ -82,7 +83,7 @@ def make_anat_records(site, curator, output_filename='./anat', class_annotation=
                 if curation_df['is_a'] in term:
                     curation_df['is_a'] = term
                 else:
-                    curation_df['is_a'] += '|' + term 
+                    curation_df['is_a'] += '|' + term
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
             curation_df['label'] = curation_df['label'] + ' (' + instance + ':' + single_ds_data['skid'] + ')'
 #         curation_df['label'] = curation_df[['label', 'filename']].apply(lambda x: ' '.join(x), axis=1)
