@@ -12,7 +12,7 @@ def find_available_leaf_term(annotations=""):
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     names = []
     leaf = ""
-    for annotation in str(annotations).split(', '):
+    for annotation in annotations.to_string().split(', '):
         names.append(annotation.split(' (')[0])
     for name in names:
         try:
@@ -82,7 +82,7 @@ def make_anat_records(site, curator, output_filename='./anat', class_annotation=
             term = find_available_leaf_term(single_ds_data['annotations'])
             if len(term) > 0:
                 # if term contains 'neuron' (default is_a) then just replace or else add both terms
-                if curation_df['is_a'] in term:
+                if curation_df['is_a'].to_string() in term:
                     curation_df['is_a'] = term
                 else:
                     curation_df['is_a'] += '|' + term
