@@ -7,7 +7,7 @@ from vfb_connect.cross_server_tools import VfbConnect
 
 def find_available_leaf_term(annotations=""):
     """
-    Return a | delimited list of annotation labels that exists as an FBbt term in pdb.ug
+    Return a '|' delimited list of annotation labels that exists as an FBbt term in pdb.ug
     """
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     names = []
@@ -24,7 +24,7 @@ def find_available_leaf_term(annotations=""):
                     results += '|' + name
         except:
             pass # TBD: record missing annotations
-    return leaf
+    return results
 
 
 def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
