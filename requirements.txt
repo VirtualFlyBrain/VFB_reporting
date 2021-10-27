@@ -3,3 +3,4 @@ requests
 vfb_connect
 mdutils
 fsspec
+pysolr

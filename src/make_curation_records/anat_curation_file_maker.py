@@ -3,6 +3,16 @@ import datetime
 import numpy
 import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
+import pysolr
+
+
+def find_offical_label(term):
+    solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
+    results = solr.search('label:"' + term + '" OR synonym:"' + term + '"')
+    for doc in results.docs:
+        if term in doc['synonym']:
+            return doc['label']
+    return ''
 
 
 def find_available_terms(annotation_series=[]):
@@ -12,18 +22,22 @@ def find_available_terms(annotation_series=[]):
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     names = []
     results = []
+    missing = []
     for annotations in annotation_series:
         result = "neuron"
         for annotation in annotations.split(', '):
             if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron":
-                names.append(annotation.split(' (')[0])
+                name = find_offical_label(annotation.split(' (')[0])
+                if len(name) > 0:
+                    names.append(name)
         for name in names:
             try:
                 id = vc.lookup_id(name)
                 if 'FBbt' in id:
                     result += '|' + name
             except:
-                pass # TBD: record missing annotations
+                if not name in missing:
+                    missing.append(name)
         results.append(result);
     return results
 
