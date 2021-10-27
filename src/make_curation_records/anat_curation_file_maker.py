@@ -28,10 +28,10 @@ def find_available_terms(annotation_series=[]):
     Return a '|' delimited list of annotation labels that exists as an FBbt term in pdb.ug
     """
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
-    names = []
     results = []
     missing = []
     for annotations in annotation_series:
+        names = []
         result = "neuron"
         for annotation in annotations.split(', '):
             if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron":
