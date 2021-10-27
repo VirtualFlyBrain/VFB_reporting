@@ -47,7 +47,7 @@ def find_available_terms(annotation_series=[]):
                 if not name in missing:
                     missing.append(name)
         results.append(result);
-    return results
+    return pd.Series(results)
 
 def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
     """
