@@ -5,28 +5,27 @@ import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 
 
-def find_available_leaf_term(annotations=""):
+def find_available_terms(annotation_series=[]):
     """
     Return a '|' delimited list of annotation labels that exists as an FBbt term in pdb.ug
     """
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     names = []
-    results = ""
-    for annotation in annotations.to_string().split(', '):
-        if not annotation.split(' (')[0] in names:
-            names.append(annotation.split(' (')[0])
-    for name in names:
-        try:
-            id = vc.lookup_id(name)
-            if 'FBbt' in id:
-                if results == "":
-                    results = name
-                else:
-                    results += '|' + name
-        except:
-            pass # TBD: record missing annotations
+    results = []
+    for annotations in annotation_series:
+        result = "neuron"
+        for annotation in annotations.to_string().split(', '):
+            if not annotation.split(' (')[0] in names:
+                names.append(annotation.split(' (')[0])
+        for name in names:
+            try:
+                id = vc.lookup_id(name)
+                if 'FBbt' in id:
+                    result += '|' + name
+            except:
+                pass # TBD: record missing annotations
+        results.append(result);
     return results
-
 
 def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
     """
@@ -75,20 +74,12 @@ def make_anat_records(site, curator, output_filename='./anat', class_annotation=
             instance = 'FANC'
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'],
-                                    'is_a': 'neuron',
+                                    'is_a': find_available_terms(single_ds_data['annotations']),
                                     'part_of': entity})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
-        if 'annotations' in single_ds_data.keys():
-            term = find_available_leaf_term(single_ds_data['annotations'])
-            if len(term) > 0:
-                # if term contains 'neuron' (default is_a) then just replace or else add both terms
-                if curation_df['is_a'].to_string() in term:
-                    curation_df['is_a'] = term
-                else:
-                    curation_df['is_a'] += '|' + term
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
             curation_df['label'] = curation_df['label'] + \
                 ' (' + instance + ':' + single_ds_data['skid'] + ')'
