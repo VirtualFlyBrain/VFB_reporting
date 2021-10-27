@@ -4,14 +4,22 @@ import numpy
 import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
+failed = []
 
 
 def find_offical_label(term):
     solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
+    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ']
+    for ref in ref_terms:
+        if ref in term:
+            return ''
+    if term in failed:
+        return ''
     results = solr.search('label:"' + term + '" OR synonym:"' + term + '"')
     for doc in results.docs:
         if term in doc['synonym']:
             return doc['label']
+    failed.append(term)
     return ''
 
 
