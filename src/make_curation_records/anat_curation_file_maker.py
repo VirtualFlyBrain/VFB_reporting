@@ -36,7 +36,7 @@ def find_available_terms(annotation_series=[]):
         for annotation in annotations.split(', '):
             if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron":
                 name = find_offical_label(annotation.split(' (')[0])
-                if len(name) > 0:
+                if len(name) > 0 and not name in names:
                     names.append(name)
         for name in names:
             try:
