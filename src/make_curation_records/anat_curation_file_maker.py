@@ -5,19 +5,22 @@ import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
 failed = []
-
+passed = {}
 
 def find_offical_label(term):
     solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
-    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ']
+    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?']
     for ref in ref_terms:
         if ref in term:
             return ''
     if term in failed:
         return ''
+    if term in passed.keys():
+        return passed[term]
     results = solr.search('label:"' + term + '" OR synonym:"' + term + '"')
     for doc in results.docs:
         if term in doc['synonym']:
+            passed.update({doc['synonym']:doc['label']})
             return doc['label']
     failed.append(term)
     return ''
