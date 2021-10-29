@@ -20,7 +20,7 @@ def find_offical_label(term):
     results = solr.search('label:"' + term + '" OR synonym:"' + term + '"')
     for doc in results.docs:
         if term in doc['synonym']:
-            passed.update({doc['synonym']:doc['label']})
+            passed.update({term:doc['label']})
             return doc['label']
     failed.append(term)
     return ''
