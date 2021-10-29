@@ -84,8 +84,9 @@ def find_dbxrefs(annotation_series=[]):
             name = annotation.split(' (')[0]
             if ': ' in name:
                 result += name
-            else if ' from ' in name:
-                result += name
+            else:
+                if ' from ' in name:
+                    result += name
         comments.append(result)
     return pd.Series(comments)
 
