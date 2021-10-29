@@ -79,9 +79,9 @@ def generate_comments(annotation_series=[]):
     for annotations in annotation_series:
         result = ""
         for annotation in annotations.split('), '):
+            name = annotation.split(' (')[0]
             if len(result) > 0:
                 name = ', ' + name
-            name = annotation.split(' (')[0]
             if ': ' in name and not 'Paper:' in name:
                 result += name
             else:
