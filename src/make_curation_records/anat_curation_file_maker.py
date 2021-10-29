@@ -49,7 +49,21 @@ def find_available_terms(annotation_series=[]):
         results.append(result);
     return pd.Series(results)
 
-def make_anat_records(site, curator, output_filename='./anat', class_annotation=[]):
+def find_dbxrefs(annotation_series=[]):
+    """
+    Return a '|' delimited Series of dbxrefs form annotaions
+    """
+    for annotations in annotation_series:
+        xrefs = []
+        result = ""
+        for annotation in annotations.split(', '):
+            name = annotation.split(' (')[0]
+            if 'project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
+                result = "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+            xrefs.append(result)
+    return pd.Series(xrefs)
+
+def make_anat_records(site, curator, output_filename='./anat'):
     """
     Makes image curation record(s) for new skids in VFB_reporting_results/<site>_new_skids.tsv.
     These should be transferred to curation repo for loading.
@@ -99,7 +113,7 @@ def make_anat_records(site, curator, output_filename='./anat', class_annotation=
                                     'is_a': find_available_terms(single_ds_data['annotations']),
                                     'part_of': entity})
         curation_df['dbxrefs'] = curation_df['filename'].map(
-            lambda x: str('catmaid_%s:%s' % (site.lower(), x)))
+            lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2','fanc_jrc2018vncfemale'), x))) + find_dbxrefs(single_ds_data['annotations'])
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
@@ -127,5 +141,4 @@ if __name__ == "__main__":
                       '../VFB_reporting_results/anat_l1em_missing')
     make_anat_records('FANC1', 'travis',
                       '../VFB_reporting_results/anat_fanc1_missing')
-    make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing',
-                      ["motor neuron", "sensory neuron"])
+    make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
