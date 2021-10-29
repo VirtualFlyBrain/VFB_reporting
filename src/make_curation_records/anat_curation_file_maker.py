@@ -64,6 +64,7 @@ def find_dbxrefs(annotation_series=[]):
             if 'project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
                 result = "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
         xrefs.append(result)
+    print(len(xrefs))
     return pd.Series(xrefs)
 
 def make_anat_records(site, curator, output_filename='./anat'):
