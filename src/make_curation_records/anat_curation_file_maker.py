@@ -71,7 +71,7 @@ def find_dbxrefs(annotation_series=[]):
         xrefs.append(result)
     return pd.Series(xrefs)
 
-    def generate_comments(annotation_series=[]):
+def generate_comments(annotation_series=[]):
         """
     Return a ', ' delimited Series of comments form annotaions
     """
