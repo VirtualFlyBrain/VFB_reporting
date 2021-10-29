@@ -36,7 +36,7 @@ def find_available_terms(annotation_series=[]):
     for annotations in annotation_series:
         names = []
         result = "neuron"
-        for annotation in annotations.split(', '):
+        for annotation in annotations.split('), '):
             if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron":
                 name = find_offical_label(annotation.split(' (')[0])
                 if len(name) > 0 and not name in names:
@@ -59,7 +59,7 @@ def find_dbxrefs(annotation_series=[]):
     xrefs = []
     for annotations in annotation_series:
         result = ""
-        for annotation in annotations.split(', '):
+        for annotation in annotations.split('), '):
             name = annotation.split(' (')[0]
             if 'project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
                 if 'LINKED NEURON - elastic transformation and flipped of skeleton id ' in name:
@@ -78,7 +78,7 @@ def generate_comments(annotation_series=[]):
     comments = []
     for annotations in annotation_series:
         result = ""
-        for annotation in annotations.split(', '):
+        for annotation in annotations.split('), '):
             if len(result) > 0:
                 name = ', ' + name
             name = annotation.split(' (')[0]
