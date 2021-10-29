@@ -9,7 +9,7 @@ passed = {}
 
 def find_offical_label(term):
     solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
-    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?']
+    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server']
     for ref in ref_terms:
         if ref in term:
             return ''
