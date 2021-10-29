@@ -63,11 +63,31 @@ def find_dbxrefs(annotation_series=[]):
             name = annotation.split(' (')[0]
             if 'project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
                 if 'LINKED NEURON - elastic transformation and flipped of skeleton id ' in name:
-                    result = "|" + name.replace('LINKED NEURON - elastic transformation and flipped of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                    result += "|" + name.replace('LINKED NEURON - elastic transformation and flipped of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
                 else:
-                    result = "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                    result += "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+            if 'source: https://gen1mcfo.janelia.org/cgi-bin/view_gen1mcfo_imagery.cgi?line=' in name:
+                result += "|" + name.replace('source: https://gen1mcfo.janelia.org/cgi-bin/view_gen1mcfo_imagery.cgi?line=','FlyLightGen1MCFO:')
         xrefs.append(result)
     return pd.Series(xrefs)
+
+    def generate_comments(annotation_series=[]):
+        """
+    Return a ', ' delimited Series of comments form annotaions
+    """
+    comments = []
+    for annotations in annotation_series:
+        result = ""
+        for annotation in annotations.split(', '):
+            if len(result) > 0:
+                result += ', '
+            name = annotation.split(' (')[0]
+            if ':' in name:
+                result += name
+            else if ' from ' in name:
+                result += name
+        comments.append(result)
+    return pd.Series(comments)
 
 def make_anat_records(site, curator, output_filename='./anat'):
     """
@@ -117,7 +137,8 @@ def make_anat_records(site, curator, output_filename='./anat'):
         curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'],
                                     'is_a': find_available_terms(single_ds_data['annotations']),
-                                    'part_of': entity})
+                                    'part_of': entity,
+                                    'comment': generate_comments(single_ds_data['annotations'])})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2','fanc_jrc2018vncfemale'), x)))
         curation_df['dbxrefs'] += find_dbxrefs(single_ds_data['annotations'])
