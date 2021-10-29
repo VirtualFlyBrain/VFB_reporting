@@ -82,7 +82,7 @@ def find_dbxrefs(annotation_series=[]):
             if len(result) > 0:
                 result += ', '
             name = annotation.split(' (')[0]
-            if ':' in name:
+            if ': ' in name:
                 result += name
             else if ' from ' in name:
                 result += name
