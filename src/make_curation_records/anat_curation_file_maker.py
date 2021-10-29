@@ -56,15 +56,14 @@ def find_dbxrefs(annotation_series=[]):
     """
     Return a '|' delimited Series of dbxrefs form annotaions
     """
+    xrefs = []
     for annotations in annotation_series:
-        xrefs = []
         result = ""
         for annotation in annotations.split(', '):
             name = annotation.split(' (')[0]
             if 'project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
                 result = "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
         xrefs.append(result)
-    print(len(xrefs))
     return pd.Series(xrefs)
 
 def make_anat_records(site, curator, output_filename='./anat'):
@@ -118,7 +117,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
                                     'part_of': entity})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2','fanc_jrc2018vncfemale'), x)))
-        curation_df['dbxrefs'] = find_dbxrefs(single_ds_data['annotations'])
+        curation_df['dbxrefs'] += find_dbxrefs(single_ds_data['annotations'])
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
