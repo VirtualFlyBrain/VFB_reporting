@@ -62,7 +62,10 @@ def find_dbxrefs(annotation_series=[]):
         for annotation in annotations.split(', '):
             name = annotation.split(' (')[0]
             if 'project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
-                result = "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                if 'LINKED NEURON - elastic transformation and flipped of skeleton id ' in name:
+                    result = "|" + name.replace('LINKED NEURON - elastic transformation and flipped of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                else:
+                    result = "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
         xrefs.append(result)
     return pd.Series(xrefs)
 
