@@ -46,6 +46,9 @@ def find_available_terms(annotation_series=[]):
                 id = vc.lookup_id(name)
                 if 'FBbt' in id:
                     result += '|' + name
+                else:
+                    if not name in missing:
+                        missing.append(name)
             except:
                 if not name in missing:
                     missing.append(name)
