@@ -173,7 +173,7 @@ if __name__ == "__main__":
     missing = [] #not used YET on ^
     make_anat_records('FANC1', 'travis',
                       '../VFB_reporting_results/anat_fanc1_missing')
-    pd.DataFrame({'missing terms': ds.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
+    pd.DataFrame({'missing terms': pd.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
     missing = []
     make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
-    pd.DataFrame({'missing terms': ds.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
+    pd.DataFrame({'missing terms': pd.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
