@@ -6,6 +6,7 @@ from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
 failed = []
 passed = {}
+missing = []
 
 def find_offical_label(term):
     solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
@@ -32,7 +33,6 @@ def find_available_terms(annotation_series=[]):
     """
     vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
     results = []
-    missing = []
     for annotations in annotation_series:
         names = []
         result = "neuron"
@@ -167,8 +167,13 @@ def make_anat_records(site, curator, output_filename='./anat'):
 if __name__ == "__main__":
     make_anat_records('FAFB', 'travis',
                       '../VFB_reporting_results/anat_fafb_missing')
+    missing = [] #not used YET on ^
     make_anat_records('L1EM', 'travis',
                       '../VFB_reporting_results/anat_l1em_missing')
+    missing = [] #not used YET on ^
     make_anat_records('FANC1', 'travis',
                       '../VFB_reporting_results/anat_fanc1_missing')
+    pd.DataFrame({'missing terms': ds.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
+    missing = []
     make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
+    pd.DataFrame({'missing terms': ds.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
