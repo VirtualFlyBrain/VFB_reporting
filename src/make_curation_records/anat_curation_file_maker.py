@@ -18,11 +18,19 @@ def find_offical_label(term):
         return ''
     if term in passed.keys():
         return passed[term]
-    results = solr.search('label:"' + term + '" OR synonym:"' + term + '"')
-    for doc in results.docs:
-        if term in doc['synonym']:
-            passed.update({term:doc['label']})
-            return doc['label']
+    expanded = []
+    expanded.append(term)
+    replacements = {'T1 ':'prothoracic ', 'T3 ':'metathorasic ', 'T2 ':'mesothorasic '}
+    for rep in replacements:
+        term.replace(rep,replacements[rep])
+    expanded.append(term)
+    expanded.append('adult ' + term) #TODO check stage
+    for test in expanded:
+        results = solr.search('label:"' + test + '" OR synonym:"' + test + '"')
+        for doc in results.docs:
+            if test in doc['synonym']:
+                passed.update({term:doc['label']})
+                return doc['label']
     failed.append(term)
     return ''
 
