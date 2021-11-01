@@ -108,6 +108,8 @@ def generate_comments(annotation_series=[]):
             else:
                 if ' from ' in name:
                     result += name
+                if ' soma' in name:
+                    result += name
         comments.append(result)
     return pd.Series(comments)
 
