@@ -34,7 +34,7 @@ def find_offical_label(term):
     for test in set(expanded):
         results = solr.search('label:"' + test + '" OR synonym:"' + test + '"')
         for doc in results.docs:
-            if test in doc['synonym']:
+            if test in doc['synonym'] and 'FBbt' in doc['short_form']:
                 passed.update({term:doc['label']})
                 return doc['label']
     failed.append(term)
