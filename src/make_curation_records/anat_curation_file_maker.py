@@ -58,10 +58,10 @@ def find_available_terms(annotation_series=[]):
                     result += '|' + name
                 else:
                     if not name in missing:
-                        missing.append(name)
+                        self.missing.append(name)
             except:
                 if not name in missing:
-                    missing.append(name)
+                    self.missing.append(name)
         results.append(result);
     return pd.Series(results)
 
@@ -180,13 +180,13 @@ def make_anat_records(site, curator, output_filename='./anat'):
 if __name__ == "__main__":
     make_anat_records('FAFB', 'travis',
                       '../VFB_reporting_results/anat_fafb_missing')
-    missing = [] #not used YET on ^
+    self.missing = [] #not used YET on ^
     make_anat_records('L1EM', 'travis',
                       '../VFB_reporting_results/anat_l1em_missing')
-    missing = [] #not used YET on ^
+    self.missing = [] #not used YET on ^
     make_anat_records('FANC1', 'travis',
                       '../VFB_reporting_results/anat_fanc1_missing')
-    pd.DataFrame({'missing terms': pd.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
-    missing = []
+    pd.DataFrame({'missing terms': pd.Series(self.missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
+    self.missing = []
     make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
-    pd.DataFrame({'missing terms': pd.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
+    pd.DataFrame({'missing terms': pd.Series(self.missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
