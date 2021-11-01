@@ -25,7 +25,7 @@ def find_offical_label(term):
         term.replace(rep,replacements[rep])
     expanded.append(term)
     if 'left ' in term or 'right ' in term:
-    expanded.append(term.replace('left ','').replace('right ', ''))
+        expanded.append(term.replace('left ','').replace('right ', ''))
     expanded.append('adult ' + term) #TODO check stage
     for test in expanded:
         results = solr.search('label:"' + test + '" OR synonym:"' + test + '"')
