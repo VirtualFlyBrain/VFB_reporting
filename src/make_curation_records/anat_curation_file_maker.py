@@ -35,6 +35,8 @@ def find_offical_label(term):
                 passed.update({term:doc['label']})
                 return doc['label']
     failed.append(term)
+    if not term in missing:
+        missing.append(term)
     return ''
 
 
