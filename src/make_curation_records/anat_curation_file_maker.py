@@ -116,7 +116,8 @@ def generate_comments(annotation_series=[]):
                     if use in name:
                         result += name
                         break
-                result += name
+                if not name.replace(', ','') in results:
+                    result += name
         comments.append(result)
     return pd.Series(comments)
 
