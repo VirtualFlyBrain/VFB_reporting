@@ -6,7 +6,7 @@ from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
 failed = []
 passed = {}
-missing = []
+missing = {}
 used = []
 
 def find_offical_label(term):
@@ -38,10 +38,8 @@ def find_offical_label(term):
                 passed.update({term:doc['label']})
                 return doc['label']
     failed.append(term)
-    if not term in missing and not ':' in term:
-        missing.append(term)
-        print(term)
-        print(results.docs)
+    if not term in missing.keys() and not ':' in term:
+        missing[term] = expanded
     return ''
 
 
@@ -65,11 +63,11 @@ def find_available_terms(annotation_series=[]):
                 if 'FBbt' in id:
                     result += '|' + name
                 else:
-                    if not name in missing:
-                        missing.append(name)
+                    if not name in missing.keys():
+                        missing[name] = annotations
             except:
-                if not name in missing:
-                    missing.append(name)
+                if not name in missing.keys():
+                    missing[name] = annotations
         results.append(result);
     return pd.Series(results)
 
@@ -194,7 +192,7 @@ if __name__ == "__main__":
     missing.clear() #not used YET on ^
     make_anat_records('FANC1', 'travis',
                       '../VFB_reporting_results/anat_fanc1_missing')
-    pd.DataFrame({'missing terms': pd.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
+    pd.DataFrame({'missing terms': pd.Series(missing.keys()),'meta':pd.Series(missing.values())}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc1_missing_terms.tsv', sep='\t', index=None)
     missing.clear()
     make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
-    pd.DataFrame({'missing terms': pd.Series(missing)}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
+    pd.DataFrame({'missing terms': pd.Series(missing.keys()),'meta':pd.Series(missing.values())}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
