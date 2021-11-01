@@ -104,10 +104,10 @@ def generate_comments(annotation_series=[]):
             if ': ' in name and not 'Paper:' in name:
                 result += name
             else:
-                if ' from ' in name:
-                    result += name
-                if ' soma' in name:
-                    result += name
+                for use in [' from ',' soma','pruned']:
+                    if use in name:
+                        result += name
+                        break
         comments.append(result)
     return pd.Series(comments)
 
