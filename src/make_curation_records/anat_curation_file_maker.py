@@ -87,6 +87,11 @@ def find_dbxrefs(annotation_series=[]):
                     result += "|" + name.replace('LINKED NEURON - elastic transformation of skeleton id ','catmaid_fanc:').replace(' in project id 2 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
             if 'source: https://gen1mcfo.janelia.org/cgi-bin/view_gen1mcfo_imagery.cgi?line=' in name:
                 result += "|" + name.replace('source: https://gen1mcfo.janelia.org/cgi-bin/view_gen1mcfo_imagery.cgi?line=','FlyLightGen1MCFO:')
+            if 'project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
+                if 'LINKED NEURON - pruned (first entry, last exit) by vol 109 of skeleton id ' in name:
+                    result += "|" + name.replace('LINKED NEURON - pruned (first entry, last exit) by vol 109 of skeleton id ','catmaid_fanc_jrc2018vncfemale:').replace(' in project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                if 'LINKED NEURON - radius pruned of skeleton id ' in name:
+                    result += "|" + name.replace('LINKED NEURON - radius pruned of skeleton id ','catmaid_fanc_jrc2018vncfemale:').replace(' in project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
         xrefs.append(result)
     return pd.Series(xrefs)
 
