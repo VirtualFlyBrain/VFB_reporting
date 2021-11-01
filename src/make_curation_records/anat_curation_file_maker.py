@@ -26,7 +26,7 @@ def find_offical_label(term):
     for rep in replacements:
         modified=modified.replace(rep,replacements[rep])
     expanded.append(modified)
-    if 'left ' in term or 'right ' in term:
+    if not ' soma' in term and ('left ' in term or 'right ' in term):
         expanded.append(term.replace('left ','').replace('right ', ''))
         expanded.append(modified.replace('left ','').replace('right ', ''))
     expanded.append('adult ' + term) #TODO check stage
