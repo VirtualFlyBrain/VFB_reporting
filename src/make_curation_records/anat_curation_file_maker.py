@@ -8,10 +8,10 @@ failed = []
 passed = {}
 missing = {}
 used = []
+ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server','assigned to','update ']
 
 def find_offical_label(term):
     solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
-    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server']
     for ref in ref_terms:
         if ref in term:
             return ''
@@ -100,7 +100,6 @@ def generate_comments(annotation_series=[]):
     Return a ', ' delimited Series of comments form annotaions
     """
     comments = []
-    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server']
     for annotations in annotation_series:
         result = ""
         for annotation in annotations.split('), '):
