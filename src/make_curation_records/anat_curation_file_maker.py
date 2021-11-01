@@ -57,6 +57,8 @@ def find_available_terms(annotation_series=[]):
                 name = find_offical_label(annotation.split(' (')[0])
                 if len(name) > 0 and not name in names:
                     names.append(name)
+                else:
+                    missing[annotation.split(' (')[0]] = annotation
         for name in names:
             try:
                 id = vc.lookup_id(name)
