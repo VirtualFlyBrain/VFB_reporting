@@ -104,7 +104,7 @@ def generate_comments(annotation_series=[]):
             if ': ' in name and not 'Paper:' in name:
                 result += name
             else:
-                for use in [' from ',' soma','pruned']:
+                for use in [' from ',' soma','pruned',' flipped']:
                     if use in name:
                         result += name
                         break
