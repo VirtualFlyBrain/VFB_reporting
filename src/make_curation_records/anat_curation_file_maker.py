@@ -100,11 +100,15 @@ def generate_comments(annotation_series=[]):
     Return a ', ' delimited Series of comments form annotaions
     """
     comments = []
+    ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server']
     for annotations in annotation_series:
         result = ""
         for annotation in annotations.split('), '):
             name = annotation.split(' (')[0]
-            if len(result) > 0:
+            for ref in ref_terms:
+                if ref in name:
+                    name = ''
+            if len(result) > 0 and len(name) > 0:
                 name = ', ' + name
             if ': ' in name and not 'Paper:' in name:
                 result += name
@@ -113,6 +117,7 @@ def generate_comments(annotation_series=[]):
                     if use in name:
                         result += name
                         break
+                result += name
         comments.append(result)
     return pd.Series(comments)
 
