@@ -22,13 +22,16 @@ def find_offical_label(term):
     expanded = []
     expanded.append(term)
     replacements = {'T1 ':'prothoracic ', 'T3 ':'metathorasic ', 'T2 ':'mesothorasic '}
+    modified = term
     for rep in replacements:
-        term.replace(rep,replacements[rep])
-    expanded.append(term)
+        modified=modified.replace(rep,replacements[rep])
+    expanded.append(modified)
     if 'left ' in term or 'right ' in term:
         expanded.append(term.replace('left ','').replace('right ', ''))
+        expanded.append(modified.replace('left ','').replace('right ', ''))
     expanded.append('adult ' + term) #TODO check stage
-    for test in expanded:
+    expanded.append('adult ' + modified)
+    for test in set(expanded):
         results = solr.search('label:"' + test + '" OR synonym:"' + test + '"')
         for doc in results.docs:
             if test in doc['synonym']:
@@ -37,6 +40,8 @@ def find_offical_label(term):
     failed.append(term)
     if not term in missing and not ':' in term:
         missing.append(term)
+        print(term)
+        print(results.docs)
     return ''
 
 
