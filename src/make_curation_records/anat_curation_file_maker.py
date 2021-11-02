@@ -42,6 +42,18 @@ def find_offical_label(term):
         missing[term] = expanded
     return ''
 
+def resolve_entity(entity="",annotation_series=[]):
+    if not 'adult ventral nerve cord' in entity:
+        return entity
+    entityRows = []
+    if 'adult ventral nerve cord' in entity:
+        for annotations in annotation_series:
+            if 'motor neuron' in annotations or 'sensory neuron' in annotations:
+                entityRows.append(entity.replace('ventral nerve cord','nervous system'))
+            else:
+                entityRows.append(entity)
+        return pd.Series(entityRows)
+    return entity
 
 def find_available_terms(annotation_series=[]):
     """
@@ -170,7 +182,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
                                     'label': single_ds_data['name'].map(
                                         lambda x: str('%s' % (x.replace(' - elastic transform','')))),
                                     'is_a': find_available_terms(single_ds_data['annotations']),
-                                    'part_of': entity,
+                                    'part_of': resolve_entity(entity,single_ds_data['annotations']),
                                     'comment': generate_comments(single_ds_data['annotations'])})
         curation_df['dbxrefs'] = curation_df['filename'].map(
             lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2','fanc_JRC2018VF'), x)))
