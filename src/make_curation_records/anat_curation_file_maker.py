@@ -135,6 +135,16 @@ def generate_comments(annotation_series=[]):
         comments.append(result)
     return pd.Series(comments)
 
+def create_metadata(db="",filename_series=[],annotation_series=[]):
+    results=[]
+    soma_rules={'left soma':'left side of organism','right soma':'right side of organism','midline soma':'cell body rind along midline of adult ventral nerve cord'}
+    for id,annotations in zip(filename_series,annotation_series):
+        if ' soma' in annotations:
+            for key in soma_rules.keys():
+                if key in annotations:
+                    results.append({'object':soma_rules[key],'relation':'has soma location','object_external_id':id,'object_external_db':db})
+    return pd.DataFrame(results)
+
 def make_anat_records(site, curator, output_filename='./anat'):
     """
     Makes image curation record(s) for new skids in VFB_reporting_results/<site>_new_skids.tsv.
@@ -201,6 +211,8 @@ def make_anat_records(site, curator, output_filename='./anat'):
         else:
             output_filename1 = output_filename + '_' + ds
         curation_df.to_csv(output_filename1 + '.tsv', sep='\t', index=None)
+        output_filename2 = output_filename + '_' + ds
+        create_metadata(db=site.lower().replace('fanc2','fanc_JRC2018VF'),filename_series=single_ds_data['skid'],annotation_series=single_ds_data['annotations']).to_csv(output_filename1.replace('anat_','meta_') + '.tsv', sep='\t', index=None)
 
         with open(output_filename1 + '.yaml', 'w') as file:
             file.write("DataSet: %s\n" % ds)
@@ -224,4 +236,4 @@ if __name__ == "__main__":
     make_anat_records('FANC2', 'travis', '../VFB_reporting_results/anat_fanc2_missing')
     pd.DataFrame({'missing terms': pd.Series(missing.keys()),'meta':pd.Series(missing.values())}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
     pd.DataFrame({'CATMAID annotation': pd.Series(passed.keys()),'FBbt term':pd.Series(passed.values())}).to_csv('../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_resolved_terms.tsv', sep='\t', index=None)
-   
+
