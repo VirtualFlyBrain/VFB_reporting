@@ -89,9 +89,9 @@ def find_dbxrefs(annotation_series=[]):
                 result += "|" + name.replace('source: https://gen1mcfo.janelia.org/cgi-bin/view_gen1mcfo_imagery.cgi?line=','FlyLightGen1MCFO:')
             if 'project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc' in name:
                 if 'LINKED NEURON - pruned (first entry, last exit) by vol 109 of skeleton id ' in name:
-                    result += "|" + name.replace('LINKED NEURON - pruned (first entry, last exit) by vol 109 of skeleton id ','catmaid_fanc_jrc2018vncfemale:').replace(' in project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                    result += "|" + name.replace('LINKED NEURON - pruned (first entry, last exit) by vol 109 of skeleton id ','catmaid_fanc_JRC2018VF:').replace(' in project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
                 if 'LINKED NEURON - radius pruned of skeleton id ' in name:
-                    result += "|" + name.replace('LINKED NEURON - radius pruned of skeleton id ','catmaid_fanc_jrc2018vncfemale:').replace(' in project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
+                    result += "|" + name.replace('LINKED NEURON - radius pruned of skeleton id ','catmaid_fanc_JRC2018VF:').replace(' in project id 59 on server https://catmaid3.hms.harvard.edu/catmaidvnc','')
         xrefs.append(result)
     return pd.Series(xrefs)
 
@@ -173,7 +173,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
                                     'part_of': entity,
                                     'comment': generate_comments(single_ds_data['annotations'])})
         curation_df['dbxrefs'] = curation_df['filename'].map(
-            lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2','fanc_jrc2018vncfemale'), x)))
+            lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2','fanc_JRC2018VF'), x)))
         curation_df['dbxrefs'] += find_dbxrefs(single_ds_data['annotations'])
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
