@@ -53,7 +53,7 @@ def find_available_terms(annotation_series=[]):
         names = []
         result = "neuron"
         for annotation in annotations.split('), '):
-            if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron":
+            if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron" and not 'nerve' in annotation.split(' (')[0]:
                 name = find_offical_label(annotation.split(' (')[0])
                 if len(name) > 0 and not name in names:
                     names.append(name)
@@ -112,7 +112,7 @@ def generate_comments(annotation_series=[]):
             if ': ' in name and not 'Paper:' in name:
                 result += name
             else:
-                for use in [' from ',' soma','pruned',' flipped']:
+                for use in [' from ',' soma','pruned',' flipped', 'nerve']:
                     if use in name:
                         result += name
                         break
