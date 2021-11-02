@@ -31,7 +31,9 @@ def find_offical_label(term):
         expanded.append(modified.replace('left ','').replace('right ', ''))
     expanded.append('adult ' + term) #TODO check stage
     expanded.append('adult ' + modified)
-    for test in list(set(expanded)).sort(key=len, reverse=True):
+    expanded = list(set(expanded))
+    expanded.sort(key=len, reverse=True)
+    for test in expanded:
         results = solr.search('label:"' + test + '" OR synonym:"' + test + '"')
         for doc in results.docs:
             if test in doc['synonym'] and 'FBbt' in doc['short_form']:
