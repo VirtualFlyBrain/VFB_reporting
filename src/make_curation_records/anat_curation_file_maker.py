@@ -4,7 +4,7 @@ import numpy
 import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
-passed = {'hair plate':'mechanosensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum','T3 leg club chordotonal neuron':'metathoracic femoral chordotonal club neuron','T2 leg claw chordotonal neuron':'mesothoracic femoral chordotonal claw neuron','right T1 ventral nerve':'adult ventral prothoracic nerve','left T1 ventral nerve':'adult ventral prothoracic nerve'}
+passed = {'hair plate':'mechanosensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum','T3 leg club chordotonal neuron':'metathoracic femoral chordotonal club neuron','T2 leg claw chordotonal neuron':'mesothoracic femoral chordotonal claw neuron','right T1 ventral nerve':'adult ventral prothoracic nerve','left T1 ventral nerve':'adult ventral prothoracic nerve','T1 leg claw chordotonal neuron':'prothoracic femoral chordotonal claw neuron','T1 leg club chordotonal neuron':'prothoracic femoral chordotonal club neuron','T1 leg hook chordotonal neuron':'prothoracic femoral chordotonal hook neuron'}
 missing = {}
 used = []
 ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server','assigned to','update ','need to ']
