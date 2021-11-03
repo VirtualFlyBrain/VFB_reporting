@@ -27,7 +27,9 @@ def find_offical_label(term):
     expanded.append(modified)
     if not ' soma' in term and ('left ' in term or 'right ' in term):
         expanded.append(term.replace('left ','').replace('right ', ''))
+        expanded.append('adult ' + term.replace('left ','').replace('right ', ''))
         expanded.append(modified.replace('left ','').replace('right ', ''))
+        expanded.append('adult ' + modified.replace('left ','').replace('right ', ''))
     expanded.append('adult ' + term) #TODO check stage
     expanded.append('adult ' + modified)
     if 'DUM' in term:
