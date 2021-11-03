@@ -33,6 +33,9 @@ def find_offical_label(term):
     if 'DUM' in term:
         expanded.append(term.replace('DUM','dorsal unpaired median'))
         expanded.append(modified.replace('DUM','dorsal unpaired median'))
+    if not ' ' in term:
+        expanded.append(term + ' neuron')
+        expanded.append(modified + ' neuron')
     expanded = list(set(expanded))
     expanded.sort(key=len, reverse=True)
     for test in expanded:
