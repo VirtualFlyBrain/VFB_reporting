@@ -5,7 +5,7 @@ import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
 failed = []
-passed = {'hair plate':'sensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum'}
+passed = {'hair plate':'mechanosensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum','T3 leg club chordotonal neuron':'metathoracic femoral chordotonal club neuron','T2 leg claw chordotonal neuron':'mesothoracic femoral chordotonal claw neuron'}
 missing = {}
 used = []
 ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server','assigned to','update ','need to ']
@@ -31,6 +31,9 @@ def find_offical_label(term):
         expanded.append(modified.replace('left ','').replace('right ', ''))
     expanded.append('adult ' + term) #TODO check stage
     expanded.append('adult ' + modified)
+    if 'DUM' in term:
+        expanded.append(term.replace('DUM','dorsal unpaired median'))
+        expanded.append(modified.replace('DUM','dorsal unpaired median'))
     expanded = list(set(expanded))
     expanded.sort(key=len, reverse=True)
     for test in expanded:
@@ -50,7 +53,7 @@ def resolve_entity(entity="",annotation_series=[]):
     entityRows = []
     if 'adult ventral nerve cord' in entity:
         for annotations in annotation_series:
-            if 'motor neuron' in annotations or 'sensory neuron' in annotations:
+            if 'motor neuron' in annotations or 'sensory neuron' in annotations or 'nerve' in annotations:
                 entityRows.append(entity.replace('ventral nerve cord','nervous system'))
             else:
                 entityRows.append(entity)
@@ -135,14 +138,23 @@ def generate_comments(annotation_series=[]):
         comments.append(result)
     return pd.Series(comments)
 
-def create_metadata(db="",filename_series=[],annotation_series=[]):
+def create_metadata(db="",filename_series=[],annotation_series=[],pub=""):
     results=[]
     soma_rules={'left soma':'left side of organism','right soma':'right side of organism','midline soma':'cell body rind along midline of adult ventral nerve cord'}
+    nerve_rules={}
     for id,annotations in zip(filename_series,annotation_series):
         if ' soma' in annotations:
             for key in soma_rules.keys():
                 if key in annotations:
-                    results.append({'object':soma_rules[key],'relation':'has soma location','object_external_id':id,'object_external_db':db})
+                    results.append({'object':soma_rules[key],'relation':'has soma location','subject_external_id':id,'subject_external_db':db,'pub':pub})
+        if 'nerve' in annotations:
+            for annotation in annotations.split('), '):
+                name = find_offical_label(annotation.split(' (')[0])
+                if len(name) > 0 and ('nerve' in name or 'nerve' in annotation):
+                    results.append({'object':name,'relation':'fasciculates_with','subject_external_id':id,'subject_external_db':db'pub':pub})
+        if 'motor neuron' in annotations or 'sensory neuron' in annotations or 'nerve' in annotations:
+            results.append({'object':'peripheral nervous system','relation':'overlaps','subject_external_id':id,'subject_external_db':db'pub':pub})
+            results.append({'object':'adult ventral nerve cord','relation':'overlaps','subject_external_id':id,'subject_external_db':db'pub':pub})
     return pd.DataFrame(results)
 
 def make_anat_records(site, curator, output_filename='./anat'):
