@@ -38,6 +38,8 @@ def find_offical_label(term):
     if not ' ' in term:
         expanded.append(term + ' neuron')
         expanded.append(modified + ' neuron')
+        expanded.append('adult ' + term + ' neuron')
+        expanded.append('adult ' + modified + ' neuron')
     expanded = list(set(expanded))
     expanded.sort(key=len, reverse=True)
     for test in expanded:
