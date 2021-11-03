@@ -4,7 +4,7 @@ import numpy
 import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
-passed = {'hair plate':'mechanosensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum','T3 leg club chordotonal neuron':'metathoracic femoral chordotonal club neuron','T2 leg claw chordotonal neuron':'mesothoracic femoral chordotonal claw neuron'}
+passed = {'hair plate':'mechanosensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum','T3 leg club chordotonal neuron':'metathoracic femoral chordotonal club neuron','T2 leg claw chordotonal neuron':'mesothoracic femoral chordotonal claw neuron','right T1 ventral nerve':'adult ventral prothoracic nerve','left T1 ventral nerve':'adult ventral prothoracic nerve'}
 missing = {}
 used = []
 ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ', '?', 'on server','assigned to','update ','need to ']
@@ -20,7 +20,7 @@ def find_offical_label(term):
         return passed[term]
     expanded = []
     expanded.append(term)
-    replacements = {'T1 ':'prothoracic ', 'T3 ':'metathorasic ', 'T2 ':'mesothorasic '}
+    replacements = {'T1 ':'prothoracic ', 'T3 ':'metathoracic ', 'T2 ':'mesothoracic '}
     modified = term
     for rep in replacements:
         modified=modified.replace(rep,replacements[rep])
