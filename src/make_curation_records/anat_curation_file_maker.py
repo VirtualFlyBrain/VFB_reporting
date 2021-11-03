@@ -145,6 +145,11 @@ def create_metadata(db="",filename_series=[],annotation_series=[],pub=""):
             for key in soma_rules.keys():
                 if key in annotations:
                     results.append({'object':soma_rules[key],'relation':'has soma location','subject_external_id':id,'subject_external_db':db,'pub':pub})
+        else:
+            if 'left ' in annotations:
+                results.append({'object':'left side of organism','relation':'overlaps','subject_external_id':id,'subject_external_db':db,'pub':pub})
+            if 'right ' in annotations:
+                results.append({'object':'right side of organism','relation':'overlaps','subject_external_id':id,'subject_external_db':db,'pub':pub})
         if 'nerve' in annotations:
             for annotation in annotations.split('), '):
                 name = find_offical_label(annotation.split(' (')[0])
