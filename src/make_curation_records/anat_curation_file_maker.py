@@ -4,7 +4,6 @@ import numpy
 import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
-failed = []
 passed = {'hair plate':'mechanosensory neuron of hair plate','campaniform sensillum':'sensory neuron of campaniform sensillum','T3 leg club chordotonal neuron':'metathoracic femoral chordotonal club neuron','T2 leg claw chordotonal neuron':'mesothoracic femoral chordotonal claw neuron'}
 missing = {}
 used = []
@@ -15,7 +14,7 @@ def find_offical_label(term):
     for ref in ref_terms:
         if ref in term:
             return ''
-    if term in failed:
+    if term in missing.keys():
         return ''
     if term in passed.keys():
         return passed[term]
@@ -42,7 +41,6 @@ def find_offical_label(term):
             if test in doc['synonym'] and 'FBbt' in doc['short_form']:
                 passed.update({term:doc['label']})
                 return doc['label']
-    failed.append(term)
     if not term in missing.keys() and not ':' in term:
         missing[term] = expanded
     return ''
