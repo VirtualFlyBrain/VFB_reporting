@@ -151,10 +151,10 @@ def create_metadata(db="",filename_series=[],annotation_series=[],pub=""):
             for annotation in annotations.split('), '):
                 name = find_offical_label(annotation.split(' (')[0])
                 if len(name) > 0 and ('nerve' in name or 'nerve' in annotation):
-                    results.append({'object':name,'relation':'fasciculates_with','subject_external_id':id,'subject_external_db':db'pub':pub})
+                    results.append({'object':name,'relation':'fasciculates_with','subject_external_id':id,'subject_external_db':db,'pub':pub})
         if 'motor neuron' in annotations or 'sensory neuron' in annotations or 'nerve' in annotations:
-            results.append({'object':'peripheral nervous system','relation':'overlaps','subject_external_id':id,'subject_external_db':db'pub':pub})
-            results.append({'object':'adult ventral nerve cord','relation':'overlaps','subject_external_id':id,'subject_external_db':db'pub':pub})
+            results.append({'object':'peripheral nervous system','relation':'overlaps','subject_external_id':id,'subject_external_db':db,'pub':pub})
+            results.append({'object':'adult ventral nerve cord','relation':'overlaps','subject_external_id':id,'subject_external_db':db,'pub':pub})
     return pd.DataFrame(results)
 
 def make_anat_records(site, curator, output_filename='./anat'):
