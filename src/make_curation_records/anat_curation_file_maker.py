@@ -157,7 +157,7 @@ def generate_comments(annotation_series=[]):
                 result += name
             else:
                 for use in [' from ', ' soma', 'pruned', ' flipped', 'nerve', 'bundle']:
-                    if use in name:
+                    if use in name and not name in result:
                         result += name
                         break
                 if not name.replace(', ', '') in result and not name in result:
