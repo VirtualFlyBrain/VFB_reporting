@@ -26,7 +26,7 @@ def find_offical_label(term):
     expanded = []
     expanded.append(term)
     replacements = {'T1 ': 'prothoracic ',
-                    'T3 ': 'metathoracic ', 'T2 ': 'mesothoracic '}
+                    'T3 ': 'metathoracic ', 'T2 ': 'mesothoracic ', 'wing ':'flight '}
     modified = term
     for rep in replacements:
         modified = modified.replace(rep, replacements[rep])
@@ -48,7 +48,7 @@ def find_offical_label(term):
         expanded.append(modified + ' neuron')
         expanded.append('adult ' + term + ' neuron')
         expanded.append('adult ' + modified + ' neuron')
-    if 'motor neuron' in term:
+    if ' motor neuron' in term:
         expanded.append(term.replace(' motor neuron',' muscle motor neuron'))
         expanded.append(modified.replace(' motor neuron',' muscle motor neuron'))
     expanded = list(set(expanded))
