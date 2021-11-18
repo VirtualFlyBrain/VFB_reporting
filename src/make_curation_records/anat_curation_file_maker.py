@@ -46,6 +46,9 @@ def find_offical_label(term):
         expanded.append(modified + ' neuron')
         expanded.append('adult ' + term + ' neuron')
         expanded.append('adult ' + modified + ' neuron')
+    if 'motor neuron' in term:
+        expanded.append(term.replace(' motor neuron',' muscle motor neuron'))
+        expanded.append(modified.replace(' motor neuron',' muscle motor neuron'))
     expanded = list(set(expanded))
     expanded.sort(key=len, reverse=True)
     for test in expanded:
