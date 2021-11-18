@@ -5,7 +5,8 @@ import vfb_connect
 from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
 passed = {'hair plate': 'mechanosensory neuron of hair plate', 'campaniform sensillum': 'sensory neuron of campaniform sensillum', 'T3 leg club chordotonal neuron': 'metathoracic femoral chordotonal club neuron', 'T2 leg claw chordotonal neuron': 'mesothoracic femoral chordotonal claw neuron', 'right T1 ventral nerve': 'adult ventral prothoracic nerve',
-          'left T1 ventral nerve': 'adult ventral prothoracic nerve', 'T1 leg claw chordotonal neuron': 'prothoracic femoral chordotonal claw neuron', 'T1 leg club chordotonal neuron': 'prothoracic femoral chordotonal club neuron', 'T1 leg hook chordotonal neuron': 'prothoracic femoral chordotonal hook neuron'}
+          'left T1 ventral nerve': 'adult ventral prothoracic nerve', 'T1 leg claw chordotonal neuron': 'prothoracic femoral chordotonal claw neuron', 'T1 leg club chordotonal neuron': 'prothoracic femoral chordotonal club neuron', 'T1 leg hook chordotonal neuron': 'prothoracic femoral chordotonal hook neuron',
+          'haltere motor neuron HN bundle':'adult dorsal metathoracic nerve'}
 missing = {}
 used = []
 ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ',
@@ -68,7 +69,7 @@ def resolve_entity(entity="", annotation_series=[]):
     entityRows = []
     if 'adult ventral nerve cord' in entity:
         for annotations in annotation_series:
-            if 'motor neuron' in annotations or 'sensory neuron' in annotations or 'nerve' in annotations:
+            if 'motor neuron' in annotations or 'sensory neuron' in annotations or 'nerve' in annotations or 'bundle' in annotations:
                 entityRows.append(entity.replace(
                     'ventral nerve cord', 'nervous system'))
             else:
@@ -87,7 +88,7 @@ def find_available_terms(annotation_series=[]):
         names = []
         result = "neuron"
         for annotation in annotations.split('), '):
-            if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron" and not 'nerve' in annotation.split(' (')[0]:
+            if not annotation.split(' (')[0] in names and not annotation.split(' (')[0] == "neuron" and not 'nerve' in annotation.split(' (')[0] and not 'bundle' in annotation.split(' (')[0]:
                 name = find_offical_label(annotation.split(' (')[0])
                 if len(name) > 0 and not name in names:
                     names.append(name)
@@ -154,7 +155,7 @@ def generate_comments(annotation_series=[]):
             if ': ' in name and not 'Paper:' in name:
                 result += name
             else:
-                for use in [' from ', ' soma', 'pruned', ' flipped', 'nerve']:
+                for use in [' from ', ' soma', 'pruned', ' flipped', 'nerve', 'bundle']:
                     if use in name:
                         result += name
                         break
@@ -182,7 +183,7 @@ def create_metadata(db="", filename_series=[], annotation_series=[], pub=""):
             if 'right ' in annotations:
                 results.append({'object': 'right side of organism', 'relation': 'overlaps',
                                'subject_external_id': id, 'subject_external_db': db, 'pub': pub})
-        if 'nerve' in annotations:
+        if 'nerve' in annotations or 'bundle' in annotations:
             for annotation in annotations.split('), '):
                 name = find_offical_label(annotation.split(' (')[0])
                 if len(name) > 0 and ('nerve' in name or 'nerve' in annotation):
