@@ -6,7 +6,8 @@ from vfb_connect.cross_server_tools import VfbConnect
 import pysolr
 passed = {'hair plate': 'mechanosensory neuron of hair plate', 'campaniform sensillum': 'sensory neuron of campaniform sensillum', 'T3 leg club chordotonal neuron': 'metathoracic femoral chordotonal club neuron', 'T2 leg claw chordotonal neuron': 'mesothoracic femoral chordotonal claw neuron', 'right T1 ventral nerve': 'adult ventral prothoracic nerve',
           'left T1 ventral nerve': 'adult ventral prothoracic nerve', 'T1 leg claw chordotonal neuron': 'prothoracic femoral chordotonal claw neuron', 'T1 leg club chordotonal neuron': 'prothoracic femoral chordotonal club neuron', 'T1 leg hook chordotonal neuron': 'prothoracic femoral chordotonal hook neuron',
-          'haltere motor neuron HN bundle':'adult dorsal metathoracic nerve','left T1 dorsal nerve':'adult dorsal prothoracic nerve','right T1 dorsal nerve':'adult dorsal prothoracic nerve','bCS':'bilateral campaniform sensillum neuron of leg','CoHP8':'mechanosensory neuron of prothoracic coxal hair plate CoHP8	'}
+          'haltere motor neuron HN bundle':'adult dorsal metathoracic nerve','left T1 dorsal nerve':'adult dorsal prothoracic nerve','right T1 dorsal nerve':'adult dorsal prothoracic nerve','bCS':'bilateral campaniform sensillum neuron of leg','CoHP8':'mechanosensory neuron of prothoracic coxal hair plate CoHP8',
+          'T2 leg motor neuron PDMN bundle':'adult posterior dorsal mesothoracic nerve'}
 missing = {}
 used = []
 ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ',
@@ -197,7 +198,9 @@ def create_metadata(db="", filename_series=[], annotation_series=[], pub=""):
         if 'bilateral' in annotations:
             results.append({'object': 'bilateral', 'relation': 'has_characteristic',
                            'subject_external_id': id, 'subject_external_db': db, 'pub': pub})
-        
+        if 'contains presynapses' in annotations:
+            results.append({'object': 'adult ventral nerve cord', 'relation': 'has_presynaptic_terminal_in',
+                           'subject_external_id': id, 'subject_external_db': db, 'pub': pub})
     return pd.DataFrame(results)
 
 
