@@ -271,7 +271,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
             output_filename1 = output_filename + '_' + ds
         curation_df.to_csv(output_filename1 + '.tsv', sep='\t', index=None)
         output_filename2 = output_filename + '_' + ds
-        create_metadata(db=site.lower().replace('fanc2', 'fanc_JRC2018VF'), filename_series=single_ds_data['skid'], annotation_series=single_ds_data['annotations']).to_csv(
+        create_metadata(db="catmaid_" + site.lower().replace('fanc2', 'fanc_JRC2018VF').replace('fanc1','fanc'), filename_series=single_ds_data['skid'], annotation_series=single_ds_data['annotations']).to_csv(
             output_filename1.replace('anat_', 'meta_') + '.tsv', sep='\t', index=None)
 
         with open(output_filename1 + '.yaml', 'w') as file:
