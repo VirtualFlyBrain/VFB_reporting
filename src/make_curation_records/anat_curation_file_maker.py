@@ -56,9 +56,12 @@ def find_offical_label(term):
     for test in expanded:
         results = solr.search('label:"' + test + '" OR synonym:"' + test + '"')
         for doc in results.docs:
-            if test in doc['synonym'] and 'FBbt' in doc['short_form']:
-                passed.update({term: doc['label']})
-                return doc['label']
+          try:    
+                if test in doc['synonym'] and 'FBbt' in doc['short_form']:
+                    passed.update({term: doc['label']})
+                    return doc['label']
+          except:
+                print('synonym missing from:' + doc)
     if not term in missing.keys() and not ':' in term:
         missing[term] = expanded
     return ''
