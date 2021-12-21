@@ -3,7 +3,7 @@ import mdutils
 import datetime
 
 output_file = "../VFB_reporting_results/content_report.md"
-VFB_server = ('http://pdb.virtualflybrain.org', 'neo4j', 'neo4j')
+VFB_server = ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb')
 
 
 class VFBContentReport:
