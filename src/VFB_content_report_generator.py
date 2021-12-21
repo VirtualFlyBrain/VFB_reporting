@@ -3,7 +3,7 @@ import mdutils
 import datetime
 
 output_file = "../VFB_reporting_results/content_report.md"
-VFB_server = ('http://pdb.virtualflybrain.org', 'neo4j', 'neo4j')
+VFB_server = ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'neo4j')
 
 
 class VFBContentReport:
@@ -331,7 +331,7 @@ class VFBContentReport:
 
         region_connections = gen_report(server=self.server,
                                         query=("MATCH (n:Individual:Neuron)-"
-                                               "[r:has_presynaptic_terminals_in|:has_postsynaptic_terminal_in]"
+                                               "[r:has_presynaptic_terminals_in|has_postsynaptic_terminal_in]"
                                                "->(m:Individual) "
                                                "RETURN count(distinct n) AS neurons, count(distinct m) AS regions, "
                                                "count(distinct r) AS connections"),
@@ -343,10 +343,10 @@ class VFBContentReport:
 
         muscle_connections = gen_report(server=self.server,
                                         query=("MATCH (n:Neuron)-[r:synapsed_to|"
-                                               ":synapsed_via_type_Is_bouton_to|"
-                                               ":synapsed_via_type_Ib_bouton_to|"
-                                               ":synapsed_via_type_II_bouton_to|"
-                                               ":synapsed_via_type_III_bouton_to]->(m:Muscle) "
+                                               "synapsed_via_type_Is_bouton_to|"
+                                               "synapsed_via_type_Ib_bouton_to|"
+                                               "synapsed_via_type_II_bouton_to|"
+                                               "synapsed_via_type_III_bouton_to]->(m:Muscle) "
                                                "WITH n, r, m OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
                                                "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
                                                "collect(distinct n2) AS cn2, collect(distinct m) AS cm "
