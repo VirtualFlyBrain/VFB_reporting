@@ -16,7 +16,7 @@ def gen_report(server, query, report_name, column_order=None):
     nc = neo4j_connect(*server)
     print(query)
     r = nc.commit_list([query])
-    print(r)
+    #print(r)
     dc = results_2_dict_list(r)
     report = pd.DataFrame.from_records(dc)
     report.replace(np.nan, '', regex=True, inplace=True)
