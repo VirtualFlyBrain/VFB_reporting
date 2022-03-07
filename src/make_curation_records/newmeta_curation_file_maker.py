@@ -8,7 +8,8 @@ curator = 'cp390'  # change if needed
 
 """
 Makes newmeta curation record(s) for skids in VFB_reporting_results/FAFB_CAT_cellType_skids.tsv.
-These should be transferred to curation repo for loading.
+Mappings come from Management/FAFB/
+Records should be transferred to curation repo for loading.
 Run anat_curation_file_maker.py first to get any new skids into VFB.
 Only adds new (not in VFB) is_a annotations.
 This should not be automatically run every day (makes dated files for curation).
@@ -25,11 +26,11 @@ typed_skids = pd.read_csv("../../../Management/FAFB/FAFB_skid_FBbt.tsv",
                           sep='\t').dropna().applymap(str)
 
 # open file of all skids, including paper ids
-all_skids = pd.read_csv("../../../VFB_reporting_results/FAFB_all_skids_officialnames.tsv",
+all_skids = pd.read_csv("../../../VFB_reporting_results/CATMAID_SKID_reports/FAFB_all_skids_officialnames.tsv",
                         sep='\t').applymap(str)
 
 # get mapping of dataset name (in VFB) to id (as index) from FAFB_comparison.tsv
-comparison_table = pd.read_csv("../../../VFB_reporting_results/FAFB_comparison.tsv",
+comparison_table = pd.read_csv("../../../VFB_reporting_results/CATMAID_SKID_reports/FAFB_comparison.tsv",
                                sep='\t', index_col='Paper_ID').applymap(str)
 comparison_table.index = comparison_table.index.map(str)
 
