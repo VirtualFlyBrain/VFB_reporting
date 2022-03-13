@@ -4,7 +4,7 @@ from reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_
 kb_report = gen_dataset_report(["http://kb.virtualflybrain.org", "neo4j", "vfb"], 'kb')
 save_report(kb_report, "../VFB_reporting_results/kb_report.tsv")
 
-pdb_report = gen_dataset_report_prod(["http://pdb.virtualflybrain.org", "neo4j", "vfb"], 'pdb')
+pdb_report = gen_dataset_report_prod(["http://pdb.v4.virtualflybrain.org", "neo4j", "vfb"], 'pdb')
 save_report(pdb_report, "../VFB_reporting_results/pdb_report.tsv")
 
 
@@ -18,7 +18,7 @@ except:
 
 
 try:
-  pipeline_output_report = gen_dataset_report_prod(["http://pdb.p2.virtualflybrain.org", "neo4j", "vfb"], 'pipeline_output')
+  pipeline_output_report = gen_dataset_report_prod(["http://pdb.ug.virtualflybrain.org", "neo4j", "vfb"], 'pipeline_output')
   save_report(pipeline_output_report, "../VFB_reporting_results/pipeline_output_report.tsv")
   pipeline_output_diff = diff_report(pdb_report, pipeline_output_report)
   save_report(pipeline_output_diff, '../VFB_reporting_results/pdb_pipeline_output_diff.tsv')
