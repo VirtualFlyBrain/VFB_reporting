@@ -12,7 +12,7 @@ def get_ids(site_name, vfb_server=('http://pdb.v4.virtualflybrain.org', 'neo4j',
     neuron_data = gen_report(server=vfb_server,
                              query=("MATCH (n:Neuron:Individual)-[d:database_cross_reference]->(s) "
                                     "WHERE s.short_form=\"%s\" OPTIONAL MATCH (n)-[:INSTANCEOF]->(f:Class:Anatomy) "
-                                    "WHERE f.short_form CONTAINS \"FBbt\""
+                                    "WHERE f.short_form STARTS WITH \"FBbt\""
                                     "RETURN DISTINCT n.short_form AS VFB_ID, d.accession AS external_IDs, "
                                     "COLLECT(f.label) AS cell_types" % site),
                              report_name='neuron_data')
