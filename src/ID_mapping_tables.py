@@ -4,7 +4,7 @@ site_list = ['catmaid_fafb', 'catmaid_fanc', 'catmaid_l1em', 'neuronbridge', \
              'neuprint_JRC_Hemibrain_1point1', 'FlyCircuit']
 
 
-def get_ids(site_name, vfb_server=('http://pdb.v4.virtualflybrain.org', 'neo4j', 'neo4j')):
+def get_ids(site_name, vfb_server=('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb')):
     """Gets neuron IDs from VFB for a given :Site (e.g. catmaid_fafb).
     site_name should be the short_form of the :Site
     Default server is pdb.v4"""
