@@ -66,6 +66,13 @@ jobs:
           rm -vf ../VFB_reporting_results/anat_*.yaml
           ls -lh ../VFB_reporting_results/
           python ./make_curation_records/anat_curation_file_maker.py
+      - name: Create ID mapping tables
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
+          cd src
+          mkdir -p ../VFB_reporting_results/ID_tables
+          rm -vf ../VFB_reporting_results/ID_tables/*.tsv
+          python ./ID_mapping_tables.py
       - name: Clean up
         run: |
           rm -rfv VFB_reporting
