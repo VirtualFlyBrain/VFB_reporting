@@ -3,7 +3,7 @@ import mdutils
 import datetime
 
 output_file = "../VFB_reporting_results/content_report.md"
-VFB_server = ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'neo4j')
+VFB_server = ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb')
 
 
 class VFBContentReport:
@@ -485,6 +485,14 @@ class VFBContentReport:
 
         f.create_md_file()
 
+
+report = VFBContentReport(server=VFB_server)
+report.get_info()
+report.prepare_report(filename=output_file)
+
+# Running the content report for alpha to pre-release checks
+output_file = "../VFB_reporting_results/content_report_alpha.md"
+VFB_server = ('http://pdb-alpha.virtualflybrain.org', 'neo4j', 'vfb')
 
 report = VFBContentReport(server=VFB_server)
 report.get_info()
