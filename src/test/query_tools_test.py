@@ -26,7 +26,7 @@ class OwleryConnectTest(unittest.TestCase):
         self.assertTrue(ofbl, "Query failed.")
         print(ofb)
         print(ofbl)
-        self.assertEqual(ofb, ofbl)
+        self.assertCountEqual(ofb, ofbl)
 
 
 
