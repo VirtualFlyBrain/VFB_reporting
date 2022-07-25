@@ -71,12 +71,13 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                 "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
                 "RETURN distinct skid.accession AS `r.catmaid_skeleton_ids`, c.iri"
 
-        q = nc.commit_list([query])
-        skids_in_paper_vfb = results_2_dict_list(q)
-        vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
-
-        # count skids only annotated as 'neuron'
         try:
+            q = nc.commit_list([query])
+            skids_in_paper_vfb = results_2_dict_list(q)
+            vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
+
+            # count skids only annotated as 'neuron'
+        
             unique_skids = list(set([x for x in vfb_skid_classes_df['r.catmaid_skeleton_ids']]))
         except KeyError:  # if dataframe is empty make empty list of skids and empty df with named columns
             unique_skids = []
