@@ -2,7 +2,7 @@ from reporting_tools import gen_report
 import mdutils
 import datetime
 
-VFB_servers = {'pdb': ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb'),
+VFB_servers = {'pdb': ('http://pdb.virtualflybrain.org', 'neo4j', 'vfb'),
                'pdb-alpha': ('http://pdb-alpha.virtualflybrain.org', 'neo4j', 'vfb')}
 output_files = {'pdb': "../VFB_reporting_results/content_report.md",
                 'pdb-alpha': "../VFB_reporting_results/content_report_alpha.md"}
