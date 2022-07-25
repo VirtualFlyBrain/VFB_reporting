@@ -2,8 +2,10 @@ from reporting_tools import gen_report
 import mdutils
 import datetime
 
-output_file = "../VFB_reporting_results/content_report.md"
-VFB_server = ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb')
+VFB_servers = {'pdb': ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb'),
+               'pdb-alpha': ('http://pdb-alpha.virtualflybrain.org', 'neo4j', 'vfb')}
+output_files = {'pdb': "../VFB_reporting_results/content_report.md",
+                'pdb-alpha': "../VFB_reporting_results/content_report_alpha.md"}
 
 
 class VFBContentReport:
@@ -66,6 +68,7 @@ class VFBContentReport:
         self.sensory_connections_neuron_number = None
         self.sensory_connections_sense_organ_number = None
         self.sensory_connections_connection_number = None
+        self.templates_data = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -371,6 +374,34 @@ class VFBContentReport:
         self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
         self.sensory_connections_connection_number = sensory_connections['connections'][0]
 
+        # Template data
+
+        self.templates_data = gen_report(server=self.server,
+                                         query=("MATCH (d:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-"
+                                                "(m:Individual)-[:in_register_with]->"
+                                                "(:Template)-[:depicts]->(t:Template) "
+                                                "OPTIONAL MATCH (m)-[:depicts]->(n:Individual:Neuron) "
+                                                "OPTIONAL MATCH em = (m)-[:is_specified_output_of]->(e) "
+                                                "WHERE e.label CONTAINS \"electron microscopy\" "
+                                                "OPTIONAL MATCH (m)-[:depicts]->(ep:Individual:Expression_pattern) "
+                                                "OPTIONAL MATCH (m)-[:depicts]->"
+                                                "(epf:Individual:Expression_pattern_fragment) "
+                                                "OPTIONAL MATCH (m)-[:depicts]->"
+                                                "(s:Individual:Expression_pattern:Split) "
+                                                "OPTIONAL MATCH pd = (m)-[:is_specified_output_of]->"
+                                                "({label:\"computer graphic\"}) "
+                                                "RETURN DISTINCT t.label AS template, COUNT(DISTINCT m) AS images, "
+                                                "COUNT(DISTINCT d) AS datasets, "
+                                                "COUNT(DISTINCT n) AS single_neuron_images, "
+                                                "COUNT(DISTINCT em) AS em_images, "
+                                                "COUNT(DISTINCT ep) AS expression_patterns, "
+                                                "COUNT(DISTINCT s) AS split_images, "
+                                                "COUNT(DISTINCT epf) AS expression_pattern_fragments, "
+                                                "COUNT(DISTINCT pd) AS painted_domains"),
+                                         report_name='templates_data')
+        self.templates_data.set_index('template', inplace=True, verify_integrity=True)
+
+
     def prepare_report(self, filename):
         """Put content data into an output file"""
         f = mdutils.MdUtils(file_name=filename, title='VFB Content Report ' +
@@ -483,17 +514,31 @@ class VFBContentReport:
         f.new_table(columns=5, rows=5, text=connectivity_table_content, text_align='left')
         f.new_line()
 
+        f.new_line()
+        f.new_line("Content by Template", bold_italics_code='bic')
+
+        f.new_line()
+        template_table_content = ['Template Name', 'Datasets', 'Images', 'Single Neurons', 'EM Neurons',
+                                  'Full Expression Patterns', 'Split Expression Patterns',
+                                  'Partial Expression Patterns', 'Painted domains']
+        for t in self.templates_data.index:
+            template_table_content.extend([t, self.templates_data['datasets'][t], self.templates_data['images'][t],
+                                           self.templates_data['single_neuron_images'][t],
+                                           self.templates_data['em_images'][t],
+                                           self.templates_data['expression_patterns'][t],
+                                           self.templates_data['split_images'][t],
+                                           self.templates_data['expression_pattern_fragments'][t],
+                                           self.templates_data['painted_domains'][t]])
+
+        f.new_table(columns=9, rows=(len(self.templates_data.index) + 1), text=template_table_content, text_align='left')
+        f.new_line()
+
         f.create_md_file()
 
 
-report = VFBContentReport(server=VFB_server)
-report.get_info()
-report.prepare_report(filename=output_file)
+if __name__ == "__main__":
+    for s in VFB_servers.keys():
+        report = VFBContentReport(server=VFB_servers[s])
+        report.get_info()
+        report.prepare_report(filename=output_files[s])
 
-# Running the content report for alpha to pre-release checks
-output_file = "../VFB_reporting_results/content_report_alpha.md"
-VFB_server = ('http://pdb-alpha.virtualflybrain.org', 'neo4j', 'vfb')
-
-report = VFBContentReport(server=VFB_server)
-report.get_info()
-report.prepare_report(filename=output_file)
