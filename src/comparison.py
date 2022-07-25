@@ -2,7 +2,7 @@ import pandas as pd
 from uk.ac.ebi.vfb.neo4j.neo4j_tools import neo4j_connect, results_2_dict_list
 import get_catmaid_papers
 
-nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
+nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'vfb')
 
 # variables for generating reports
 
