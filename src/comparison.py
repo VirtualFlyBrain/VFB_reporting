@@ -46,12 +46,14 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     pub_query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet) " \
                 "WHERE api.short_form ends with '_catmaid_api' " \
                 "RETURN toInteger(dsxref.accession) as CATMAID_ID, ds.short_form as VFB_name"
-    q = nc.commit_list([pub_query])
-    papers = results_2_dict_list(q)
-
-    vfb_papers = pd.DataFrame.from_dict(papers)
-    vfb_papers = vfb_papers.set_index("CATMAID_ID")
-
+    try:
+        q = nc.commit_list([pub_query])
+        papers = results_2_dict_list(q)
+    
+        vfb_papers = pd.DataFrame.from_dict(papers)
+        vfb_papers = vfb_papers.set_index("CATMAID_ID")
+    except:
+        vfb_papers = pd.DataFrame.from_dict({})
     # match up SKIDs per paper and output dict of lists of skids
     skids_by_paper = {}
     for paper_id in cat_papers.index:  # do everything per paper
