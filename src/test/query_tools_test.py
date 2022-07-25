@@ -23,7 +23,7 @@ class OwleryConnectTest(unittest.TestCase):
         self.oc.lookup = {'overlaps': 'RO:0002131',
                           'fan-shaped body': 'FBbt:00003679'}
         ofbl = self.oc.get_subclasses(query=self.test_query_labels, query_by_label=True)
-        self.assertTrue(ofb, "Query failed.")
+        self.assertTrue(ofbl, "Query failed.")
         self.assertEqual(ofb, ofbl)
 
 
