@@ -140,7 +140,10 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     # TERMINAL OUTPUT
     new_papers = all_papers[all_papers.VFB_name.isnull()]
     print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
-    print(new_papers["CATMAID_name"])
+    try:
+        print(new_papers["CATMAID_name"])
+    except:
+        print("No papers!!")
     print("See " + comparison_outfile + " for differences in numbers of SKIDs")
     print("See " + skids_outfile + " for new SKIDs that are not yet in VFB")
 
