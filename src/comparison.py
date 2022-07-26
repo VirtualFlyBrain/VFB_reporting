@@ -43,9 +43,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
 
     # Get table of names of catmaid datasets in VFB
-    pub_query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet) " \
+    pub_query = "MATCH (api:API)<-[dsxref:database_cross_reference]-(ds:DataSet) " \
                 "WHERE api.short_form ends with '_catmaid_api' " \
-                "RETURN toInteger(dsxref.accession) as CATMAID_ID, ds.short_form as VFB_name"
+                "RETURN toInteger(dsxref.accession[0]) as CATMAID_ID, ds.short_form as VFB_name"
     try:
         q = nc.commit_list([pub_query])
         papers = results_2_dict_list(q)
@@ -62,12 +62,12 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         skids_in_paper_cat = [str(s) for s in cat_skids[cat_skids['paper_id'] == paper_id]['skid']]
 
         # get skids from VFB KB and reformat to list of strings
-        query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
+        query = "MATCH (api:API)<-[dsxref:database_cross_reference]-(ds:DataSet)" \
                 "<-[:has_source]-(i:Individual)" \
-                "-[skid:hasDbXref]->(s:Site) " \
+                "-[skid:database_cross_reference]->(s:Site) " \
                 "WHERE api.short_form ends with '_catmaid_api' " \
                 "AND s.short_form starts with 'catmaid_' " \
-                "AND dsxref.accession = '" + str(paper_id) +"' WITH i, skid " \
+                "AND dsxref.accession = ['" + str(paper_id) +"'] WITH i, skid " \
                 "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
                 "RETURN distinct skid.accession AS `r.catmaid_skeleton_ids`, c.iri"
 
