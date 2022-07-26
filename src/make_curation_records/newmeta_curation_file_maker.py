@@ -3,7 +3,7 @@ import datetime
 import numpy
 from vfb_connect.neo.neo4j_tools import Neo4jConnect, dict_cursor
 
-nc = Neo4jConnect('http://kb.virtualflybrain.org', 'neo4j', 'neo4j')
+nc = Neo4jConnect('http://kb.virtualflybrain.org', 'neo4j', 'vfb')
 curator = 'cp390'  # change if needed
 
 """
@@ -56,14 +56,14 @@ typed_skids = pd.merge(left=typed_skids, right=labels_df,
 # drop any annotations that are already in the KB (avoids proliferation of curation files)
 # find all current skids and annotations (copied from comparison.py)
 paper_ids = set(list(typed_skids['paper_id']))
-query = "MATCH (api:API)<-[dsxref:hasDbXref]-(ds:DataSet)" \
+query = "MATCH (api:API)<-[dsxref:database_cross_reference]-(ds:DataSet)" \
         "<-[:has_source]-(i:Individual)" \
-        "-[skid:hasDbXref]->(s:Site) " \
+        "-[skid:database_cross_reference]->(s:Site) " \
         "WHERE api.short_form ends with '_catmaid_api' " \
         "AND s.short_form starts with 'catmaid_' " \
-        "AND dsxref.accession in %s WITH i, skid " \
+        "AND dsxref.accession[0] in %s WITH i, skid " \
         "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
-        "RETURN distinct skid.accession AS `skid`, c.short_form AS `FBbt_id`" \
+        "RETURN distinct skid.accession[0] AS `skid`, c.short_form AS `FBbt_id`" \
         % ('[\'' + '\', \''.join(paper_ids) + '\']')
 
 q = nc.commit_list([query])
@@ -81,7 +81,7 @@ new_skid_mappings = new_skid_mappings[new_skid_mappings['paper_id'] != 'nan']  #
 # get reference (FBrf or doi) for dataset publications (as dataframe)
 dataset_names = list(set(list(comparison_table['VFB_name'])))  # all ds names
 query2 = ("MATCH (ds:DataSet)-[has_reference]->(p:pub) WHERE ds.short_form IN %s "
-          "RETURN ds.short_form, p.DOI, p.FlyBase"
+          "RETURN ds.short_form, p.DOI[0], p.FlyBase[0]"
           % ('[\'' + '\', \''.join(dataset_names) + '\']'))
 
 q2 = nc.commit_list([query2])
