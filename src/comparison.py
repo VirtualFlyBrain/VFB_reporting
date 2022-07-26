@@ -138,9 +138,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
 
     # TERMINAL OUTPUT
-    new_papers = all_papers[all_papers.VFB_name.isnull()]
-    print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
     try:
+        new_papers = all_papers[all_papers.VFB_name.isnull()]
+        print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
         print(new_papers["CATMAID_name"])
     except:
         print("No papers!!")
