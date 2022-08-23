@@ -260,7 +260,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
                                     'part_of': resolve_entity(entity, single_ds_data['annotations']),
                                     'comment': generate_comments(single_ds_data['annotations'])})
         curation_df['dbxrefs'] = curation_df['filename'].map(
-            lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2', 'fanc_JRC2018VF'), x)))
+            lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2', 'fanc_JRC2018VF'), str(x))))
         curation_df['dbxrefs'] += find_dbxrefs(single_ds_data['annotations'])
         if 'synonyms' in single_ds_data.keys():
             curation_df['synonyms'] = single_ds_data['synonyms']
