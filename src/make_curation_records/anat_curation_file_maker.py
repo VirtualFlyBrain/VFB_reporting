@@ -16,7 +16,7 @@ ref_terms = ['UPDATED', 'LINKED', 'Paper', 'et al.', ' from ',
 
 
 def find_offical_label(term):
-    solr = pysolr.Solr('https://solr.p2.virtualflybrain.org/solr/ontology/')
+    solr = pysolr.Solr('https://solr.virtualflybrain.org/solr/ontology/')
     for ref in ref_terms:
         if ref in term:
             return ''
@@ -85,9 +85,9 @@ def resolve_entity(entity="", annotation_series=[]):
 
 def find_available_terms(annotation_series=[]):
     """
-    Return a '|' delimited list of annotation labels that exists as an FBbt term in pdb.ug
+    Return a '|' delimited list of annotation labels that exists as an FBbt term in pdb
     """
-    vc = VfbConnect(neo_endpoint='http://pdb.ug.virtualflybrain.org')
+    vc = VfbConnect(neo_endpoint='http://pdb.virtualflybrain.org')
     results = []
     for annotations in annotation_series:
         names = []
