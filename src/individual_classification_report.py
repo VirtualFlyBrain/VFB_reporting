@@ -5,8 +5,8 @@ from collections import Counter
 pd.options.display.float_format = "{:,.0f}".format
 
 output_file = "../VFB_reporting_results/individual_classification_KB_PDB.tsv"
-PDB_server = ('http://pdb.v4.virtualflybrain.org', 'neo4j', 'vfb')
-KB_server = ('http://kb.p2.virtualflybrain.org', 'neo4j', 'vfb')
+PDB_server = ('http://pdb.virtualflybrain.org', 'neo4j', 'vfb')
+KB_server = ('http://kb.virtualflybrain.org', 'neo4j', 'vfb')
 
 
 # get classifications of individuals from both servers and do inner join on individual short_form
