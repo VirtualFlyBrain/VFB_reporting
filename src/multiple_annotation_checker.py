@@ -41,7 +41,7 @@ def multi_annotation_report_gen(source):
     multi_annotated_inds = multi_annotated_inds[[
         'Individual_label', 'External_id', 'PDB_FBbt_ids', 'PDB_FBbt_labels', 'KB_FBbt_ids', 'KB_FBbt_labels']]
 
-    multi_annotated_inds.to_csv(output_file, sep='\t', index=None)
+    multi_annotated_inds.to_csv(output_file, sep='\t')
 
 
 if __name__ == '__main__':
