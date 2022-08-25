@@ -26,13 +26,13 @@ def find_offical_label(term):
         return passed[term]
     if "FBbt" in term:
         results = solr.search('shortform_autosuggest:"' + term + '"')
-          for doc in results.docs:
-                    try:    
-                          if term in doc['shortform_autosuggest'] and 'FBbt' in doc['short_form']:
-                              passed.update({term: doc['label']})
-                              return doc['label']
-                    except:
-                          print('FBbt not matched:' + json.dumps(doc, indent = 4))
+        for doc in results.docs:
+            try:    
+                if term in doc['shortform_autosuggest'] and 'FBbt' in doc['short_form']:
+                    passed.update({term: doc['label']})
+                    return doc['label']
+            except:
+                print('FBbt not matched:' + json.dumps(doc, indent = 4))
     expanded = []
     expanded.append(term)
     replacements = {'T1 ': 'prothoracic ',
