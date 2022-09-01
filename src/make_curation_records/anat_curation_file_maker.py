@@ -250,6 +250,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
             continue  # if no VFB dataset for paper
 
         single_ds_data = new_skids[new_skids['paper_id'] == i]
+        single_ds_data = single_ds_data.reset_index()
         if site == 'L1EM':
             entity = 'embryonic/larval nervous system'
             template = 'L1 larval CNS ssTEM - Cardona/Janelia_c'
