@@ -48,15 +48,18 @@ class VFBContentReport:
         self.split_exp_pattern_driver_number = None
         self.split_image_number = None
         self.split_image_driver_number = None
-        self.split_neuron_annotations_split_number = None
-        self.split_neuron_annotations_annotation_number = None
-        self.split_neuron_annotations_neuron_number = None
         self.driver_anatomy_annotations_EP_number = None
         self.driver_anatomy_annotations_annotation_number = None
         self.driver_anatomy_annotations_anatomy_number = None
+        self.driver_ns_annotations_EP_number = None
+        self.driver_ns_annotations_annotation_number = None
+        self.driver_ns_annotations_anatomy_number = None
         self.driver_neuron_annotations_EP_number = None
         self.driver_neuron_annotations_annotation_number = None
         self.driver_neuron_annotations_neuron_number = None
+        self.split_neuron_annotations_split_number = None
+        self.split_neuron_annotations_annotation_number = None
+        self.split_neuron_annotations_neuron_number = None
         self.neuron_connections_neuron_number = None
         self.neuron_connections_connection_number = None
         self.region_connections_neuron_number = None
@@ -79,8 +82,8 @@ class VFBContentReport:
                                query=("MATCH (c:Class) "
                                       "WHERE c.short_form =~ 'FBbt.+' "
                                       "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                      "RETURN count(distinct c) as parts, "
-                                      "count (distinct p) as pubs"),
+                                      "RETURN COUNT(DISTINCT c) AS parts, "
+                                      "COUNT(DISTINCT p) AS pubs"),
                                report_name='all_terms')
         self.all_terms_number = all_terms['parts'][0]
         self.all_terms_pubs = all_terms['pubs'][0]
@@ -90,8 +93,8 @@ class VFBContentReport:
                                         query=("MATCH (c:Nervous_system) "
                                                "WHERE c.short_form =~ 'FBbt.+' "
                                                "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                               "RETURN count(distinct c) as parts, "
-                                               "count (distinct p) as pubs"),
+                                               "RETURN COUNT(DISTINCT c) AS parts, "
+                                               "COUNT(DISTINCT p) AS pubs"),
                                         report_name='all_nervous_system')
 
         self.all_nervous_system_number = all_nervous_system['parts'][0]
@@ -102,24 +105,24 @@ class VFBContentReport:
                                  query=("MATCH (c:Class:Neuron) "
                                         "WHERE c.short_form =~ 'FBbt.+' "
                                         "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                        "RETURN count(distinct c) as neurons, "
-                                        "count (distinct p) as pubs"),
+                                        "RETURN COUNT(DISTINCT c) AS neurons, "
+                                        "COUNT(DISTINCT p) AS pubs"),
                                  report_name='all_neurons')
 
         provisional_neurons = gen_report(server=self.server,
                                          query=("MATCH (c:Class:Neuron) "
-                                                "where c.short_form =~ 'FBbt[_]2.+' "
+                                                "WHERE c.short_form =~ 'FBbt[_]2.+' "
                                                 "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                                "RETURN count(distinct c) as neurons, "
-                                                "count (distinct p) as pubs"),
+                                                "RETURN COUNT(DISTINCT c) AS neurons, "
+                                                "COUNT(DISTINCT p) AS pubs"),
                                          report_name='provisional_neurons')
 
         characterised_neurons = gen_report(server=self.server,
                                            query=("MATCH (c:Class:Neuron) "
                                                   "WHERE NOT c.short_form =~ 'FBbt[_]2.+' "
                                                   "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                                  "RETURN count(distinct c) as neurons, "
-                                                  "count (distinct p) as pubs"),
+                                                  "RETURN COUNT(DISTINCT c) AS neurons, "
+                                                  "COUNT(DISTINCT p) AS pubs"),
                                            report_name='characterized_neurons')
 
         self.total_neuron_number = all_neurons['neurons'][0]
@@ -134,8 +137,8 @@ class VFBContentReport:
                                         query=("MATCH (c:Synaptic_neuropil) "
                                                "WHERE c.short_form =~ 'FBbt.+' "
                                                "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                               "RETURN count(distinct c) as regions, "
-                                               "count (distinct p) as pubs"),
+                                               "RETURN COUNT(DISTINCT c) AS regions, "
+                                               "COUNT(DISTINCT p) AS pubs"),
                                         report_name='synaptic_neuropils')
 
         neuron_projection_bundles = gen_report(server=self.server,
@@ -143,19 +146,19 @@ class VFBContentReport:
                                                       "WHERE c.short_form =~ 'FBbt.+' "
                                                       "WITH c OPTIONAL MATCH "
                                                       "(c)-[]->(p:pub) "
-                                                      "RETURN count(distinct c) "
-                                                      "as regions, "
-                                                      "count (distinct p) as pubs"),
+                                                      "RETURN COUNT(DISTINCT c) "
+                                                      "AS regions, "
+                                                      "COUNT(DISTINCT p) AS pubs"),
                                                report_name='neuron_projection_bundles')
 
         cell_body_rinds = gen_report(server=self.server,
                                      query=("MATCH (c:Class)-[:SUBCLASSOF*1..2]"
                                             "->(b:Class) "
                                             "WHERE c.short_form =~ 'FBbt.+' "
-                                            "AND b.short_form = 'FBbt_00100200'"
+                                            "AND b.short_form = 'FBbt_00100200' "
                                             "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                            "RETURN count(distinct c) as regions, "
-                                            "count (distinct p) as pubs"),
+                                            "RETURN COUNT(DISTINCT c) AS regions, "
+                                            "COUNT(DISTINCT p) AS pubs"),
                                      report_name='cell_body_rinds')
 
         all_regions = gen_report(server=self.server,
@@ -167,8 +170,8 @@ class VFBContentReport:
                                         "OR ((c)-[:SUBCLASSOF]->"
                                         "(:Class {short_form:'FBbt_00100200'}))) "
                                         "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                        "RETURN count(distinct c) as regions, "
-                                        "count(distinct p) as pubs"),
+                                        "RETURN COUNT(DISTINCT c) AS regions, "
+                                        "COUNT(DISTINCT p) AS pubs"),
                                  report_name='other_regions')
 
         self.all_region_number = all_regions['regions'][0]
@@ -185,10 +188,10 @@ class VFBContentReport:
                                   query=("MATCH (c:Class)-[:SUBCLASSOF*]"
                                          "->(b:Class) "
                                          "WHERE c.short_form =~ 'FBbt.+' "
-                                         "AND b.short_form = 'FBbt_00005155'"
+                                         "AND b.short_form = 'FBbt_00005155' "
                                          "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
-                                         "RETURN count(distinct c) as types, "
-                                         "count (distinct p) as pubs"),
+                                         "RETURN COUNT(DISTINCT c) AS types, "
+                                         "COUNT(DISTINCT p) AS pubs"),
                                   report_name='sense_organs')
 
         self.sense_organ_number = sense_organs['types'][0]
@@ -196,19 +199,19 @@ class VFBContentReport:
 
         # relationships in ontology
         non_isa_relationships = gen_report(server=self.server,
-                                           query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+'"
-                                                  " and (r.type = 'Related') return count (distinct r) as total"),
+                                           query=("MATCH (c:Class)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                                  "AND (r.type = 'Related') RETURN COUNT(DISTINCT r) AS total"),
                                            report_name='non_isa_relationships')
 
         isa_relationships = gen_report(server=self.server,
-                                       query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
-                                              "and (type(r) = 'SUBCLASSOF') return count (distinct r) as total"),
+                                       query=("MATCH (c:Class)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                              "AND (type(r) = 'SUBCLASSOF') RETURN COUNT(DISTINCT r) AS total"),
                                        report_name='isa_relationships')
 
         all_relationships = gen_report(server=self.server,
-                                       query=("MATCH (c:Class)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
-                                              "and ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
-                                              "return count (distinct r) as total"),
+                                       query=("MATCH (c:Class)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                              "AND ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
+                                              "RETURN COUNT(DISTINCT r) AS total"),
                                        report_name='all_relationships')
 
         self.non_isa_relationship_number = non_isa_relationships['total'][0]
@@ -219,21 +222,21 @@ class VFBContentReport:
         ns_non_isa_relationships = gen_report(server=self.server,
                                               query=(
                                                   "MATCH (c:Nervous_system)-[r]->(d:Class) "
-                                                  "where c.short_form =~ 'FBbt.+'"
-                                                  " and (r.type = 'Related') return count (distinct r) as total"),
+                                                  "WHERE c.short_form =~ 'FBbt.+' "
+                                                  "AND (r.type = 'Related') RETURN COUNT(DISTINCT r) AS total"),
                                               report_name='non_isa_relationships')
 
         ns_isa_relationships = gen_report(server=self.server,
                                           query=(
-                                              "MATCH (c:Nervous_system)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
-                                              "and (type(r) = 'SUBCLASSOF') return count (distinct r) as total"),
+                                              "MATCH (c:Nervous_system)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                              "AND (type(r) = 'SUBCLASSOF') RETURN COUNT(DISTINCT r) AS total"),
                                           report_name='isa_relationships')
 
         ns_all_relationships = gen_report(server=self.server,
                                           query=(
-                                              "MATCH (c:Nervous_system)-[r]->(d:Class) where c.short_form =~ 'FBbt.+' "
-                                              "and ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
-                                              "return count (distinct r) as total"),
+                                              "MATCH (c:Nervous_system)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
+                                              "AND ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
+                                              "RETURN COUNT(DISTINCT r) AS total"),
                                           report_name='all_relationships')
 
         self.ns_non_isa_relationship_number = ns_non_isa_relationships['total'][0]
@@ -244,8 +247,8 @@ class VFBContentReport:
         all_images = gen_report(server=self.server,
                                 query=("MATCH (i:Individual)-[]->(n:DataSet) "
                                        "WHERE n.production "
-                                       "RETURN count(distinct i) as images, "
-                                       "count(distinct n) as ds"),
+                                       "RETURN COUNT(DISTINCT i) AS images, "
+                                       "COUNT(DISTINCT n) AS ds"),
                                 report_name='all_images')
 
         single_neuron_images = gen_report(server=self.server,
@@ -253,8 +256,8 @@ class VFBContentReport:
                                                  "(i:Individual:Neuron)-"
                                                  "[:INSTANCEOF]->(c:Class) "
                                                  "WHERE n.production "
-                                                 "RETURN count(distinct i) as images, "
-                                                 "count(distinct c) as types"),
+                                                 "RETURN COUNT(DISTINCT i) AS images, "
+                                                 "COUNT(DISTINCT c) AS types"),
                                           report_name='single_neuron_images')
 
         exp_pattern_images = gen_report(server=self.server,
@@ -262,16 +265,16 @@ class VFBContentReport:
                                                "(i:Individual:Expression_pattern)-"
                                                "[:INSTANCEOF]->(c:Class) "
                                                "WHERE n.production "
-                                               "RETURN count(distinct i) as images, "
-                                               "count(distinct c) as drivers"),
+                                               "RETURN COUNT(DISTINCT i) AS images, "
+                                               "COUNT(DISTINCT c) AS drivers"),
                                         report_name='exp_pattern_images')
 
         split_images = gen_report(server=self.server,
                                   query=("MATCH (n:DataSet)<-[]-(i:Split)-"
                                          "[:INSTANCEOF]->(c:Class) "
                                          "WHERE n.production "
-                                         "RETURN count(distinct i) as images, "
-                                         "count(distinct c) as split_classes"),
+                                         "RETURN COUNT(DISTINCT i) AS images, "
+                                         "COUNT(DISTINCT c) AS split_classes"),
                                   report_name='split_images')
 
         self.all_image_number = all_images['images'][0]
@@ -285,48 +288,60 @@ class VFBContentReport:
 
         # annotations
 
-        split_neuron_annotations = gen_report(server=self.server,
-                                              query=("MATCH p=(split:Class:Split)<-[r:part_of]-(j:Individual)-"
-                                                     "[:INSTANCEOF]->(n:Neuron:Class) WHERE exists(r.pub) "
-                                                     "RETURN count(distinct split) AS Splits, count(r) AS "
-                                                     "annotations, count(distinct n) as neurons"),
-                                              report_name='split_neuron_annotations')
-
         driver_anatomy_annotations = gen_report(server=self.server,
                                                 query=("MATCH p=(ep:Class:Expression_pattern)<-"
                                                        "[r:part_of|overlaps]-(j:Individual)-[:INSTANCEOF]->(n:Class) "
-                                                       "WHERE exists(r.pub) "
-                                                       "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
-                                                       "count(distinct n) as anatomy"),
+                                                       "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
+                                                       "RETURN COUNT(DISTINCT ep) AS EPs, COUNT(r) AS annotations, "
+                                                       "COUNT(DISTINCT n) AS anatomy"),
                                                 report_name='driver_anatomy_annotations')
+
+        driver_ns_annotations = gen_report(server=self.server,
+                                                query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of|overlaps]-"
+                                                       "(j:Individual)-[:INSTANCEOF]->(n:Nervous_system:Class) "
+                                                       "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
+                                                       "RETURN COUNT(DISTINCT ep) AS EPs, COUNT(r) AS annotations, "
+                                                       "COUNT(DISTINCT n) AS anatomy"),
+                                                report_name='driver_ns_annotations')
 
         driver_neuron_annotations = gen_report(server=self.server,
                                                query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of]-"
                                                       "(j:Individual)-[:INSTANCEOF]->(n:Neuron:Class) "
-                                                      "WHERE exists(r.pub) "
-                                                      "RETURN count(distinct ep) AS EPs, count(r) AS annotations, "
-                                                      "count(distinct n) as neurons"),
+                                                      "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
+                                                      "RETURN COUNT(DISTINCT ep) AS EPs, COUNT(r) AS annotations, "
+                                                      "COUNT(DISTINCT n) AS neurons"),
                                                report_name='driver_neuron_annotations')
 
-        self.split_neuron_annotations_split_number = split_neuron_annotations['Splits'][0]
-        self.split_neuron_annotations_annotation_number = split_neuron_annotations['annotations'][0]
-        self.split_neuron_annotations_neuron_number = split_neuron_annotations['neurons'][0]
+        split_neuron_annotations = gen_report(server=self.server,
+                                              query=("MATCH p=(split:Class:Split)<-[r:part_of]-(j:Individual)-"
+                                                     "[:INSTANCEOF]->(n:Neuron:Class) "
+                                                     "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
+                                                     "RETURN COUNT(DISTINCT split) AS Splits, COUNT(r) AS "
+                                                     "annotations, COUNT(DISTINCT n) AS neurons"),
+                                              report_name='split_neuron_annotations')
+
         self.driver_anatomy_annotations_EP_number = driver_anatomy_annotations['EPs'][0]
         self.driver_anatomy_annotations_annotation_number = driver_anatomy_annotations['annotations'][0]
         self.driver_anatomy_annotations_anatomy_number = driver_anatomy_annotations['anatomy'][0]
+        self.driver_ns_annotations_EP_number = driver_ns_annotations['EPs'][0]
+        self.driver_ns_annotations_annotation_number = driver_ns_annotations['annotations'][0]
+        self.driver_ns_annotations_anatomy_number = driver_ns_annotations['anatomy'][0]
         self.driver_neuron_annotations_EP_number = driver_neuron_annotations['EPs'][0]
         self.driver_neuron_annotations_annotation_number = driver_neuron_annotations['annotations'][0]
         self.driver_neuron_annotations_neuron_number = driver_neuron_annotations['neurons'][0]
+        self.split_neuron_annotations_split_number = split_neuron_annotations['Splits'][0]
+        self.split_neuron_annotations_annotation_number = split_neuron_annotations['annotations'][0]
+        self.split_neuron_annotations_neuron_number = split_neuron_annotations['neurons'][0]
 
         # connectivity
 
         neuron_connections = gen_report(server=self.server,
                                         query=("MATCH (i:Individual:Neuron)-[r:synapsed_to]->"
                                                "(j:Individual:Neuron) "
-                                               "WITH collect(r) AS rels, collect(distinct i) AS ci, "
-                                               "collect(distinct j) AS cj "
-                                               "RETURN size(apoc.coll.union(ci,cj)) AS neurons, "
-                                               "size(rels) AS connections"),
+                                               "WITH COLLECT(r) AS rels, COLLECT(DISTINCT i) AS ci, "
+                                               "COLLECT(DISTINCT j) AS cj "
+                                               "RETURN SIZE(apoc.coll.union(ci,cj)) AS neurons, "
+                                               "SIZE(rels) AS connections"),
                                         report_name='synaptic_connections')
 
         self.neuron_connections_neuron_number = neuron_connections['neurons'][0]
@@ -336,8 +351,8 @@ class VFBContentReport:
                                         query=("MATCH (n:Individual:Neuron)-"
                                                "[r:has_presynaptic_terminals_in|has_postsynaptic_terminal_in]"
                                                "->(m:Individual) "
-                                               "RETURN count(distinct n) AS neurons, count(distinct m) AS regions, "
-                                               "count(distinct r) AS connections"),
+                                               "RETURN COUNT(DISTINCT n) AS neurons, COUNT(DISTINCT m) AS regions, "
+                                               "COUNT(DISTINCT r) AS connections"),
                                         report_name='synaptic_connections')
 
         self.region_connections_neuron_number = region_connections['neurons'][0]
@@ -351,10 +366,10 @@ class VFBContentReport:
                                                "synapsed_via_type_II_bouton_to|"
                                                "synapsed_via_type_III_bouton_to]->(m:Muscle) "
                                                "WITH n, r, m OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
-                                               "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
-                                               "collect(distinct n2) AS cn2, collect(distinct m) AS cm "
-                                               "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
-                                               "size(cm) AS muscles, size(rels) AS connections"),
+                                               "WITH COLLECT(DISTINCT r) AS rels, COLLECT(DISTINCT n) AS cn, "
+                                               "COLLECT(DISTINCT n2) AS cn2, COLLECT(DISTINCT m) AS cm "
+                                               "RETURN SIZE(apoc.coll.union(cn,cn2)) AS neurons, "
+                                               "SIZE(cm) AS muscles, SIZE(rels) AS connections"),
                                         report_name='muscle_connections')
 
         self.muscle_connections_neuron_number = muscle_connections['neurons'][0]
@@ -364,10 +379,10 @@ class VFBContentReport:
         sensory_connections = gen_report(server=self.server,
                                          query=("MATCH (n:Neuron)-[r:has_sensory_dendrite_in]->(s:Sense_organ) "
                                                 "WITH n, r, s OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
-                                                "WITH collect(distinct r) AS rels, collect(distinct n) AS cn, "
-                                                "collect(distinct n2) AS cn2, collect(distinct s) AS cs "
-                                                "RETURN size(apoc.coll.union(cn,cn2)) AS neurons, "
-                                                "size(cs) AS sense_organs, size(rels) AS connections"),
+                                                "WITH COLLECT(DISTINCT r) AS rels, COLLECT(DISTINCT n) AS cn, "
+                                                "COLLECT(DISTINCT n2) AS cn2, COLLECT(DISTINCT s) AS cs "
+                                                "RETURN SIZE(apoc.coll.union(cn,cn2)) AS neurons, "
+                                                "SIZE(cs) AS sense_organs, SIZE(rels) AS connections"),
                                          report_name='sensory_connections')
 
         self.sensory_connections_neuron_number = sensory_connections['neurons'][0]
@@ -476,21 +491,26 @@ class VFBContentReport:
         f.new_line()
         f.new_line("Annotations", bold_italics_code='bic')
         f.new_line()
-        f.new_line('**%s** annotations recording **%s** types of neurons that **%s** specific '
-                   'split combinations are expressed in.'
-                   % (str(self.split_neuron_annotations_annotation_number),
-                      str(self.split_neuron_annotations_neuron_number),
-                      str(self.split_neuron_annotations_split_number)))
-        f.new_line('**%s** annotations recording **%s** types of anatomical structures that '
+        f.new_line('**%s** annotations recording **%s** types of anatomical structure that '
                    '**%s** specific driver lines are expressed in.'
                    % (str(self.driver_anatomy_annotations_annotation_number),
                       str(self.driver_anatomy_annotations_anatomy_number),
                       str(self.driver_anatomy_annotations_EP_number)))
-        f.new_line('**%s** annotations recording **%s** types of neurons that '
+        f.new_line('**%s** annotations recording **%s** parts of the nervous system that '
+                   '**%s** specific driver lines are expressed in.'
+                   % (str(self.driver_ns_annotations_annotation_number),
+                      str(self.driver_ns_annotations_anatomy_number),
+                      str(self.driver_ns_annotations_EP_number)))
+        f.new_line('**%s** annotations recording **%s** types of neuron that '
                    '**%s** specific driver lines are expressed in.'
                    % (str(self.driver_neuron_annotations_annotation_number),
                       str(self.driver_neuron_annotations_neuron_number),
                       str(self.driver_neuron_annotations_EP_number)))
+        f.new_line('**%s** annotations recording **%s** types of neuron that **%s** specific '
+                   'split combinations are expressed in.'
+                   % (str(self.split_neuron_annotations_annotation_number),
+                      str(self.split_neuron_annotations_neuron_number),
+                      str(self.split_neuron_annotations_split_number)))
 
         f.new_line()
         f.new_line("Connectivity", bold_italics_code='bic')
