@@ -263,7 +263,15 @@ def make_anat_records(site, curator, output_filename='./anat'):
             entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
             instance = 'FANC'
-        curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
+        if site == 'FAFB':
+            curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
+                                    'label': single_ds_data['name'].map(
+                                        lambda x: str('%s' % (x.replace(' - elastic transform', '')))),
+                                    'is_a': 'neuron',
+                                    'part_of': resolve_entity(entity, single_ds_data['annotations']),
+                                    'comment': generate_comments(single_ds_data['annotations'])})
+        else:
+            curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'].map(
                                         lambda x: str('%s' % (x.replace(' - elastic transform', '')))),
                                     'is_a': find_available_terms(single_ds_data['annotations']),
