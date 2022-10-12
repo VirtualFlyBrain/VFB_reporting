@@ -67,15 +67,22 @@ def gen_dataset_report_prod(server, report_name):
                "OPTIONAL MATCH (ds)-[]->(l:License) "
                "WITH ds, p, exp_cur, ontology_terms, l "
                "OPTIONAL MATCH (ds)<-[:has_source]-(i:Individual) "
+               "WITH ds, p, exp_cur, ontology_terms, l, count(distinct i) as individuals"
+               "OPTIONAL MATCH (ds)<-[:has_source]-(nb:NBLAST) "
+               "WITH ds, p, exp_cur, ontology_terms, l, individuals, count(distinct nb) as NBLAST"
+               "OPTIONAL MATCH (ds)<-[:has_source]-(nbe:NBLASTexp) "
+               "WITH ds, p, exp_cur, ontology_terms, l, individuals, NBLAST, count(distinct nbe) as NBLASTexp"
                "RETURN ds.short_form, ds.label,"
                "l.label as license, p.short_form as pub, "
-               "count(distinct i) as individuals, exp_cur, ontology_terms "
+               "individuals, NBLAST, NBLASTexp, exp_cur, ontology_terms "
                "order by ds.short_form"),
         report_name=report_name, column_order=['ds.short_form',
                                                'ds.label',
                                                'license',
                                                'pub',
                                                'individuals',
+                                               'NBLAST',
+                                               'NBLASTexp',
                                                'ontology_terms',
                                                'exp_cur'])
 
