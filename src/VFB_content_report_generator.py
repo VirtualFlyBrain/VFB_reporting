@@ -389,12 +389,13 @@ class VFBContentReport:
         self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
         self.sensory_connections_connection_number = sensory_connections['connections'][0]
 
-        # Template data
+        # Template data (excluding hemibrain v1.0.1)
 
         self.templates_data = gen_report(server=self.server,
                                          query=("MATCH (d:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-"
                                                 "(m:Individual)-[:in_register_with]->"
                                                 "(:Template)-[:depicts]->(t:Template) "
+                                                "WHERE d.short_form<>\"Xu2020Neurons\" "
                                                 "OPTIONAL MATCH (m)-[:depicts]->(n:Individual:Neuron) "
                                                 "OPTIONAL MATCH em = (m)-[:is_specified_output_of]->(e) "
                                                 "WHERE e.label CONTAINS \"electron microscopy\" "
@@ -536,6 +537,7 @@ class VFBContentReport:
 
         f.new_line()
         f.new_line("Content by Template", bold_italics_code='bic')
+        f.new_line("(excludes hemibrain v1.0.1)", bold_italics_code='ic')
 
         f.new_line()
         template_table_content = ['Template Name', 'Datasets', 'Images', 'Single Neurons', 'EM Neurons',
