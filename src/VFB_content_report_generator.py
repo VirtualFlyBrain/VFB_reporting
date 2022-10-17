@@ -243,10 +243,11 @@ class VFBContentReport:
         self.ns_isa_relationship_number = ns_isa_relationships['total'][0]
         self.ns_all_relationship_number = ns_all_relationships['total'][0]
 
-        # images
+        # images (excluding hemibrain 1.0.1)
         all_images = gen_report(server=self.server,
                                 query=("MATCH (i:Individual)-[]->(n:DataSet) "
                                        "WHERE n.production "
+                                       "AND n.short_form<>\"Xu2020Neurons\" "
                                        "RETURN COUNT(DISTINCT i) AS images, "
                                        "COUNT(DISTINCT n) AS ds"),
                                 report_name='all_images')
@@ -256,6 +257,7 @@ class VFBContentReport:
                                                  "(i:Individual:Neuron)-"
                                                  "[:INSTANCEOF]->(c:Class) "
                                                  "WHERE n.production "
+                                                 "AND n.short_form<>\"Xu2020Neurons\" "
                                                  "RETURN COUNT(DISTINCT i) AS images, "
                                                  "COUNT(DISTINCT c) AS types"),
                                           report_name='single_neuron_images')
@@ -475,6 +477,7 @@ class VFBContentReport:
 
         f.new_line()
         f.new_line("Image Content", bold_italics_code='bic')
+        f.new_line("(excludes hemibrain v1.0.1)", bold_italics_code='ic')
         f.new_line()
         f.new_line('**%s** total images from **%s** datasets'
                    % (str(self.all_image_number),
