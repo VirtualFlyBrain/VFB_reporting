@@ -48,6 +48,8 @@ class VFBContentReport:
         self.split_exp_pattern_driver_number = None
         self.split_image_number = None
         self.split_image_driver_number = None
+        self.exp_pattern_fragment_number = None
+        self.split_exp_pattern_fragment_driver_number = None
         self.driver_anatomy_annotations_EP_number = None
         self.driver_anatomy_annotations_annotation_number = None
         self.driver_anatomy_annotations_anatomy_number = None
@@ -278,6 +280,15 @@ class VFBContentReport:
                                          "RETURN COUNT(DISTINCT i) AS images, "
                                          "COUNT(DISTINCT c) AS split_classes"),
                                   report_name='split_images')
+                                  
+        exp_pattern_fragment_images = gen_report(server=self.server,
+                                        query=("MATCH (n:DataSet)<-[]-"
+                                               "(i:Individual:Expression_pattern_fragment:has_image)-"
+                                               "[:part_of]->(c:Class:Expression_pattern) "
+                                               "WHERE n.production "
+                                               "RETURN COUNT(DISTINCT i) AS images, "
+                                               "COUNT(DISTINCT c) AS drivers"),
+                                        report_name='exp_pattern_fragment_images')
 
         self.all_image_number = all_images['images'][0]
         self.all_image_ds_number = all_images['ds'][0]
@@ -287,6 +298,8 @@ class VFBContentReport:
         self.split_exp_pattern_driver_number = exp_pattern_images['drivers'][0]
         self.split_image_number = split_images['images'][0]
         self.split_image_driver_number = split_images['split_classes'][0]
+        self.exp_pattern_fragment_number = exp_pattern_fragment_images['images'][0]
+        self.split_exp_pattern_fragment_driver_number = exp_pattern_fragment_images['drivers'][0]
 
         # annotations
 
@@ -491,6 +504,9 @@ class VFBContentReport:
         f.new_line('**%s** images of expression patterns of **%s** split combinations'
                    % (str(self.split_image_number),
                       str(self.split_image_driver_number)))
+        f.new_line('**%s** images of expression pattern fragments of **%s** drivers'
+                   % (str(self.exp_pattern_fragment_number),
+                      str(self.split_exp_pattern_fragment_driver_number)))
 
         f.new_line()
         f.new_line("Annotations", bold_italics_code='bic')
