@@ -245,7 +245,7 @@ class VFBContentReport:
 
         # images (excluding hemibrain 1.0.1)
         all_images = gen_report(server=self.server,
-                                query=("MATCH (i:Individual)-[]->(n:DataSet) "
+                                query=("MATCH (i:Individual:has_image)-[]->(n:DataSet) "
                                        "WHERE n.production "
                                        "AND n.short_form<>\"Xu2020Neurons\" "
                                        "RETURN COUNT(DISTINCT i) AS images, "
@@ -254,8 +254,8 @@ class VFBContentReport:
 
         single_neuron_images = gen_report(server=self.server,
                                           query=("MATCH (n:DataSet)<-[]-"
-                                                 "(i:Individual:Neuron)-"
-                                                 "[:INSTANCEOF]->(c:Class) "
+                                                 "(i:Individual:Neuron:has_image)-"
+                                                 "[:INSTANCEOF]->(c:Class:Neuron) "
                                                  "WHERE n.production "
                                                  "AND n.short_form<>\"Xu2020Neurons\" "
                                                  "RETURN COUNT(DISTINCT i) AS images, "
@@ -264,16 +264,16 @@ class VFBContentReport:
 
         exp_pattern_images = gen_report(server=self.server,
                                         query=("MATCH (n:DataSet)<-[]-"
-                                               "(i:Individual:Expression_pattern)-"
-                                               "[:INSTANCEOF]->(c:Class) "
+                                               "(i:Individual:Expression_pattern:has_image)-"
+                                               "[:INSTANCEOF]->(c:Class:Expression_pattern) "
                                                "WHERE n.production "
                                                "RETURN COUNT(DISTINCT i) AS images, "
                                                "COUNT(DISTINCT c) AS drivers"),
                                         report_name='exp_pattern_images')
 
         split_images = gen_report(server=self.server,
-                                  query=("MATCH (n:DataSet)<-[]-(i:Split)-"
-                                         "[:INSTANCEOF]->(c:Class) "
+                                  query=("MATCH (n:DataSet)<-[]-(i:Split:has_image)-"
+                                         "[:INSTANCEOF]->(c:Class:Split) "
                                          "WHERE n.production "
                                          "RETURN COUNT(DISTINCT i) AS images, "
                                          "COUNT(DISTINCT c) AS split_classes"),
