@@ -108,14 +108,18 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
     NB. each skid may feature in multiple papers."""
 
     # get token
-
-    client = requests.session()
-    client.get("%s" % URL)
-    for key in client.cookies.keys():
-        if key[:4] == 'csrf':
-            csrf_key = key
-    csrftoken = client.cookies[csrf_key]
-
+    try:
+        print(URL)
+        client = requests.session()
+        client.get("%s" % URL)
+        for key in client.cookies.keys():
+            if key[:4] == 'csrf':
+                csrf_key = key
+        csrftoken = client.cookies[csrf_key]
+    except:
+        print("Error finding token for: " + URL)
+        print("In keys: " + client.cookies.keys())
+        
     # PAPERS
     # pull out paper ids and names from CATMAID
     call_papers = {"annotated_with": paper_annotation, "with_annotations": False, "annotation_reference": "name"}
@@ -138,7 +142,6 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
                 print(name_annotation)
                 print(json.dumps(results, indent=4))
         except:
-            print(URL)
             print("Error finding annotation for: " + name_annotation)
                 
     # get neuron info for each paper
