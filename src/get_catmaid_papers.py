@@ -129,7 +129,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
         papers = response["entities"]
     except:
         print("Error finding papers at: " + URL)
-        print("Returned: " + response)
+        print("Returned: " + str(response))
     # NAMES
     # pull out official names
     names_list = []
