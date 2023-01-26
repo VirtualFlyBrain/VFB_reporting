@@ -123,9 +123,13 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
     # PAPERS
     # pull out paper ids and names from CATMAID
     call_papers = {"annotated_with": paper_annotation, "with_annotations": False, "annotation_reference": "name"}
-    papers = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
-                         data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()["entities"]
-
+    try:
+        response = client.post("%s/%d/annotations/query-targets" % (URL, PROJECT_ID),
+                         data=call_papers, headers={"Referer": URL, "X-CSRFToken": csrftoken}).json()
+        papers = response["entities"]
+    except:
+        print("Error finding papers at: " + URL)
+        print("Returned: " + response)
     # NAMES
     # pull out official names
     names_list = []
