@@ -323,3 +323,9 @@ if __name__ == "__main__":
         '../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_missing_terms.tsv', sep='\t', index=None)
     pd.DataFrame({'CATMAID annotation': pd.Series(passed.keys()), 'FBbt term': pd.Series(passed.values())}).to_csv(
         '../VFB_reporting_results/CATMAID_SKID_reports/anat_fanc2_resolved_terms.tsv', sep='\t', index=None)
+    make_anat_records('LEG40', 'travis',
+                      '../VFB_reporting_results/anat_leg40_missing')
+    pd.DataFrame({'missing terms': pd.Series(missing.keys()), 'meta': pd.Series(missing.values())}).to_csv(
+        '../VFB_reporting_results/CATMAID_SKID_reports/anat_leg40_missing_terms.tsv', sep='\t', index=None)
+    pd.DataFrame({'CATMAID annotation': pd.Series(passed.keys()), 'FBbt term': pd.Series(passed.values())}).to_csv(
+        '../VFB_reporting_results/CATMAID_SKID_reports/anat_leg40_resolved_terms.tsv', sep='\t', index=None)
