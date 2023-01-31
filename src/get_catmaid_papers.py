@@ -227,7 +227,7 @@ if __name__ == '__main__':
     FAFB = ["https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"], "FAFB"]
     FANC1 = ["https://fanc.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"], "FANC1"]
     FANC2 = ["https://fanc.catmaid.virtualflybrain.org", 2, "publication", ["neuron name"], "FANC2"]
-    LEG40 = ["https://radagast.hms.harvard.edu/catmaidvnc", 40, "publication", ["neuron name"], "LEG40"]
+    LEG40 = ["https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication", ["neuron name"], "LEG40"]
 
     # make reports
     for r in larval_reports:
