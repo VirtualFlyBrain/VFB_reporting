@@ -225,8 +225,8 @@ def make_anat_records(site, curator, output_filename='./anat'):
     Ignores any skids whose catmaid paper ID is not associated with a DataSet in VFB.
     This should not be automatically run every day (makes dated files for curation).
     """
-    if site not in ['L1EM', 'FAFB', 'FANC1', 'FANC2', 'VNC1']:
-        raise KeyError('site must be L1EM, FAFB, FANC1 OR FANC2')
+    if site not in ['L1EM', 'FAFB', 'FANC1', 'FANC2', 'VNC1', 'LEG40']:
+        raise KeyError('site must be L1EM, FAFB, FANC1, FANC2 OR LEG40')
     # date for filenames
     today = datetime.date.today()
     datestring = today.strftime("%y%m%d")
