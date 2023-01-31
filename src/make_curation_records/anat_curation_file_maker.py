@@ -260,6 +260,10 @@ def make_anat_records(site, curator, output_filename='./anat'):
             template = 'JRC2018Unisex_c'
             instance = 'FAFB'
         elif site in ['FANC1', 'FANC2']:
+            entity = 'female organism|prothoracic leg'
+            template = 'T1Leg2020_c'
+            instance = 'LEG40'
+        elif site in == 'LEG40':
             entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
             instance = 'FANC'
