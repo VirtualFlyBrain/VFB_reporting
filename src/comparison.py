@@ -32,6 +32,12 @@ FANC2 = [get_catmaid_papers.gen_cat_paper_report(
    "https://fanc.catmaid.virtualflybrain.org", 2, "publication", ["neuron name"]),
    "FANC2"]
 
+LEG40 = [get_catmaid_papers.gen_cat_paper_report(
+   "https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication"),
+   get_catmaid_papers.gen_cat_skid_report_officialnames(
+   "https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication", ["neuron name"]),
+   "LEG40"]
+
 
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Make comparison with data in VFB for given sets of papers and skids in CATMAID.
@@ -153,3 +159,4 @@ for r in larval_reports:
 make_catmaid_vfb_reports(*FAFB)
 make_catmaid_vfb_reports(*FANC1)
 make_catmaid_vfb_reports(*FANC2)
+make_catmaid_vfb_reports(*LEG40)
