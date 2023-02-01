@@ -263,7 +263,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
             entity = 'female organism|prothoracic leg'
             template = 'T1Leg2020_c'
             instance = 'LEG40'
-        elif site in == 'LEG40':
+        elif site == 'LEG40':
             entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
             instance = 'FANC'
