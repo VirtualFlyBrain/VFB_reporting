@@ -276,6 +276,14 @@ def make_anat_records(site, curator, output_filename='./anat'):
                                     'is_a': 'neuron',
                                     'part_of': resolve_entity(entity, single_ds_data['annotations']),
                                     'comment': generate_comments(single_ds_data['annotations'])})
+        else if site == 'LEG40':
+            curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
+                                    'label': single_ds_data['name'].map(
+                                        lambda x: str('%s' % (x.replace(' - elastic transform', '')))),
+                                    'is_a': find_available_terms(single_ds_data['name'].map(
+                                        lambda x: str('%s' % (trim("".join(itertools.takewhile((not str.isdigit), x))))))),
+                                    'part_of': resolve_entity(entity, single_ds_data['annotations']),
+                                    'comment': generate_comments(single_ds_data['annotations'])})
         else:
             curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'].map(
