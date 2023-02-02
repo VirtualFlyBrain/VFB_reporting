@@ -251,6 +251,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
 
         single_ds_data = new_skids[new_skids['paper_id'] == i]
         single_ds_data = single_ds_data.reset_index()
+        image_type = 'TEM'
         if site == 'L1EM':
             entity = 'embryonic/larval nervous system'
             template = 'L1 larval CNS ssTEM - Cardona/Janelia_c'
@@ -267,6 +268,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
             entity = 'female organism|adult ventral nerve cord'
             template = 'JRC2018UnisexVNC_c'
             instance = 'FANC'
+            image_type = 'XNH'
         if site == 'FAFB':
             curation_df = pd.DataFrame({'filename': single_ds_data['skid'],
                                     'label': single_ds_data['name'].map(
@@ -303,7 +305,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
         with open(output_filename1 + '.yaml', 'w') as file:
             file.write("DataSet: %s\n" % ds)
             file.write("Curator: %s\n" % curator)
-            file.write("Imaging_type: TEM\n")
+            file.write("Imaging_type: %s\n" % image_type)
             file.write("Template: %s\n" % template)
 
 
