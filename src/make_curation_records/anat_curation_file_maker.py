@@ -282,7 +282,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
                                     'label': single_ds_data['name'].map(
                                         lambda x: str('%s' % (x.replace(' - elastic transform', '')))),
                                     'is_a': find_available_terms(single_ds_data['name'].map(
-                                        lambda x: str('%s' % ("".join(itertools.dropwhile(str.isdigit, x)).trim())))),
+                                        lambda x: str('%s' % ("".join(itertools.dropwhile(str.isdigit, x)).strip())))),
                                     'part_of': resolve_entity(entity, single_ds_data['annotations']),
                                     'comment': generate_comments(single_ds_data['annotations'])})
         else:
