@@ -296,7 +296,7 @@ def make_anat_records(site, curator, output_filename='./anat'):
             lambda x: str('catmaid_%s:%s' % (site.lower().replace('fanc2', 'fanc_JRC2018VF'), str(x))))
         curation_df['dbxrefs'] += find_dbxrefs(single_ds_data['annotations'])
         if 'synonyms' in single_ds_data.keys():
-            curation_df['synonyms'] = single_ds_data['synonyms']
+            curation_df['synonyms'] = single_ds_data['synonyms'].fillna('', inplace=True)
         if single_ds_data['skid'].to_string() not in curation_df['label'].to_string():
             curation_df['label'] = curation_df['label'] + \
                 ' (' + instance + ':' + single_ds_data['skid'] + ')'
