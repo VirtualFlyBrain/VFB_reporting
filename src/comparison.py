@@ -77,7 +77,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                 "<-[:has_source]-(i:Individual)" \
                 "-[skid:database_cross_reference|hasDbXref]->(s:Site) " \
                 "WHERE api.short_form ends with '_catmaid_api' " \
-                "AND not i.block = ['skid no longer exists'] " \ 
+                "AND not i.block = ['skid no longer exists'] " \
                 "AND s.short_form starts with 'catmaid_' " \
                 "AND dsxref.accession = ['" + str(paper_id) +"'] WITH i, skid " \
                 "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
