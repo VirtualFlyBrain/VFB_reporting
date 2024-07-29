@@ -99,8 +99,9 @@ class VFBContentReport:
                                       "RETURN COUNT(DISTINCT c) AS parts, "
                                       "COUNT(DISTINCT p) AS pubs"),
                                report_name='all_terms')
-        self.all_terms_number = all_terms['parts'][0]
-        self.all_terms_pubs = all_terms['pubs'][0]
+        if all_terms is not None:
+              self.all_terms_number = all_terms['parts'][0]
+              self.all_terms_pubs = all_terms['pubs'][0]
 
         # total nervous system parts
         all_nervous_system = safe_gen_report(server=self.server,
@@ -110,9 +111,9 @@ class VFBContentReport:
                                                "RETURN COUNT(DISTINCT c) AS parts, "
                                                "COUNT(DISTINCT p) AS pubs"),
                                         report_name='all_nervous_system')
-
-        self.all_nervous_system_number = all_nervous_system['parts'][0]
-        self.all_nervous_system_pubs = all_nervous_system['pubs'][0]
+        if all_nervous_system is not None:
+              self.all_nervous_system_number = all_nervous_system['parts'][0]
+              self.all_nervous_system_pubs = all_nervous_system['pubs'][0]
 
         # numbers of neurons
         all_neurons = safe_gen_report(server=self.server,
@@ -138,13 +139,13 @@ class VFBContentReport:
                                                   "RETURN COUNT(DISTINCT c) AS neurons, "
                                                   "COUNT(DISTINCT p) AS pubs"),
                                            report_name='characterized_neurons')
-
-        self.total_neuron_number = all_neurons['neurons'][0]
-        self.total_neuron_pub_number = all_neurons['pubs'][0]
-        self.provisional_neuron_number = provisional_neurons['neurons'][0]
-        self.provisional_neuron_pub_number = provisional_neurons['pubs'][0]
-        self.characterised_neuron_number = characterised_neurons['neurons'][0]
-        self.characterised_neuron_pub_number = characterised_neurons['pubs'][0]
+        if all_neurons is not None:
+              self.total_neuron_number = all_neurons['neurons'][0]
+              self.total_neuron_pub_number = all_neurons['pubs'][0]
+              self.provisional_neuron_number = provisional_neurons['neurons'][0]
+              self.provisional_neuron_pub_number = provisional_neurons['pubs'][0]
+              self.characterised_neuron_number = characterised_neurons['neurons'][0]
+              self.characterised_neuron_pub_number = characterised_neurons['pubs'][0]
 
         # numbers of regions
         synaptic_neuropils = safe_gen_report(server=self.server,
@@ -187,15 +188,15 @@ class VFBContentReport:
                                         "RETURN COUNT(DISTINCT c) AS regions, "
                                         "COUNT(DISTINCT p) AS pubs"),
                                  report_name='other_regions')
-
-        self.all_region_number = all_regions['regions'][0]
-        self.all_region_pub_number = all_regions['pubs'][0]
-        self.synaptic_neuropil_number = synaptic_neuropils['regions'][0]
-        self.synaptic_neuropil_pub_number = synaptic_neuropils['pubs'][0]
-        self.neuron_projection_bundle_number = neuron_projection_bundles['regions'][0]
-        self.neuron_projection_bundle_pub_number = neuron_projection_bundles['pubs'][0]
-        self.cell_body_rind_number = cell_body_rinds['regions'][0]
-        self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
+        if all_regions is not None:
+              self.all_region_number = all_regions['regions'][0]
+              self.all_region_pub_number = all_regions['pubs'][0]
+              self.synaptic_neuropil_number = synaptic_neuropils['regions'][0]
+              self.synaptic_neuropil_pub_number = synaptic_neuropils['pubs'][0]
+              self.neuron_projection_bundle_number = neuron_projection_bundles['regions'][0]
+              self.neuron_projection_bundle_pub_number = neuron_projection_bundles['pubs'][0]
+              self.cell_body_rind_number = cell_body_rinds['regions'][0]
+              self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
 
         # sense organs
         sense_organs = safe_gen_report(server=self.server,
@@ -207,9 +208,9 @@ class VFBContentReport:
                                          "RETURN COUNT(DISTINCT c) AS types, "
                                          "COUNT(DISTINCT p) AS pubs"),
                                   report_name='sense_organs')
-
-        self.sense_organ_number = sense_organs['types'][0]
-        self.sense_organ_pubs = sense_organs['pubs'][0]
+        if sense_organs is not None:
+              self.sense_organ_number = sense_organs['types'][0]
+              self.sense_organ_pubs = sense_organs['pubs'][0]
 
         # relationships in ontology
         non_isa_relationships = safe_gen_report(server=self.server,
@@ -227,10 +228,10 @@ class VFBContentReport:
                                               "AND ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
                                               "RETURN COUNT(DISTINCT r) AS total"),
                                        report_name='all_relationships')
-
-        self.non_isa_relationship_number = non_isa_relationships['total'][0]
-        self.isa_relationship_number = isa_relationships['total'][0]
-        self.all_relationship_number = all_relationships['total'][0]
+        if all_relationships is not None:
+              self.non_isa_relationship_number = non_isa_relationships['total'][0]
+              self.isa_relationship_number = isa_relationships['total'][0]
+              self.all_relationship_number = all_relationships['total'][0]
 
         # nervous system relationships in ontology
         ns_non_isa_relationships = safe_gen_report(server=self.server,
@@ -252,10 +253,10 @@ class VFBContentReport:
                                               "AND ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
                                               "RETURN COUNT(DISTINCT r) AS total"),
                                           report_name='all_relationships')
-
-        self.ns_non_isa_relationship_number = ns_non_isa_relationships['total'][0]
-        self.ns_isa_relationship_number = ns_isa_relationships['total'][0]
-        self.ns_all_relationship_number = ns_all_relationships['total'][0]
+        if ns_all_relationships is not None:
+              self.ns_non_isa_relationship_number = ns_non_isa_relationships['total'][0]
+              self.ns_isa_relationship_number = ns_isa_relationships['total'][0]
+              self.ns_all_relationship_number = ns_all_relationships['total'][0]
 
         # images (excluding hemibrain 1.0.1)
         all_images = safe_gen_report(server=self.server,
@@ -301,17 +302,17 @@ class VFBContentReport:
                                                "RETURN COUNT(DISTINCT i) AS images, "
                                                "COUNT(DISTINCT c) AS drivers"),
                                         report_name='exp_pattern_fragment_images')
-
-        self.all_image_number = all_images['images'][0]
-        self.all_image_ds_number = all_images['ds'][0]
-        self.single_neuron_image_number = single_neuron_images['images'][0]
-        self.single_neuron_image_type_number = single_neuron_images['types'][0]
-        self.exp_pattern_number = exp_pattern_images['images'][0]
-        self.split_exp_pattern_driver_number = exp_pattern_images['drivers'][0]
-        self.split_image_number = split_images['images'][0]
-        self.split_image_driver_number = split_images['split_classes'][0]
-        self.exp_pattern_fragment_number = exp_pattern_fragment_images['images'][0]
-        self.split_exp_pattern_fragment_driver_number = exp_pattern_fragment_images['drivers'][0]
+        if all_images is not None:
+              self.all_image_number = all_images['images'][0]
+              self.all_image_ds_number = all_images['ds'][0]
+              self.single_neuron_image_number = single_neuron_images['images'][0]
+              self.single_neuron_image_type_number = single_neuron_images['types'][0]
+              self.exp_pattern_number = exp_pattern_images['images'][0]
+              self.split_exp_pattern_driver_number = exp_pattern_images['drivers'][0]
+              self.split_image_number = split_images['images'][0]
+              self.split_image_driver_number = split_images['split_classes'][0]
+              self.exp_pattern_fragment_number = exp_pattern_fragment_images['images'][0]
+              self.split_exp_pattern_fragment_driver_number = exp_pattern_fragment_images['drivers'][0]
 
         # annotations
 
@@ -346,19 +347,19 @@ class VFBContentReport:
                                                      "RETURN COUNT(DISTINCT split) AS Splits, COUNT(r) AS "
                                                      "annotations, COUNT(DISTINCT n) AS neurons"),
                                               report_name='split_neuron_annotations')
-
-        self.driver_anatomy_annotations_EP_number = driver_anatomy_annotations['EPs'][0]
-        self.driver_anatomy_annotations_annotation_number = driver_anatomy_annotations['annotations'][0]
-        self.driver_anatomy_annotations_anatomy_number = driver_anatomy_annotations['anatomy'][0]
-        self.driver_ns_annotations_EP_number = driver_ns_annotations['EPs'][0]
-        self.driver_ns_annotations_annotation_number = driver_ns_annotations['annotations'][0]
-        self.driver_ns_annotations_anatomy_number = driver_ns_annotations['anatomy'][0]
-        self.driver_neuron_annotations_EP_number = driver_neuron_annotations['EPs'][0]
-        self.driver_neuron_annotations_annotation_number = driver_neuron_annotations['annotations'][0]
-        self.driver_neuron_annotations_neuron_number = driver_neuron_annotations['neurons'][0]
-        self.split_neuron_annotations_split_number = split_neuron_annotations['Splits'][0]
-        self.split_neuron_annotations_annotation_number = split_neuron_annotations['annotations'][0]
-        self.split_neuron_annotations_neuron_number = split_neuron_annotations['neurons'][0]
+        if split_neuron_annotations is not None:
+              self.driver_anatomy_annotations_EP_number = driver_anatomy_annotations['EPs'][0]
+              self.driver_anatomy_annotations_annotation_number = driver_anatomy_annotations['annotations'][0]
+              self.driver_anatomy_annotations_anatomy_number = driver_anatomy_annotations['anatomy'][0]
+              self.driver_ns_annotations_EP_number = driver_ns_annotations['EPs'][0]
+              self.driver_ns_annotations_annotation_number = driver_ns_annotations['annotations'][0]
+              self.driver_ns_annotations_anatomy_number = driver_ns_annotations['anatomy'][0]
+              self.driver_neuron_annotations_EP_number = driver_neuron_annotations['EPs'][0]
+              self.driver_neuron_annotations_annotation_number = driver_neuron_annotations['annotations'][0]
+              self.driver_neuron_annotations_neuron_number = driver_neuron_annotations['neurons'][0]
+              self.split_neuron_annotations_split_number = split_neuron_annotations['Splits'][0]
+              self.split_neuron_annotations_annotation_number = split_neuron_annotations['annotations'][0]
+              self.split_neuron_annotations_neuron_number = split_neuron_annotations['neurons'][0]
 
         # connectivity
 
@@ -370,9 +371,9 @@ class VFBContentReport:
                                                "RETURN SIZE(apoc.coll.union(ci,cj)) AS neurons, "
                                                "SIZE(rels) AS connections"),
                                         report_name='synaptic_connections')
-
-        self.neuron_connections_neuron_number = neuron_connections['neurons'][0]
-        self.neuron_connections_connection_number = neuron_connections['connections'][0]
+        if neuron_connections is not None:
+              self.neuron_connections_neuron_number = neuron_connections['neurons'][0]
+              self.neuron_connections_connection_number = neuron_connections['connections'][0]
 
         region_connections = safe_gen_report(server=self.server,
                                         query=("MATCH (n:Individual:Neuron)-"
@@ -398,10 +399,10 @@ class VFBContentReport:
                                                "RETURN SIZE(apoc.coll.union(cn,cn2)) AS neurons, "
                                                "SIZE(cm) AS muscles, SIZE(rels) AS connections"),
                                         report_name='muscle_connections')
-
-        self.muscle_connections_neuron_number = muscle_connections['neurons'][0]
-        self.muscle_connections_muscle_number = muscle_connections['muscles'][0]
-        self.muscle_connections_connection_number = muscle_connections['connections'][0]
+        if muscle_connections is not None:
+              self.muscle_connections_neuron_number = muscle_connections['neurons'][0]
+              self.muscle_connections_muscle_number = muscle_connections['muscles'][0]
+              self.muscle_connections_connection_number = muscle_connections['connections'][0]
 
         sensory_connections = safe_gen_report(server=self.server,
                                          query=("MATCH (n:Neuron)-[r:has_sensory_dendrite_in]->(s:Sense_organ) "
@@ -412,9 +413,10 @@ class VFBContentReport:
                                                 "SIZE(cs) AS sense_organs, SIZE(rels) AS connections"),
                                          report_name='sensory_connections')
 
-        self.sensory_connections_neuron_number = sensory_connections['neurons'][0]
-        self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
-        self.sensory_connections_connection_number = sensory_connections['connections'][0]
+        if sensory_connections is not None:
+              self.sensory_connections_neuron_number = sensory_connections['neurons'][0]
+              self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
+              self.sensory_connections_connection_number = sensory_connections['connections'][0]
 
         # Template data (excluding hemibrain v1.0.1)
 
@@ -442,7 +444,8 @@ class VFBContentReport:
                                                 "COUNT(DISTINCT epf) AS expression_pattern_fragments, "
                                                 "COUNT(DISTINCT pd) AS painted_domains"),
                                          report_name='templates_data')
-        self.templates_data.set_index('template', inplace=True, verify_integrity=True)
+        if self.templates_data is not None:
+              self.templates_data.set_index('template', inplace=True, verify_integrity=True)
 
 
     def prepare_report(self, filename):
