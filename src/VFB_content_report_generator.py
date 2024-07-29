@@ -3,7 +3,7 @@ import mdutils
 import datetime
 
 VFB_servers = {'pdb': ('http://pdb.virtualflybrain.org', 'neo4j', 'vfb'),
-               'pdb-preview': ('http://pdbsl.p2.VirtualFlyBrain.org', 'neo4j', 'vfb')}
+               'pdb-preview': ('http://pdb.ug.virtualflybrain.org', 'neo4j', 'vfb')}
 output_files = {'pdb': "../VFB_reporting_results/content_report.md",
                 'pdb-preview': "../VFB_reporting_results/content_report_preview.md"}
 
