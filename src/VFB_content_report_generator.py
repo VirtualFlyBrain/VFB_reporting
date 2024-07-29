@@ -84,8 +84,15 @@ class VFBContentReport:
         """Gets content info from VFB and assigns to attributes."""
         self.timestamp = datetime.datetime.now(tz=datetime.timezone.utc)
 
+        def safe_gen_report(*args, **kwargs):
+            try:
+                return gen_report(*args, **kwargs)
+            except Exception as e:
+                print(f"Error generating report {kwargs.get('report_name')}: {e}")
+                return None
+
         # all terms
-        all_terms = gen_report(server=self.server,
+        all_terms = safe_gen_report(server=self.server,
                                query=("MATCH (c:Class) "
                                       "WHERE c.short_form =~ 'FBbt.+' "
                                       "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
@@ -96,7 +103,7 @@ class VFBContentReport:
         self.all_terms_pubs = all_terms['pubs'][0]
 
         # total nervous system parts
-        all_nervous_system = gen_report(server=self.server,
+        all_nervous_system = safe_gen_report(server=self.server,
                                         query=("MATCH (c:Nervous_system) "
                                                "WHERE c.short_form =~ 'FBbt.+' "
                                                "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
@@ -108,7 +115,7 @@ class VFBContentReport:
         self.all_nervous_system_pubs = all_nervous_system['pubs'][0]
 
         # numbers of neurons
-        all_neurons = gen_report(server=self.server,
+        all_neurons = safe_gen_report(server=self.server,
                                  query=("MATCH (c:Class:Neuron) "
                                         "WHERE c.short_form =~ 'FBbt.+' "
                                         "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
@@ -116,7 +123,7 @@ class VFBContentReport:
                                         "COUNT(DISTINCT p) AS pubs"),
                                  report_name='all_neurons')
 
-        provisional_neurons = gen_report(server=self.server,
+        provisional_neurons = safe_gen_report(server=self.server,
                                          query=("MATCH (c:Class:Neuron) "
                                                 "WHERE c.short_form =~ 'FBbt[_]2.+' "
                                                 "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
@@ -124,7 +131,7 @@ class VFBContentReport:
                                                 "COUNT(DISTINCT p) AS pubs"),
                                          report_name='provisional_neurons')
 
-        characterised_neurons = gen_report(server=self.server,
+        characterised_neurons = safe_gen_report(server=self.server,
                                            query=("MATCH (c:Class:Neuron) "
                                                   "WHERE NOT c.short_form =~ 'FBbt[_]2.+' "
                                                   "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
@@ -140,7 +147,7 @@ class VFBContentReport:
         self.characterised_neuron_pub_number = characterised_neurons['pubs'][0]
 
         # numbers of regions
-        synaptic_neuropils = gen_report(server=self.server,
+        synaptic_neuropils = safe_gen_report(server=self.server,
                                         query=("MATCH (c:Synaptic_neuropil) "
                                                "WHERE c.short_form =~ 'FBbt.+' "
                                                "WITH c OPTIONAL MATCH (c)-[]->(p:pub) "
@@ -148,7 +155,7 @@ class VFBContentReport:
                                                "COUNT(DISTINCT p) AS pubs"),
                                         report_name='synaptic_neuropils')
 
-        neuron_projection_bundles = gen_report(server=self.server,
+        neuron_projection_bundles = safe_gen_report(server=self.server,
                                                query=("MATCH (c:Neuron_projection_bundle) "
                                                       "WHERE c.short_form =~ 'FBbt.+' "
                                                       "WITH c OPTIONAL MATCH "
@@ -158,7 +165,7 @@ class VFBContentReport:
                                                       "COUNT(DISTINCT p) AS pubs"),
                                                report_name='neuron_projection_bundles')
 
-        cell_body_rinds = gen_report(server=self.server,
+        cell_body_rinds = safe_gen_report(server=self.server,
                                      query=("MATCH (c:Class)-[:SUBCLASSOF*1..2]"
                                             "->(b:Class) "
                                             "WHERE c.short_form =~ 'FBbt.+' "
@@ -168,7 +175,7 @@ class VFBContentReport:
                                             "COUNT(DISTINCT p) AS pubs"),
                                      report_name='cell_body_rinds')
 
-        all_regions = gen_report(server=self.server,
+        all_regions = safe_gen_report(server=self.server,
                                  query=("MATCH (c:Class) "
                                         "WHERE c.short_form =~ 'FBbt.+' "
                                         "AND (ANY(x IN ['Synaptic_neuropil', "
@@ -191,7 +198,7 @@ class VFBContentReport:
         self.cell_body_rind_pub_number = cell_body_rinds['pubs'][0]
 
         # sense organs
-        sense_organs = gen_report(server=self.server,
+        sense_organs = safe_gen_report(server=self.server,
                                   query=("MATCH (c:Class)-[:SUBCLASSOF*]"
                                          "->(b:Class) "
                                          "WHERE c.short_form =~ 'FBbt.+' "
@@ -205,17 +212,17 @@ class VFBContentReport:
         self.sense_organ_pubs = sense_organs['pubs'][0]
 
         # relationships in ontology
-        non_isa_relationships = gen_report(server=self.server,
+        non_isa_relationships = safe_gen_report(server=self.server,
                                            query=("MATCH (c:Class)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
                                                   "AND (r.type = 'Related') RETURN COUNT(DISTINCT r) AS total"),
                                            report_name='non_isa_relationships')
 
-        isa_relationships = gen_report(server=self.server,
+        isa_relationships = safe_gen_report(server=self.server,
                                        query=("MATCH (c:Class)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
                                               "AND (type(r) = 'SUBCLASSOF') RETURN COUNT(DISTINCT r) AS total"),
                                        report_name='isa_relationships')
 
-        all_relationships = gen_report(server=self.server,
+        all_relationships = safe_gen_report(server=self.server,
                                        query=("MATCH (c:Class)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
                                               "AND ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
                                               "RETURN COUNT(DISTINCT r) AS total"),
@@ -226,20 +233,20 @@ class VFBContentReport:
         self.all_relationship_number = all_relationships['total'][0]
 
         # nervous system relationships in ontology
-        ns_non_isa_relationships = gen_report(server=self.server,
+        ns_non_isa_relationships = safe_gen_report(server=self.server,
                                               query=(
                                                   "MATCH (c:Nervous_system)-[r]->(d:Class) "
                                                   "WHERE c.short_form =~ 'FBbt.+' "
                                                   "AND (r.type = 'Related') RETURN COUNT(DISTINCT r) AS total"),
                                               report_name='non_isa_relationships')
 
-        ns_isa_relationships = gen_report(server=self.server,
+        ns_isa_relationships = safe_gen_report(server=self.server,
                                           query=(
                                               "MATCH (c:Nervous_system)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
                                               "AND (type(r) = 'SUBCLASSOF') RETURN COUNT(DISTINCT r) AS total"),
                                           report_name='isa_relationships')
 
-        ns_all_relationships = gen_report(server=self.server,
+        ns_all_relationships = safe_gen_report(server=self.server,
                                           query=(
                                               "MATCH (c:Nervous_system)-[r]->(d:Class) WHERE c.short_form =~ 'FBbt.+' "
                                               "AND ((r.type = 'Related') OR (type(r) = 'SUBCLASSOF')) "
@@ -251,7 +258,7 @@ class VFBContentReport:
         self.ns_all_relationship_number = ns_all_relationships['total'][0]
 
         # images (excluding hemibrain 1.0.1)
-        all_images = gen_report(server=self.server,
+        all_images = safe_gen_report(server=self.server,
                                 query=("MATCH (i:Individual:has_image)-[]->(n:DataSet) "
                                        "WHERE n.production "
                                        "AND n.short_form<>\"Xu2020Neurons\" "
@@ -259,7 +266,7 @@ class VFBContentReport:
                                        "COUNT(DISTINCT n) AS ds"),
                                 report_name='all_images')
 
-        single_neuron_images = gen_report(server=self.server,
+        single_neuron_images = safe_gen_report(server=self.server,
                                           query=("MATCH (n:DataSet)<-[]-"
                                                  "(i:Individual:Neuron:has_image)-"
                                                  "[:INSTANCEOF]->(c:Class:Neuron) "
@@ -269,7 +276,7 @@ class VFBContentReport:
                                                  "COUNT(DISTINCT c) AS types"),
                                           report_name='single_neuron_images')
 
-        exp_pattern_images = gen_report(server=self.server,
+        exp_pattern_images = safe_gen_report(server=self.server,
                                         query=("MATCH (n:DataSet)<-[]-"
                                                "(i:Individual:Expression_pattern:has_image)-"
                                                "[:INSTANCEOF]->(c:Class:Expression_pattern) "
@@ -278,7 +285,7 @@ class VFBContentReport:
                                                "COUNT(DISTINCT c) AS drivers"),
                                         report_name='exp_pattern_images')
 
-        split_images = gen_report(server=self.server,
+        split_images = safe_gen_report(server=self.server,
                                   query=("MATCH (n:DataSet)<-[]-(i:Split:has_image)-"
                                          "[:INSTANCEOF]->(c:Class:Split) "
                                          "WHERE n.production "
@@ -286,7 +293,7 @@ class VFBContentReport:
                                          "COUNT(DISTINCT c) AS split_classes"),
                                   report_name='split_images')
                                   
-        exp_pattern_fragment_images = gen_report(server=self.server,
+        exp_pattern_fragment_images = safe_gen_report(server=self.server,
                                         query=("MATCH (n:DataSet)<-[]-"
                                                "(i:Individual:Expression_pattern_fragment:has_image)-"
                                                "[:part_of]->(c:Class:Expression_pattern) "
@@ -308,7 +315,7 @@ class VFBContentReport:
 
         # annotations
 
-        driver_anatomy_annotations = gen_report(server=self.server,
+        driver_anatomy_annotations = safe_gen_report(server=self.server,
                                                 query=("MATCH p=(ep:Class:Expression_pattern)<-"
                                                        "[r:part_of|overlaps]-(j:Individual)-[:INSTANCEOF]->(n:Class) "
                                                        "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
@@ -316,7 +323,7 @@ class VFBContentReport:
                                                        "COUNT(DISTINCT n) AS anatomy"),
                                                 report_name='driver_anatomy_annotations')
 
-        driver_ns_annotations = gen_report(server=self.server,
+        driver_ns_annotations = safe_gen_report(server=self.server,
                                                 query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of|overlaps]-"
                                                        "(j:Individual)-[:INSTANCEOF]->(n:Nervous_system:Class) "
                                                        "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
@@ -324,7 +331,7 @@ class VFBContentReport:
                                                        "COUNT(DISTINCT n) AS anatomy"),
                                                 report_name='driver_ns_annotations')
 
-        driver_neuron_annotations = gen_report(server=self.server,
+        driver_neuron_annotations = safe_gen_report(server=self.server,
                                                query=("MATCH p=(ep:Class:Expression_pattern)<-[r:part_of]-"
                                                       "(j:Individual)-[:INSTANCEOF]->(n:Neuron:Class) "
                                                       "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
@@ -332,7 +339,7 @@ class VFBContentReport:
                                                       "COUNT(DISTINCT n) AS neurons"),
                                                report_name='driver_neuron_annotations')
 
-        split_neuron_annotations = gen_report(server=self.server,
+        split_neuron_annotations = safe_gen_report(server=self.server,
                                               query=("MATCH p=(split:Class:Split)<-[r:part_of]-(j:Individual)-"
                                                      "[:INSTANCEOF]->(n:Neuron:Class) "
                                                      "WHERE EXISTS(r.pub) AND n.short_form =~ 'FBbt.+' "
@@ -355,7 +362,7 @@ class VFBContentReport:
 
         # connectivity
 
-        neuron_connections = gen_report(server=self.server,
+        neuron_connections = safe_gen_report(server=self.server,
                                         query=("MATCH (i:Individual:Neuron)-[r:synapsed_to]->"
                                                "(j:Individual:Neuron) "
                                                "WITH COLLECT(r) AS rels, COLLECT(DISTINCT i) AS ci, "
@@ -367,7 +374,7 @@ class VFBContentReport:
         self.neuron_connections_neuron_number = neuron_connections['neurons'][0]
         self.neuron_connections_connection_number = neuron_connections['connections'][0]
 
-        region_connections = gen_report(server=self.server,
+        region_connections = safe_gen_report(server=self.server,
                                         query=("MATCH (n:Individual:Neuron)-"
                                                "[r:has_presynaptic_terminals_in|has_postsynaptic_terminal_in]"
                                                "->(m:Individual) "
@@ -379,7 +386,7 @@ class VFBContentReport:
         self.region_connections_region_number = region_connections['regions'][0]
         self.region_connections_connection_number = region_connections['connections'][0]
 
-        muscle_connections = gen_report(server=self.server,
+        muscle_connections = safe_gen_report(server=self.server,
                                         query=("MATCH (n:Neuron)-[r:synapsed_to|"
                                                "synapsed_via_type_Is_bouton_to|"
                                                "synapsed_via_type_Ib_bouton_to|"
@@ -396,7 +403,7 @@ class VFBContentReport:
         self.muscle_connections_muscle_number = muscle_connections['muscles'][0]
         self.muscle_connections_connection_number = muscle_connections['connections'][0]
 
-        sensory_connections = gen_report(server=self.server,
+        sensory_connections = safe_gen_report(server=self.server,
                                          query=("MATCH (n:Neuron)-[r:has_sensory_dendrite_in]->(s:Sense_organ) "
                                                 "WITH n, r, s OPTIONAL MATCH (n2:Neuron)-[:SUBCLASSOF*]->(n) "
                                                 "WITH COLLECT(DISTINCT r) AS rels, COLLECT(DISTINCT n) AS cn, "
@@ -411,7 +418,7 @@ class VFBContentReport:
 
         # Template data (excluding hemibrain v1.0.1)
 
-        self.templates_data = gen_report(server=self.server,
+        self.templates_data = safe_gen_report(server=self.server,
                                          query=("MATCH (d:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-"
                                                 "(m:Individual)-[:in_register_with]->"
                                                 "(:Template)-[:depicts]->(t:Template) "
