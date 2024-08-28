@@ -44,6 +44,7 @@ LOAD1 = [get_catmaid_papers.gen_cat_paper_report(
     "http://catmaid-loader1.virtualflybrain.org", 1, "papers", ["neuron name", "MB nomenclature"]),
     "LOAD1"]
 
+# Function to handle a single report generation with error handling
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     """Make comparison with data in VFB for given sets of papers and skids in CATMAID.
 
@@ -63,107 +64,101 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     
         vfb_papers = pd.DataFrame.from_dict(papers)
         vfb_papers = vfb_papers.set_index("CATMAID_ID")
-    except:
-        vfb_papers = pd.DataFrame.from_dict({})
+    except Exception as e:
+        print(f"Error querying Neo4j database for {dataset_name}: {e}")
+        return  # Exit the current report, proceed to the next
+
     # match up SKIDs per paper and output dict of lists of skids
     skids_by_paper = {}
-    for paper_id in cat_papers.index:  # do everything per paper
+    try:
+        for paper_id in cat_papers.index:  # do everything per paper
 
-        # get list of skids in CATMAID data as strings
-        skids_in_paper_cat = [str(s) for s in cat_skids[cat_skids['paper_id'] == paper_id]['skid']]
+            # get list of skids in CATMAID data as strings
+            skids_in_paper_cat = [str(s) for s in cat_skids[cat_skids['paper_id'] == paper_id]['skid']]
 
-        # get skids from VFB KB and reformat to list of strings
-        query = "MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet)" \
-                "<-[:has_source]-(i:Individual)" \
-                "-[skid:database_cross_reference|hasDbXref]->(s:Site) " \
-                "WHERE api.short_form ends with '_catmaid_api' " \
-                "AND ((not exists(i.block)) OR (i.block <> ['skid no longer exists']) OR (i.block <> ['New Image']) OR (i.block <> ['Missing Image']))" \
-                "AND s.short_form starts with 'catmaid_' " \
-                "AND dsxref.accession = ['" + str(paper_id) +"'] WITH i, skid " \
-                "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
-                "RETURN distinct skid.accession[0] AS `r.catmaid_skeleton_ids`, c.iri"
+            # get skids from VFB KB and reformat to list of strings
+            query = "MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet)" \
+                    "<-[:has_source]-(i:Individual)" \
+                    "-[skid:database_cross_reference|hasDbXref]->(s:Site) " \
+                    "WHERE api.short_form ends with '_catmaid_api' " \
+                    "AND ((not exists(i.block)) OR (i.block <> ['skid no longer exists']) OR (i.block <> ['New Image']) OR (i.block <> ['Missing Image']))" \
+                    "AND s.short_form starts with 'catmaid_' " \
+                    "AND dsxref.accession = ['" + str(paper_id) +"'] WITH i, skid " \
+                    "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
+                    "RETURN distinct skid.accession[0] AS `r.catmaid_skeleton_ids`, c.iri"
 
-        try:
             q = nc.commit_list([query])
             skids_in_paper_vfb = results_2_dict_list(q)
             vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
 
-            # count skids only annotated as 'neuron'
-        
+            # Count skids only annotated as 'neuron'
             unique_skids = list(set([x for x in vfb_skid_classes_df['r.catmaid_skeleton_ids']]))
-        except KeyError:  # if dataframe is empty make empty list of skids and empty df with named columns
-            unique_skids = []
-            vfb_skid_classes_df = pd.DataFrame(columns=['c.iri', 'r.catmaid_skeleton_ids'])
 
-        neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000540']
-        neuron_only_skids = []
-        for skid in unique_skids:
-            if len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == \
-                    len(vfb_skid_classes_df[(vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid)
-                                            & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index):
-                neuron_only_skids.append(skid)
+            neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000540']
+            neuron_only_skids = []
+            for skid in unique_skids:
+                if len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == \
+                        len(vfb_skid_classes_df[(vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid)
+                                                & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index):
+                    neuron_only_skids.append(skid)
 
-        skids_in_paper_vfb = unique_skids # take unique records only
+            skids_in_paper_vfb = unique_skids  # take unique records only
 
-        # comparison of lists of skids
-        cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
-        vfb_not_cat = [s for s in skids_in_paper_vfb if s not in skids_in_paper_cat]
-        skids_by_paper[paper_id] = {'skids_in_paper_cat': skids_in_paper_cat, 'skids_in_paper_vfb': skids_in_paper_vfb,
-                                    'cat_not_vfb': cat_not_vfb, 'vfb_not_cat': vfb_not_cat,
-                                    'neuron_only': neuron_only_skids}
+            # comparison of lists of skids
+            cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
+            vfb_not_cat = [s for s in skids_in_paper_vfb if s not in skids_in_paper_cat]
+            skids_by_paper[paper_id] = {'skids_in_paper_cat': skids_in_paper_cat, 'skids_in_paper_vfb': skids_in_paper_vfb,
+                                        'cat_not_vfb': cat_not_vfb, 'vfb_not_cat': vfb_not_cat,
+                                        'neuron_only': neuron_only_skids}
 
-    # make dataframe of list lengths from skid_df
-    skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
-    skids_df_count = skids_df.applymap(lambda x: len(x))
+        # Proceed to save and output results
+        skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
+        skids_df_count = skids_df.applymap(lambda x: len(x))
 
-    # make combined table with all info, tidy up and save as tsv
-    all_papers = pd.merge(cat_papers, vfb_papers, left_index=True, right_index=True, how='left', sort=True)
-    all_papers = pd.concat([all_papers, skids_df_count], join="outer", axis=1, sort=True)
-    all_papers.rename(columns={'name': 'CATMAID_name', 'VFB_name': 'VFB_name',
-                               'skids_in_paper_cat': 'CATMAID_SKIDs', 'skids_in_paper_vfb': 'VFB_SKIDS',
-                               'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID',
-                               'neuron_only': 'neuron_only'},
-                      inplace=True)
-    all_papers.index.name = 'Paper_ID'
-    all_papers.to_csv(comparison_outfile, sep="\t")
+        all_papers = pd.merge(cat_papers, vfb_papers, left_index=True, right_index=True, how='left', sort=True)
+        all_papers = pd.concat([all_papers, skids_df_count], join="outer", axis=1, sort=True)
+        all_papers.rename(columns={'name': 'CATMAID_name', 'VFB_name': 'VFB_name',
+                                   'skids_in_paper_cat': 'CATMAID_SKIDs', 'skids_in_paper_vfb': 'VFB_SKIDS',
+                                   'cat_not_vfb': 'CATMAID_not_VFB', 'vfb_not_cat': 'VFB_not_CATMAID',
+                                   'neuron_only': 'neuron_only'},
+                          inplace=True)
+        all_papers.index.name = 'Paper_ID'
+        all_papers.to_csv(comparison_outfile, sep="\t")
 
-    # make unique set of skids in vfb
-    vfb_skid_list = [skid for skidlist in skids_df['skids_in_paper_vfb'] for skid in skidlist
-                     if skid is not None]
-    vfb_skid_list = list(set(vfb_skid_list))
-    vfb_skid_list = [int(x) for x in vfb_skid_list]
+        vfb_skid_list = [skid for skidlist in skids_df['skids_in_paper_vfb'] for skid in skidlist
+                         if skid is not None]
+        vfb_skid_list = list(set(vfb_skid_list))
+        vfb_skid_list = [int(x) for x in vfb_skid_list]
 
-    # filter cat_skids dataframe (df_skids from get_catmaid_papers) to remove rows where skid in VFB
-    new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
-        .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
-    new_skids_output.to_csv(skids_outfile, sep="\t", index=False)  # output file
+        new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
+            .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
+        new_skids_output.to_csv(skids_outfile, sep="\t", index=False)
 
-    # make unique set of skids annotated only as neuron in VFB
-    vfb_neuron_skid_list = [skid for skidlist in skids_df['neuron_only'] for skid in skidlist
-                     if skid is not None]
-    vfb_neuron_skid_list = list(set(vfb_neuron_skid_list))
-    vfb_neuron_skid_list = [int(x) for x in vfb_neuron_skid_list]
+        vfb_neuron_skid_list = [skid for skidlist in skids_df['neuron_only'] for skid in skidlist
+                         if skid is not None]
+        vfb_neuron_skid_list = list(set(vfb_neuron_skid_list))
+        vfb_neuron_skid_list = [int(x) for x in vfb_neuron_skid_list]
 
-    # output file with skids only annotated as neuron
-    neuron_skids_output = cat_skids[cat_skids['skid'].isin(vfb_neuron_skid_list)].sort_values('paper_id') \
-        .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
-    neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
+        neuron_skids_output = cat_skids[cat_skids['skid'].isin(vfb_neuron_skid_list)].sort_values('paper_id') \
+            .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
+        neuron_skids_output.to_csv(neuron_skids_outfile, sep="\t", index=False)
 
-    # TERMINAL OUTPUT
-    try:
-        new_papers = all_papers[all_papers.VFB_name.isnull()]
-        print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
-        print(new_papers["CATMAID_name"])
-    except:
-        print("No papers!!")
-    print("See " + comparison_outfile + " for differences in numbers of SKIDs")
-    print("See " + skids_outfile + " for new SKIDs that are not yet in VFB")
+        # TERMINAL OUTPUT
+        try:
+            new_papers = all_papers[all_papers.VFB_name.isnull()]
+            print(str(len(new_papers.index)) + " new papers in CATMAID that are not in VFB")
+            print(new_papers["CATMAID_name"])
+        except:
+            print("No papers!!")
+        print("See " + comparison_outfile + " for differences in numbers of SKIDs")
+        print("See " + skids_outfile + " for new SKIDs that are not yet in VFB")
+
+    except Exception as e:
+        print(f"An error occurred while processing {dataset_name}: {e}")
+        return  # Exit the current report, proceed to the next
 
 
-for r in larval_reports:
-    make_catmaid_vfb_reports(*r)
-make_catmaid_vfb_reports(*FAFB)
-make_catmaid_vfb_reports(*FANC1)
-make_catmaid_vfb_reports(*FANC2)
-make_catmaid_vfb_reports(*LEG40)
-make_catmaid_vfb_reports(*LOAD1)
+# Example loop to iterate through all reports
+reports = [larval_reports, FAFB, FANC1, FANC2, LEG40, LOAD1]
+for report in reports:
+    make_catmaid_vfb_reports(*report)
