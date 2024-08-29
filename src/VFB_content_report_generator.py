@@ -3,15 +3,11 @@ import mdutils
 import datetime
 
 VFB_servers = {'pdb': ('http://pdb.virtualflybrain.org', 'neo4j', 'vfb'),
+               'pdb-alpha': ('http://pdb-alpha.virtualflybrain.org', 'neo4j', 'vfb'),
                'pdb-preview': ('http://pdb.ug.virtualflybrain.org', 'neo4j', 'vfb')}
 output_files = {'pdb': "../VFB_reporting_results/content_report.md",
+                'pdb-alpha': "../VFB_reporting_results/content_report_alpha.md",
                 'pdb-preview': "../VFB_reporting_results/content_report_preview.md"}
-
-# removed pdb-alpha as causing failure
-"""VFB_servers = {'pdb': ('http://pdb.virtualflybrain.org', 'neo4j', 'vfb'),
-               'pdb-alpha': ('http://pdb-alpha.virtualflybrain.org', 'neo4j', 'vfb')}
-output_files = {'pdb': "../VFB_reporting_results/content_report.md",
-                'pdb-alpha': "../VFB_reporting_results/content_report_alpha.md"}"""
 
 class VFBContentReport:
     """Class for storing data about the amount of content in VFB."""
@@ -593,7 +589,8 @@ class VFBContentReport:
 
 
 if __name__ == "__main__":
-    for s in VFB_servers.keys():
+    # problems with connecting to 'pdb-alpha' and 'pdb-preview', consider adding later
+    for s in ['pdb']:
         report = VFBContentReport(server=VFB_servers[s])
         report.get_info()
         report.prepare_report(filename=output_files[s])
