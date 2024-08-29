@@ -115,7 +115,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
         # Proceed to save and output results
         skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
-        skids_df_count = skids_df.applymap(lambda x: len(x))
+        skids_df_count = skids_df.map(lambda x: len(x))
 
         all_papers = pd.merge(cat_papers, vfb_papers, left_index=True, right_index=True, how='left', sort=True)
         all_papers = pd.concat([all_papers, skids_df_count], join="outer", axis=1, sort=True)
@@ -161,6 +161,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
 
 # Example loop to iterate through all reports
-reports = [larval_reports, FAFB, FANC1, FANC2, LEG40] # LOAD1
+reports = larval_reports
+reports.extend([FAFB, FANC1, FANC2, LEG40]) # LOAD1
 for report in reports:
     make_catmaid_vfb_reports(*report)
