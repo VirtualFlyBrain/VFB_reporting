@@ -38,11 +38,13 @@ LEG40 = [get_catmaid_papers.gen_cat_paper_report(
    "https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication", ["neuron name"]),
    "LEG40"]
 
+"""
 LOAD1 = [get_catmaid_papers.gen_cat_paper_report(
     "http://catmaid-loader1.virtualflybrain.org", 1, "papers"),
     get_catmaid_papers.gen_cat_skid_report_officialnames(
     "http://catmaid-loader1.virtualflybrain.org", 1, "papers", ["neuron name", "MB nomenclature"]),
     "LOAD1"]
+"""
 
 # Function to handle a single report generation with error handling
 def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
