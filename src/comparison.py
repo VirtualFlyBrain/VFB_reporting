@@ -161,6 +161,6 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
 
 # Example loop to iterate through all reports
-reports = [larval_reports, FAFB, FANC1, FANC2, LEG40, LOAD1]
+reports = [larval_reports, FAFB, FANC1, FANC2, LEG40] # LOAD1
 for report in reports:
     make_catmaid_vfb_reports(*report)
