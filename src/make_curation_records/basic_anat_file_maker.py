@@ -31,13 +31,12 @@ def make_anat_records(site, curator, output_filename='anat'):
     read_directory = "../VFB_reporting_results/CATMAID_SKID_reports/"
 
     # open file of new skids
-    new_skids = pd.read_csv("%s%s_new_skids.tsv" % (read_directory, site), sep='\t') \
-        .applymap(str)
+    new_skids = pd.read_csv("%s%s_new_skids.tsv" % (read_directory, site), sep='\t', dtype='str')
     paper_ids = set(list(new_skids['paper_id']))
 
     # get mapping of ds name (in VFB) to id (as index) from <site>_comparison.tsv
     comparison_table = pd.read_csv("%s%s_comparison.tsv" % (read_directory, site),
-                                   sep='\t', index_col='Paper_ID').applymap(str)
+                                   sep='\t', index_col='Paper_ID', dtype='str')
     comparison_table.index = comparison_table.index.map(str)
 
     # get dataset name for paper from vfb
