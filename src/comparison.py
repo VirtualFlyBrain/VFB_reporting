@@ -57,9 +57,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     neuron_skids_outfile = save_directory + dataset_name + "_neuron_only_skids.tsv"
 
     # Get table of names of catmaid datasets in VFB
-    pub_query = "MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet) " \
-                "WHERE api.short_form ends with '_catmaid_api' " \
-                "RETURN toInteger(dsxref.accession[0]) as CATMAID_ID, ds.short_form as VFB_name"
+    pub_query = ("""MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet) 
+                    WHERE api.short_form ends with '_catmaid_api' 
+                    RETURN toInteger(dsxref.accession[0]) as CATMAID_ID, ds.short_form as VFB_name""")
     try:
         q = nc.commit_list([pub_query])
         papers = results_2_dict_list(q)
@@ -79,32 +79,28 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
             skids_in_paper_cat = [str(s) for s in cat_skids[cat_skids['paper_id'] == paper_id]['skid']]
 
             # get skids from VFB KB and reformat to list of strings
-            query = "MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet)" \
-                    "<-[:has_source]-(i:Individual)" \
-                    "-[skid:database_cross_reference|hasDbXref]->(s:Site) " \
-                    "WHERE api.short_form ends with '_catmaid_api' " \
-                    "AND ((not exists(i.block)) OR (i.block <> ['skid no longer exists']) OR (i.block <> ['New Image']) OR (i.block <> ['Missing Image']))" \
-                    "AND s.short_form starts with 'catmaid_' " \
-                    "AND dsxref.accession = ['" + str(paper_id) +"'] WITH i, skid " \
-                    "MATCH (i)-[:INSTANCEOF]-(c:Class) " \
-                    "RETURN distinct skid.accession[0] AS `r.catmaid_skeleton_ids`, c.iri"
+            query = ("""MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet)<-[:has_source]-
+                        (i:Individual)-[skid:database_cross_reference|hasDbXref]->(s:Site)
+                        WHERE api.short_form ends with '_catmaid_api' 
+                        AND ((not exists(i.block)) OR (i.block <> ['skid no longer exists']) 
+                        OR (i.block <> ['New Image']) OR (i.block <> ['Missing Image']))
+                        AND s.short_form starts with 'catmaid_' 
+                        AND dsxref.accession = ['%s'] WITH i, skid 
+                        MATCH (i)-[:INSTANCEOF]->(c:Class) 
+                        RETURN distinct skid.accession[0] AS catmaid_skeleton_id, c.iri"""
+                        % paper_id)
 
             q = nc.commit_list([query])
             skids_in_paper_vfb = results_2_dict_list(q)
             vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
 
-            # Count skids only annotated as 'neuron'
-            unique_skids = list(set([x for x in vfb_skid_classes_df['r.catmaid_skeleton_ids']]))
+            # list of unique skids
+            skids_in_paper_vfb = vfb_skid_classes_df['catmaid_skeleton_id'].drop_duplicates().to_list()
 
+            # Identify skids only annotated as 'neuron'
             neuron_iris = ['http://purl.obolibrary.org/obo/FBbt_00005106', 'http://purl.obolibrary.org/obo/CL_0000540']
-            neuron_only_skids = []
-            for skid in unique_skids:
-                if len(vfb_skid_classes_df[vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid].index) == \
-                        len(vfb_skid_classes_df[(vfb_skid_classes_df['r.catmaid_skeleton_ids'] == skid)
-                                                & (vfb_skid_classes_df['c.iri'].isin(neuron_iris))].index):
-                    neuron_only_skids.append(skid)
-
-            skids_in_paper_vfb = unique_skids  # take unique records only
+            other_typings = vfb_skid_classes_df[~vfb_skid_classes_df['c.iri'].isin(neuron_iris)]
+            neuron_only_skids = [skid for skid in skids_in_paper_vfb if skid not in other_typings['catmaid_skeleton_id'].to_list()]
 
             # comparison of lists of skids
             cat_not_vfb = [s for s in skids_in_paper_cat if s not in skids_in_paper_vfb]
