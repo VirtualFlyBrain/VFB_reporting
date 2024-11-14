@@ -210,7 +210,7 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
                         report + "_all_skids_officialnames.tsv")
         df_skids.to_csv(skid_outfile, sep="\t", index=False)
     else:
-        print("ERROR: No report created for " + URL)
+        print("No tsv report created for " + URL)
     return df_skids
 
 
