@@ -219,7 +219,7 @@ if __name__ == '__main__':
 
     # variables for generating reports
     # dict of sources and project IDs for larval datasets
-    larval_sources = {'l1em': 1, 'abd1.5': 1, 'iav-robo': 1, 'iav-tnt': 2, 'l3vnc': 2}
+    larval_sources = {'l1em': 1, 'abd1.5': 1, 'iav-robo': 1, 'iav-tnt': 4, 'l3vnc': 2}
     larval_reports = [["https://" + s + ".catmaid.virtualflybrain.org", larval_sources[s], "papers",
                        ["neuron name", "MB nomenclature"], s.upper()]
                       for s in larval_sources.keys()]
