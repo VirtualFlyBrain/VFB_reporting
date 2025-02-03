@@ -59,13 +59,13 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
     # Get table of names of catmaid datasets in VFB
     pub_query = ("""MATCH (api:API)<-[dsxref:database_cross_reference|hasDbXref]-(ds:DataSet) 
                     WHERE api.short_form ends with '_catmaid_api' 
-                    RETURN toInteger(dsxref.accession[0]) as CATMAID_ID, ds.short_form as VFB_name""")
+                    RETURN toInteger(dsxref.accession[0]) as id, ds.short_form as VFB_name""")
     try:
         q = nc.commit_list([pub_query])
         papers = results_2_dict_list(q)
     
         vfb_papers = pd.DataFrame.from_dict(papers)
-        vfb_papers = vfb_papers.set_index("CATMAID_ID")
+        vfb_papers = vfb_papers.set_index("id")
     except Exception as e:
         print(f"Error querying Neo4j database for {dataset_name}: {e}")
         return  # Exit the current report, proceed to the next
