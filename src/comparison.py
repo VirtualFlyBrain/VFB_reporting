@@ -164,9 +164,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         print(f"An error occurred while processing {dataset_name}: {e}")
         return  # Exit the current report, proceed to the next
 
-
-# Example loop to iterate through all reports
-reports = larval_reports
-reports.extend([FAFB, FANC1, FANC2, LEG40]) # LOAD1
-for report in reports:
-    make_catmaid_vfb_reports(*report)
+if __name__ == '__main__':
+    # Example loop to iterate through all reports
+    reports = larval_reports
+    reports.extend([FAFB, FANC1, FANC2, LEG40]) # LOAD1
+    for report in reports:
+        make_catmaid_vfb_reports(*report)
