@@ -92,7 +92,10 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
 
             q = nc.commit_list([query])
             skids_in_paper_vfb = results_2_dict_list(q)
-            vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
+            if skids_in_paper_vfb:
+                vfb_skid_classes_df = pd.DataFrame.from_dict(skids_in_paper_vfb)
+            else:
+                vfb_skid_classes_df = pd.DataFrame(columns=['catmaid_skeleton_id', 'c.iri'])
 
             # list of unique skids
             skids_in_paper_vfb = vfb_skid_classes_df['catmaid_skeleton_id'].drop_duplicates().to_list()
@@ -110,8 +113,14 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
                                         'neuron_only': neuron_only_skids}
 
         # Proceed to save and output results
-        skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
-        skids_df_count = skids_df.map(lambda x: len(x))
+        if skids_by_paper:
+            skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
+            skids_df_count = skids_df.map(lambda x: len(x))
+        else:
+            skids_df = pd.DataFrame(columns=['skids_in_paper_cat', 'skids_in_paper_vfb', 'cat_not_vfb', 'vfb_not_cat', 'neuron_only'])
+            skids_df_count = pd.DataFrame(data={'skids_in_paper_cat':[0], 'skids_in_paper_vfb':[0], 'cat_not_vfb':[0], 'vfb_not_cat':[0], 'neuron_only':[0]})
+        print("skids_df", skids_df.head())
+        print("skids_df_count", skids_df_count.head())
 
         all_papers = pd.merge(cat_papers, vfb_papers, left_index=True, right_index=True, how='left', sort=True)
         all_papers = pd.concat([all_papers, skids_df_count], join="outer", axis=1, sort=True)
