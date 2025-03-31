@@ -12,37 +12,37 @@ larval_reports = [[get_catmaid_papers.gen_cat_paper_report(
     "https://" + s + ".catmaid.virtualflybrain.org", larval_sources[s], "papers"),
     get_catmaid_papers.gen_cat_skid_report_officialnames(
     "https://" + s + ".catmaid.virtualflybrain.org", larval_sources[s], "papers",
-    ["neuron name", "MB nomenclature"]), s.upper()] for s in larval_sources.keys()]
+    ["neuron name", "MB nomenclature"], report=True), s.upper()] for s in larval_sources.keys()]
 
 FAFB = [get_catmaid_papers.gen_cat_paper_report(
     "https://fafb.catmaid.virtualflybrain.org", 1, "Published"),
     get_catmaid_papers.gen_cat_skid_report_officialnames(
-    "https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"]),
+    "https://fafb.catmaid.virtualflybrain.org", 1, "Published", ["neuron name"], report=True),
     "FAFB"]
 
 FANC1 = [get_catmaid_papers.gen_cat_paper_report(
    "https://fanc.catmaid.virtualflybrain.org", 1, "publication"),
    get_catmaid_papers.gen_cat_skid_report_officialnames(
-   "https://fanc.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"]),
+   "https://fanc.catmaid.virtualflybrain.org", 1, "publication", ["neuron name"], report=True),
    "FANC1"]
 
 FANC2 = [get_catmaid_papers.gen_cat_paper_report(
    "https://fanc.catmaid.virtualflybrain.org", 2, "publication"),
    get_catmaid_papers.gen_cat_skid_report_officialnames(
-   "https://fanc.catmaid.virtualflybrain.org", 2, "publication", ["neuron name"]),
+   "https://fanc.catmaid.virtualflybrain.org", 2, "publication", ["neuron name"], report=True),
    "FANC2"]
 
 LEG40 = [get_catmaid_papers.gen_cat_paper_report(
    "https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication"),
    get_catmaid_papers.gen_cat_skid_report_officialnames(
-   "https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication", ["neuron name"]),
+   "https://radagast.hms.harvard.edu/catmaidvnc", 61, "publication", ["neuron name"], report=True),
    "LEG40"]
 
 """
 LOAD1 = [get_catmaid_papers.gen_cat_paper_report(
     "http://catmaid-loader1.virtualflybrain.org", 1, "papers"),
     get_catmaid_papers.gen_cat_skid_report_officialnames(
-    "http://catmaid-loader1.virtualflybrain.org", 1, "papers", ["neuron name", "MB nomenclature"]),
+    "http://catmaid-loader1.virtualflybrain.org", 1, "papers", ["neuron name", "MB nomenclature"], report=True),
     "LOAD1"]
 """
 
