@@ -6,11 +6,12 @@ import time
 import sys
 
 # Set up logging
+log_file = "../VFB_reporting_results/individual_classification_report.log"
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("../VFB_reporting_results/individual_classification_report.log"),
+        logging.FileHandler(log_file, mode='w'),  # Use write mode to clear the log file on each run
         logging.StreamHandler(sys.stdout)
     ]
 )
