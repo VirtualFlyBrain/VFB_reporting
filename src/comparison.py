@@ -137,6 +137,9 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         vfb_skid_list = list(set(vfb_skid_list))
         vfb_skid_list = [int(x) for x in vfb_skid_list]
 
+        # Ensure SKIDs are same type (integers) before comparison
+        cat_skids['skid'] = cat_skids['skid'].astype(int)
+
         new_skids_output = cat_skids[~cat_skids['skid'].isin(vfb_skid_list)].sort_values('skid') \
             .reindex(columns=(cat_skids.columns.tolist() + ['FBbt_ID']))
         new_skids_output.to_csv(skids_outfile, sep="\t", index=False)
