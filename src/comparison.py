@@ -115,7 +115,7 @@ def make_catmaid_vfb_reports(cat_papers, cat_skids, dataset_name):
         # Proceed to save and output results
         if skids_by_paper:
             skids_df = pd.DataFrame.from_dict(skids_by_paper, orient='index')  # df of lists
-            skids_df_count = skids_df.map(lambda x: len(x))
+            skids_df_count = skids_df.applymap(lambda x: len(x))  # Use applymap instead of map
         else:
             skids_df = pd.DataFrame(columns=['skids_in_paper_cat', 'skids_in_paper_vfb', 'cat_not_vfb', 'vfb_not_cat', 'neuron_only'])
             skids_df_count = pd.DataFrame(data={'skids_in_paper_cat':[0], 'skids_in_paper_vfb':[0], 'cat_not_vfb':[0], 'vfb_not_cat':[0], 'neuron_only':[0]})
