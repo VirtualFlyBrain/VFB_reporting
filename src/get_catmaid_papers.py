@@ -284,6 +284,75 @@ def gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, name_an
         return pd.DataFrame()
 
 
+def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
+    """Generate a report of neurons that exist in VFB but aren't linked properly to CATMAID datasets.
+    Outputs Cypher queries needed to add the missing links."""
+    from uk.ac.ebi.vfb.neo4j.neo4j_tools import neo4j_connect, results_2_dict_list
+    
+    # First get all skids from CATMAID for this dataset
+    cat_skids = gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, report=report)
+    
+    # Use the domain to identify the CATMAID instance
+    domain = URL.split("//")[1].split("/")[0]
+    site_short = domain.split(".")[0] if "catmaid.virtualflybrain.org" in domain else "catmaid_vnc"
+    
+    # Connect to Neo4j
+    nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'vfb')
+    
+    # Get the dataset ID for the paper
+    paper_ids = cat_skids['paper_id'].unique().tolist()
+    cypher_queries = []
+    
+    # Process each paper
+    for paper_id in paper_ids:
+        paper_skids = cat_skids[cat_skids['paper_id'] == paper_id]['skid'].tolist()
+        
+        # Find neurons in VFB with these skids but not linked to this dataset
+        query = (f"""
+        MATCH (i:Individual)-[skid:database_cross_reference]->(s:Site)
+        WHERE s.short_form starts with 'catmaid_{site_short.lower()}' AND skid.accession[0] IN {paper_skids}
+        WITH i
+        MATCH (ds:DataSet)<-[:has_source]-(i2:Individual)
+        WHERE ds.short_form CONTAINS '{site_short.lower()}'
+        WITH collect(i2) as linked_neurons, i
+        WHERE NOT i IN linked_neurons
+        RETURN i.short_form as vfb_id, i.label as vfb_label, id(i) as neo4j_id
+        """)
+        
+        results = nc.commit_list([query])
+        missing_links = results_2_dict_list(results)
+        
+        # Get the dataset node ID for the paper
+        ds_query = f"MATCH (ds:DataSet)-[r:database_cross_reference]->(api:API) WHERE api.short_form ends with '_catmaid_api' AND r.accession[0] = '{paper_id}' RETURN ds.short_form as ds_id"
+        ds_results = nc.commit_list([ds_query])
+        ds_id = results_2_dict_list(ds_results)[0]['ds_id'] if results_2_dict_list(ds_results) else None
+        
+        if ds_id and missing_links:
+            for neuron in missing_links:
+                # Create Cypher query to add the missing link
+                cypher = f"""
+                // Link neuron {neuron['vfb_label']} to dataset {ds_id}
+                MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
+                MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+                MERGE (n)-[:has_source]->(ds)
+                """
+                cypher_queries.append(cypher)
+    
+    # Save to file
+    if report and cypher_queries:
+        try:
+            outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_missing_links.cypher"
+            with open(outfile, 'w') as f:
+                f.write("// Cypher queries to fix missing dataset links\n")
+                f.write("// Generated on " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n\n")
+                f.write("\n".join(cypher_queries))
+            print(f"Saved {len(cypher_queries)} missing link queries to {outfile}")
+        except Exception as e:
+            log_error(f"Failed to save missing links report", str(e))
+    
+    return cypher_queries
+
+
 if __name__ == '__main__':
     # generate skid reports when this is run as a script
 
@@ -302,7 +371,17 @@ if __name__ == '__main__':
     # make reports
     for r in larval_reports:
         gen_cat_skid_report_officialnames(*r)
+        # Add this line to generate missing links report
+        gen_missing_links_report(r[0], r[1], r[2], r[4])
+        
     gen_cat_skid_report_officialnames(*FAFB)
+    gen_missing_links_report(*FAFB[0:3], FAFB[4])
+    
     gen_cat_skid_report_officialnames(*FANC1)
+    gen_missing_links_report(*FANC1[0:3], FANC1[4])
+    
     gen_cat_skid_report_officialnames(*FANC2)
+    gen_missing_links_report(*FANC2[0:3], FANC2[4])
+    
     gen_cat_skid_report_officialnames(*LEG40)
+    gen_missing_links_report(*LEG40[0:3], LEG40[4])
