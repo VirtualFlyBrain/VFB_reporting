@@ -406,7 +406,7 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
                 // Link neuron {neuron['vfb_label']} to dataset {ds_id}
                 MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
                 MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-                MERGE (n)-[:has_source]->(ds)
+                MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
                 """
                 cypher_queries.append(cypher)
                 total_missing += 1
