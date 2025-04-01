@@ -400,10 +400,11 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
                 MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
                 MATCH (ds:DataSet {{short_form: '{ds_id}'}})
                 MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
+                WITH 1 as dummy
                 """
                 cypher_queries.append(cypher)
                 total_missing += 1
-        
+    
     log_info(f"Total missing links found: {total_missing}")
     log_info(f"Generated {len(cypher_queries)} Cypher queries to fix missing links")
     
@@ -417,7 +418,11 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             with open(outfile, 'w') as f:
                 f.write("// Cypher queries to fix missing dataset links\n")
                 f.write("// Generated on " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n\n")
-                f.write("\n".join(cypher_queries))
+                # Remove the final "WITH" clause to avoid syntax error at the end of the transaction
+                content = "".join(cypher_queries)
+                if content.endswith("WITH 1 as dummy\n"):
+                    content = content[:-len("WITH 1 as dummy\n")]
+                f.write(content)
             log_info(f"Saved {len(cypher_queries)} missing link queries to {outfile}")
         except Exception as e:
             log_error(f"Failed to save missing links report: {str(e)}")
