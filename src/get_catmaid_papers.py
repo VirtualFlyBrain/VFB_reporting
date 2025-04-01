@@ -305,6 +305,16 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
     
     log_info(f"Generating missing links report for {URL}, project {PROJECT_ID}, annotation '{paper_annotation}'")
     
+    # Remove old file at the beginning to avoid appending or keeping stale data
+    if report:
+        outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_missing_links.cypher"
+        try:
+            if os.path.exists(outfile):
+                os.remove(outfile)
+                log_info(f"Removed existing file: {outfile}")
+        except Exception as e:
+            log_error(f"Failed to remove old file {outfile}: {str(e)}")
+    
     # First get all skids from CATMAID for this dataset
     cat_skids = gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, report=report)
     
@@ -439,6 +449,8 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             log_info(f"Saved {len(cypher_queries)} missing link queries to {outfile}")
         except Exception as e:
             log_error(f"Failed to save missing links report: {str(e)}")
+    elif report and not cypher_queries:
+        log_info(f"No missing links found for {report}, no Cypher file created")
     
     return cypher_queries
 
