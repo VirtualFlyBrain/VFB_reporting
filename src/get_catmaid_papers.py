@@ -363,7 +363,7 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
                     'ds_ids': record['ds_ids']
                 }
             except ValueError:
-                log_error(f"Invalid SKID format: {record['skid']}. Skipping.")
+                log_error(f"Invalid SKID format: [{record['skid']}] for {record['vfb_id']}. Skipping.")
         log_info(f"Found {len(skid_to_neuron_map)} neurons with SKIDs in VFB for site {site_short}")
     except Exception as e:
         log_error(f"Failed to query all neurons with SKIDs: {str(e)}")
