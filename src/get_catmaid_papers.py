@@ -415,17 +415,14 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
         
         if neurons_to_link:
             # Create a single optimized query for all neurons for this dataset
+            neuron_ids = [neuron['vfb_id'] for neuron in neurons_to_link]
             cypher = f"""
             // Link {len(neurons_to_link)} neurons to dataset {ds_id}
             MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+            MATCH (n:Individual)
+            WHERE n.short_form IN {json.dumps(neuron_ids)}
+            MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
             """
-            
-            for i, neuron in enumerate(neurons_to_link):
-                cypher += f"""
-                WITH ds
-                MATCH (n{i}:Individual {{short_form: '{neuron['vfb_id']}'}})
-                MERGE (n{i})-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
-                """
             
             cypher += "WITH 1 as dummy\n"
             cypher_queries.append(cypher)
