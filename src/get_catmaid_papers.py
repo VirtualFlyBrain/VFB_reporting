@@ -355,12 +355,15 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
         results = nc.commit_list([site_query])
         skid_to_neuron_map = {}
         for record in results_2_dict_list(results):
-            skid = int(record['skid'])  # Convert to int for consistent comparison
-            skid_to_neuron_map[skid] = {
-                'vfb_id': record['vfb_id'],
-                'vfb_label': record['vfb_label'],
-                'ds_ids': record['ds_ids']
-            }
+            try:
+                skid = int(record['skid'])  # Convert to int for consistent comparison
+                skid_to_neuron_map[skid] = {
+                    'vfb_id': record['vfb_id'],
+                    'vfb_label': record['vfb_label'],
+                    'ds_ids': record['ds_ids']
+                }
+            except ValueError:
+                log_error(f"Invalid SKID format: {record['skid']}. Skipping.")
         log_info(f"Found {len(skid_to_neuron_map)} neurons with SKIDs in VFB for site {site_short}")
     except Exception as e:
         log_error(f"Failed to query all neurons with SKIDs: {str(e)}")
