@@ -336,8 +336,9 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
     # First, get a mapping of all SKIDs to VFB neurons for this CATMAID instance
     site_query = f"""
     MATCH (i:Individual)-[skid:database_cross_reference]->(s:Site)
+    OPTIONAL MATCH (i)-[:has_source]->(ds:DataSet)
     WHERE s.short_form starts with 'catmaid_{site_short.lower()}'
-    RETURN i.short_form as vfb_id, i.label as vfb_label, skid.accession[0] as skid
+    RETURN i.short_form as vfb_id, i.label as vfb_label, skid.accession[0] as skid, collect(ds.short_form) as ds_ids
     """
     
     try:
@@ -347,7 +348,8 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             skid = int(record['skid'])  # Convert to int for consistent comparison
             skid_to_neuron_map[skid] = {
                 'vfb_id': record['vfb_id'],
-                'vfb_label': record['vfb_label']
+                'vfb_label': record['vfb_label'],
+                'ds_ids': record['ds_ids']
             }
         log_info(f"Found {len(skid_to_neuron_map)} neurons with SKIDs in VFB for site {site_short}")
     except Exception as e:
@@ -390,30 +392,18 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
                 
             neuron = skid_to_neuron_map[skid]
             
-            # Check if this neuron is linked to the dataset
-            link_query = f"""
-            MATCH (i:Individual {{short_form: '{neuron['vfb_id']}'}})
-            MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-            RETURN exists((i)-[:has_source]->(ds)) as has_link
-            """
-            
-            try:
-                link_results = nc.commit_list([link_query])
-                link_info = results_2_dict_list(link_results)
-                
-                if link_info and not link_info[0]['has_link']:
-                    # Neuron exists but doesn't have a link to this dataset
-                    cypher = f"""
-                    // Link neuron {neuron['vfb_label']} to dataset {ds_id}
-                    MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
-                    MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-                    MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
-                    """
-                    cypher_queries.append(cypher)
-                    total_missing += 1
-            except Exception as e:
-                log_error(f"Error checking link for neuron {neuron['vfb_id']} and dataset {ds_id}: {str(e)}")
-                
+            # Check if this neuron is linked to the dataset using pre-fetched dataset list
+            if ds_id not in neuron['ds_ids']:
+                # Neuron exists but doesn't have a link to this dataset
+                cypher = f"""
+                // Link neuron {neuron['vfb_label']} to dataset {ds_id}
+                MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
+                MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+                MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
+                """
+                cypher_queries.append(cypher)
+                total_missing += 1
+        
     log_info(f"Total missing links found: {total_missing}")
     log_info(f"Generated {len(cypher_queries)} Cypher queries to fix missing links")
     
