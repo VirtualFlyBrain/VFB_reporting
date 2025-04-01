@@ -20,7 +20,7 @@ except ImportError:
 # Define server-specific annotation mappings
 ANNOTATION_MAPPINGS = {
     "fafb.catmaid.virtualflybrain.org": ["neuron name"],
-    "l1em.catmaid.virtualflybrain.org": ["cell name", "neuron name", "MB nomenclature"],
+    "l1em.catmaid.virtualflybrain.org": ["MB nomenclature"],
     "abd1.5.catmaid.virtualflybrain.org": ["cell name", "neuron name", "MB nomenclature"],
     "iav-robo.catmaid.virtualflybrain.org": ["cell name", "neuron name", "MB nomenclature"],
     "iav-tnt.catmaid.virtualflybrain.org": ["cell name", "neuron name", "MB nomenclature"],
