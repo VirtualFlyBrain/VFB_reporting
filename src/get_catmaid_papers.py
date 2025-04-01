@@ -343,16 +343,26 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
         if not paper_skids:
             log_info(f"No SKIDs for paper {paper_id}. Skipping.")
             continue
+        
+        # First get the dataset ID for this specific paper
+        ds_query = f"MATCH (ds:DataSet)-[r:database_cross_reference]->(api:API) WHERE api.short_form ends with '_catmaid_api' AND r.accession[0] = '{paper_id}' RETURN ds.short_form as ds_id"
+        ds_results = nc.commit_list([ds_query])
+        ds_info = results_2_dict_list(ds_results)
+        
+        if not ds_info:
+            log_error(f"Could not find dataset in VFB for paper ID {paper_id}")
+            continue
             
-        # Find neurons in VFB with these skids but not linked to this dataset
+        ds_id = ds_info[0]['ds_id']
+        log_info(f"Dataset ID for paper {paper_id} is {ds_id}")
+        
+        # Now find neurons with these skids that don't have a link to this specific dataset
         query = (f"""
         MATCH (i:Individual)-[skid:database_cross_reference]->(s:Site)
         WHERE s.short_form starts with 'catmaid_{site_short.lower()}' AND skid.accession[0] IN {paper_skids}
         WITH i
-        MATCH (ds:DataSet)<-[:has_source]-(i2:Individual)
-        WHERE ds.short_form CONTAINS '{site_short.lower()}'
-        WITH collect(i2) as linked_neurons, i
-        WHERE NOT i IN linked_neurons
+        MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+        WHERE NOT exists((i)-[:has_source]->(ds))
         RETURN i.short_form as vfb_id, i.label as vfb_label, id(i) as neo4j_id
         """)
         
@@ -360,22 +370,10 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             results = nc.commit_list([query])
             missing_links = results_2_dict_list(results)
             
-            log_info(f"Found {len(missing_links)} neurons missing links to dataset")
+            log_info(f"Found {len(missing_links)} neurons missing links to specific dataset {ds_id}")
             total_missing += len(missing_links)
             
-            # Get the dataset node ID for the paper
-            ds_query = f"MATCH (ds:DataSet)-[r:database_cross_reference]->(api:API) WHERE api.short_form ends with '_catmaid_api' AND r.accession[0] = '{paper_id}' RETURN ds.short_form as ds_id"
-            ds_results = nc.commit_list([ds_query])
-            ds_info = results_2_dict_list(ds_results)
-            
-            if not ds_info:
-                log_error(f"Could not find dataset in VFB for paper ID {paper_id}")
-                continue
-                
-            ds_id = ds_info[0]['ds_id']
-            log_info(f"Dataset ID for paper {paper_id} is {ds_id}")
-            
-            if ds_id and missing_links:
+            if missing_links:
                 for neuron in missing_links:
                     # Create Cypher query to add the missing link
                     cypher = f"""
