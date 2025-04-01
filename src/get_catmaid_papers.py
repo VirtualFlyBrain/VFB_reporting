@@ -346,7 +346,7 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
     # First, get a mapping of all SKIDs to VFB neurons for this CATMAID instance
     site_query = f"""
     MATCH (i:Individual)-[skid:database_cross_reference]->(s:API)
-    WHERE s.short_form = '{site_short.lower()}_catmaid_api'
+    WHERE s.short_form = '{site_short.lower()}_catmaid_api' AND exists(skid.accession)
     OPTIONAL MATCH (i)-[:has_source]->(ds:DataSet)
     RETURN i.short_form as vfb_id, i.label as vfb_label, skid.accession[0] as skid, collect(ds.short_form) as ds_ids
     """
