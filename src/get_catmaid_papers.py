@@ -397,19 +397,22 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             RETURN exists((i)-[:has_source]->(ds)) as has_link
             """
             
-            link_results = nc.commit_list([link_query])
-            link_info = results_2_dict_list(link_results)
-            
-            if link_info and not link_info[0]['has_link']:
-                # Neuron exists but doesn't have a link to this dataset
-                cypher = f"""
-                // Link neuron {neuron['vfb_label']} to dataset {ds_id}
-                MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
-                MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-                MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
-                """
-                cypher_queries.append(cypher)
-                total_missing += 1
+            try:
+                link_results = nc.commit_list([link_query])
+                link_info = results_2_dict_list(link_results)
+                
+                if link_info and not link_info[0]['has_link']:
+                    # Neuron exists but doesn't have a link to this dataset
+                    cypher = f"""
+                    // Link neuron {neuron['vfb_label']} to dataset {ds_id}
+                    MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
+                    MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+                    MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
+                    """
+                    cypher_queries.append(cypher)
+                    total_missing += 1
+            except Exception as e:
+                log_error(f"Error checking link for neuron {neuron['vfb_id']} and dataset {ds_id}: {str(e)}")
                 
     log_info(f"Total missing links found: {total_missing}")
     log_info(f"Generated {len(cypher_queries)} Cypher queries to fix missing links")
@@ -450,20 +453,49 @@ if __name__ == '__main__':
     # Create output directory if it doesn't exist
     os.makedirs("../VFB_reporting_results/CATMAID_SKID_reports", exist_ok=True)
 
-    # make reports
-    for r in larval_reports:
-        gen_cat_skid_report_officialnames(*r)
-        # Add this line to generate missing links report
-        gen_missing_links_report(r[0], r[1], r[2], r[4])
+    # make reports with try/except blocks to prevent failures from stopping the process
+    try:
+        for r in larval_reports:
+            gen_cat_skid_report_officialnames(*r)
+            try:
+                gen_missing_links_report(r[0], r[1], r[2], r[4])
+            except Exception as e:
+                log_error(f"Error generating missing links report for {r[4]}: {str(e)}")
+    except Exception as e:
+        log_error(f"Error processing larval reports: {str(e)}")
         
-    gen_cat_skid_report_officialnames(*FAFB)
-    gen_missing_links_report(*FAFB[0:3], FAFB[4])
+    try:
+        gen_cat_skid_report_officialnames(*FAFB)
+        try:
+            gen_missing_links_report(*FAFB[0:3], FAFB[4])
+        except Exception as e:
+            log_error(f"Error generating missing links report for FAFB: {str(e)}")
+    except Exception as e:
+        log_error(f"Error processing FAFB report: {str(e)}")
     
-    gen_cat_skid_report_officialnames(*FANC1)
-    gen_missing_links_report(*FANC1[0:3], FANC1[4])
+    try:
+        gen_cat_skid_report_officialnames(*FANC1)
+        try:
+            gen_missing_links_report(*FANC1[0:3], FANC1[4])
+        except Exception as e:
+            log_error(f"Error generating missing links report for FANC1: {str(e)}")
+    except Exception as e:
+        log_error(f"Error processing FANC1 report: {str(e)}")
     
-    gen_cat_skid_report_officialnames(*FANC2)
-    gen_missing_links_report(*FANC2[0:3], FANC2[4])
+    try:
+        gen_cat_skid_report_officialnames(*FANC2)
+        try:
+            gen_missing_links_report(*FANC2[0:3], FANC2[4])
+        except Exception as e:
+            log_error(f"Error generating missing links report for FANC2: {str(e)}")
+    except Exception as e:
+        log_error(f"Error processing FANC2 report: {str(e)}")
     
-    gen_cat_skid_report_officialnames(*LEG40)
-    gen_missing_links_report(*LEG40[0:3], LEG40[4])
+    try:
+        gen_cat_skid_report_officialnames(*LEG40)
+        try:
+            gen_missing_links_report(*LEG40[0:3], LEG40[4])
+        except Exception as e:
+            log_error(f"Error generating missing links report for LEG40: {str(e)}")
+    except Exception as e:
+        log_error(f"Error processing LEG40 report: {str(e)}")
