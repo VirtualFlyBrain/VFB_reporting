@@ -384,6 +384,9 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
         ds_id = ds_info[0]['ds_id']
         log_info(f"Dataset ID for paper {paper_id} is {ds_id}")
         
+        # Group all neurons that need to be linked to this dataset
+        neurons_to_link = []
+        
         # Check for each SKID if its neuron has a link to the dataset
         for skid in paper_skids:
             if skid not in skid_to_neuron_map:
@@ -395,15 +398,25 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             # Check if this neuron is linked to the dataset using pre-fetched dataset list
             if ds_id not in neuron['ds_ids']:
                 # Neuron exists but doesn't have a link to this dataset
-                cypher = f"""
-                // Link neuron {neuron['vfb_label']} to dataset {ds_id}
-                MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
-                MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-                MERGE (n)-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
-                WITH 1 as dummy
+                neurons_to_link.append(neuron)
+        
+        if neurons_to_link:
+            # Create a single optimized query for all neurons for this dataset
+            cypher = f"""
+            // Link {len(neurons_to_link)} neurons to dataset {ds_id}
+            MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+            """
+            
+            for i, neuron in enumerate(neurons_to_link):
+                cypher += f"""
+                WITH ds
+                MATCH (n{i}:Individual {{short_form: '{neuron['vfb_id']}'}})
+                MERGE (n{i})-[:has_source {{iri: "http://purl.org/dc/terms/source", label: "has_source", short_form: "source", type: "Annotation"}}]->(ds)
                 """
-                cypher_queries.append(cypher)
-                total_missing += 1
+            
+            cypher += "WITH 1 as dummy\n"
+            cypher_queries.append(cypher)
+            total_missing += len(neurons_to_link)
     
     log_info(f"Total missing links found: {total_missing}")
     log_info(f"Generated {len(cypher_queries)} Cypher queries to fix missing links")
