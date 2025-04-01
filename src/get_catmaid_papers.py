@@ -333,10 +333,31 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
     
     log_info(f"Analyzing {len(paper_ids)} papers")
     
+    # First, get a mapping of all SKIDs to VFB neurons for this CATMAID instance
+    site_query = f"""
+    MATCH (i:Individual)-[skid:database_cross_reference]->(s:Site)
+    WHERE s.short_form starts with 'catmaid_{site_short.lower()}'
+    RETURN i.short_form as vfb_id, i.label as vfb_label, skid.accession[0] as skid
+    """
+    
+    try:
+        results = nc.commit_list([site_query])
+        skid_to_neuron_map = {}
+        for record in results_2_dict_list(results):
+            skid = int(record['skid'])  # Convert to int for consistent comparison
+            skid_to_neuron_map[skid] = {
+                'vfb_id': record['vfb_id'],
+                'vfb_label': record['vfb_label']
+            }
+        log_info(f"Found {len(skid_to_neuron_map)} neurons with SKIDs in VFB for site {site_short}")
+    except Exception as e:
+        log_error(f"Failed to query all neurons with SKIDs: {str(e)}")
+        return []
+    
     # Process each paper
     for paper_id in paper_ids:
         paper_name = cat_skids[cat_skids['paper_id'] == paper_id]['paper_name'].iloc[0]
-        paper_skids = cat_skids[cat_skids['paper_id'] == paper_id]['skid'].tolist()
+        paper_skids = [int(skid) for skid in cat_skids[cat_skids['paper_id'] == paper_id]['skid'].tolist()]
         
         log_info(f"Checking paper ID {paper_id} ({paper_name}) with {len(paper_skids)} SKIDs")
         
@@ -345,7 +366,12 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
             continue
         
         # First get the dataset ID for this specific paper
-        ds_query = f"MATCH (ds:DataSet)-[r:database_cross_reference]->(api:API) WHERE api.short_form ends with '_catmaid_api' AND r.accession[0] = '{paper_id}' RETURN ds.short_form as ds_id"
+        ds_query = f"""
+        MATCH (ds:DataSet)-[r:database_cross_reference]->(api:API) 
+        WHERE api.short_form ends with '_catmaid_api' AND r.accession[0] = '{paper_id}' 
+        RETURN ds.short_form as ds_id
+        """
+        
         ds_results = nc.commit_list([ds_query])
         ds_info = results_2_dict_list(ds_results)
         
@@ -356,37 +382,35 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
         ds_id = ds_info[0]['ds_id']
         log_info(f"Dataset ID for paper {paper_id} is {ds_id}")
         
-        # Now find neurons with these skids that don't have a link to this specific dataset
-        query = (f"""
-        MATCH (i:Individual)-[skid:database_cross_reference]->(s:Site)
-        WHERE s.short_form starts with 'catmaid_{site_short.lower()}' AND skid.accession[0] IN {paper_skids}
-        WITH i
-        MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-        WHERE NOT exists((i)-[:has_source]->(ds))
-        RETURN i.short_form as vfb_id, i.label as vfb_label, id(i) as neo4j_id
-        """)
-        
-        try:
-            results = nc.commit_list([query])
-            missing_links = results_2_dict_list(results)
+        # Check for each SKID if its neuron has a link to the dataset
+        for skid in paper_skids:
+            if skid not in skid_to_neuron_map:
+                # SKID exists in CATMAID but not in VFB
+                continue
+                
+            neuron = skid_to_neuron_map[skid]
             
-            log_info(f"Found {len(missing_links)} neurons missing links to specific dataset {ds_id}")
-            total_missing += len(missing_links)
+            # Check if this neuron is linked to the dataset
+            link_query = f"""
+            MATCH (i:Individual {{short_form: '{neuron['vfb_id']}'}})
+            MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+            RETURN exists((i)-[:has_source]->(ds)) as has_link
+            """
             
-            if missing_links:
-                for neuron in missing_links:
-                    # Create Cypher query to add the missing link
-                    cypher = f"""
-                    // Link neuron {neuron['vfb_label']} to dataset {ds_id}
-                    MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
-                    MATCH (ds:DataSet {{short_form: '{ds_id}'}})
-                    MERGE (n)-[:has_source]->(ds)
-                    """
-                    cypher_queries.append(cypher)
-                    
-        except Exception as e:
-            log_error(f"Error querying Neo4j for paper {paper_id}: {str(e)}")
-    
+            link_results = nc.commit_list([link_query])
+            link_info = results_2_dict_list(link_results)
+            
+            if link_info and not link_info[0]['has_link']:
+                # Neuron exists but doesn't have a link to this dataset
+                cypher = f"""
+                // Link neuron {neuron['vfb_label']} to dataset {ds_id}
+                MATCH (n:Individual {{short_form: '{neuron['vfb_id']}'}})
+                MATCH (ds:DataSet {{short_form: '{ds_id}'}})
+                MERGE (n)-[:has_source]->(ds)
+                """
+                cypher_queries.append(cypher)
+                total_missing += 1
+                
     log_info(f"Total missing links found: {total_missing}")
     log_info(f"Generated {len(cypher_queries)} Cypher queries to fix missing links")
     
