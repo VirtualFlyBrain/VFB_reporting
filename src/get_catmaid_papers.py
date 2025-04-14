@@ -501,7 +501,7 @@ def gen_deprecated_neurons_report(URL, PROJECT_ID, paper_annotation, report=Fals
     # Get all neurons in VFB for this CATMAID instance
     site_query = f"""
     MATCH (i:Individual)-[skid:database_cross_reference]->(s:API)
-    WHERE s.short_form = '{site_short.lower()}_catmaid_api' AND exists(skid.accession)
+    WHERE s.short_form = '{site_short.lower()}_catmaid_api' AND exists(skid.accession) AND i.short_form STARTS WITH 'VFB_'
     RETURN i.short_form as vfb_id, i.label as vfb_label, skid.accession[0] as skid, 
            CASE WHEN exists(i.deprecated) AND i.deprecated[0] = true THEN true ELSE false END as is_deprecated
     """
