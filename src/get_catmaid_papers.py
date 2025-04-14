@@ -553,34 +553,54 @@ def gen_deprecated_neurons_report(URL, PROJECT_ID, paper_annotation, report=Fals
             cypher += "WITH 1 as dummy\n"
             cypher_queries.append(cypher)
     
-    log_info(f"Generated {len(cypher_queries)} Cypher queries to mark neurons as deprecated")
+    log_info(f"Generated {len(cypher_queries)} Cypher queries to mark {len(deprecated_neurons)} neurons as deprecated")
     
     # Save to file
-    if report and cypher_queries:
+    if report:
         try:
             # Ensure the directory exists
             os.makedirs("../VFB_reporting_results/CATMAID_SKID_reports", exist_ok=True)
             
-            outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.cypher"
-            with open(outfile, 'w') as f:
-                f.write("// Cypher queries to mark deprecated neurons\n")
-                f.write("// Generated on " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n\n")
-                # Remove the final "WITH" clause to avoid syntax error at the end of the transaction
-                content = "".join(cypher_queries)
-                if content.endswith("WITH 1 as dummy\n"):
-                    content = content[:-len("WITH 1 as dummy\n")]
-                f.write(content)
-            log_info(f"Saved {len(cypher_queries)} deprecated neurons queries to {outfile}")
+            # Save summary information about both sets of neurons
+            all_stats_outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_all_deprecated_neurons_summary.tsv"
+            summary_data = {
+                'neurons_to_deprecate': len(deprecated_neurons),
+                'already_deprecated_neurons': len(already_deprecated),
+                'total_nonexistent_skids': len(deprecated_neurons) + len(already_deprecated)
+            }
+            pd.DataFrame([summary_data]).to_csv(all_stats_outfile, sep="\t", index=False)
+            log_info(f"Saved summary information to {all_stats_outfile}")
             
-            # Save a TSV report of deprecated neurons for reference
-            stats_outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.tsv"
-            df = pd.DataFrame(deprecated_neurons)
-            df.to_csv(stats_outfile, sep="\t", index=False)
-            log_info(f"Saved detailed information about {len(deprecated_neurons)} deprecated neurons to {stats_outfile}")
+            # Save detailed information about neurons to be deprecated
+            if deprecated_neurons:
+                stats_outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.tsv"
+                df = pd.DataFrame(deprecated_neurons)
+                df.to_csv(stats_outfile, sep="\t", index=False)
+                log_info(f"Saved detailed information about {len(deprecated_neurons)} neurons to be deprecated to {stats_outfile}")
+            
+            # Save detailed information about already deprecated neurons
+            if already_deprecated:
+                existing_stats_outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_already_deprecated_neurons.tsv"
+                df = pd.DataFrame(already_deprecated)
+                df.to_csv(existing_stats_outfile, sep="\t", index=False)
+                log_info(f"Saved detailed information about {len(already_deprecated)} already deprecated neurons to {existing_stats_outfile}")
+            
+            # Save Cypher file only if there are neurons to deprecate
+            if cypher_queries:
+                outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.cypher"
+                with open(outfile, 'w') as f:
+                    f.write("// Cypher queries to mark deprecated neurons\n")
+                    f.write("// Generated on " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n\n")
+                    # Remove the final "WITH" clause to avoid syntax error at the end of the transaction
+                    content = "".join(cypher_queries)
+                    if content.endswith("WITH 1 as dummy\n"):
+                        content = content[:-len("WITH 1 as dummy\n")]
+                    f.write(content)
+                log_info(f"Saved {len(cypher_queries)} deprecated neurons queries to {outfile}")
         except Exception as e:
             log_error(f"Failed to save deprecated neurons report: {str(e)}")
-    elif report and not cypher_queries:
-        log_info(f"No deprecated neurons found for {report}, no Cypher file created")
+    elif report and not cypher_queries and deprecated_neurons:
+        log_info(f"No neurons to deprecate found for {report}, but {len(already_deprecated)} neurons are already deprecated")
     
     return cypher_queries
 
