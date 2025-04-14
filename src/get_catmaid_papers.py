@@ -455,6 +455,136 @@ def gen_missing_links_report(URL, PROJECT_ID, paper_annotation, report=False):
     return cypher_queries
 
 
+def gen_deprecated_neurons_report(URL, PROJECT_ID, paper_annotation, report=False):
+    """Generate a report of neurons that exist in VFB but no longer exist in the CATMAID instance.
+    These neurons should be marked as deprecated in VFB.
+    Outputs Cypher queries needed to mark neurons as deprecated."""
+    
+    if not NEO4J_AVAILABLE:
+        log_error("Neo4j tools not available. Cannot generate deprecated neurons report.")
+        return []
+    
+    log_info(f"Generating deprecated neurons report for {URL}, project {PROJECT_ID}, annotation '{paper_annotation}'")
+    
+    # Remove old file at the beginning to avoid appending or keeping stale data
+    if report:
+        outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.cypher"
+        try:
+            if os.path.exists(outfile):
+                os.remove(outfile)
+                log_info(f"Removed existing file: {outfile}")
+        except Exception as e:
+            log_error(f"Failed to remove old file {outfile}: {str(e)}")
+    
+    # First get all skids from CATMAID for this dataset
+    cat_skids = gen_cat_skid_report_officialnames(URL, PROJECT_ID, paper_annotation, report=report)
+    
+    if cat_skids.empty:
+        log_error(f"No SKIDs found for {URL}. Cannot generate deprecated neurons report.")
+        return []
+    
+    catmaid_skids = set([int(skid) for skid in cat_skids['skid'].tolist()])
+    log_info(f"Found {len(catmaid_skids)} SKIDs in CATMAID instance")
+    
+    # Use the domain to identify the CATMAID instance
+    domain = URL.split("//")[1].split("/")[0]
+    site_short = domain.split(".")[0] if "catmaid.virtualflybrain.org" in domain else "catmaid_vnc"
+    
+    # Connect to Neo4j
+    try:
+        nc = neo4j_connect('http://kb.virtualflybrain.org', 'neo4j', 'vfb')
+        log_info("Successfully connected to Neo4j database")
+    except Exception as e:
+        log_error(f"Failed to connect to Neo4j database: {str(e)}")
+        return []
+    
+    # Get all neurons in VFB for this CATMAID instance
+    site_query = f"""
+    MATCH (i:Individual)-[skid:database_cross_reference]->(s:API)
+    WHERE s.short_form = '{site_short.lower()}_catmaid_api' AND exists(skid.accession)
+    RETURN i.short_form as vfb_id, i.label as vfb_label, skid.accession[0] as skid, 
+           CASE WHEN exists(i.deprecated) AND i.deprecated[0] = true THEN true ELSE false END as is_deprecated
+    """
+    
+    try:
+        results = nc.commit_list([site_query])
+        vfb_neurons = results_2_dict_list(results)
+        log_info(f"Found {len(vfb_neurons)} neurons with SKIDs in VFB for site {site_short}")
+    except Exception as e:
+        log_error(f"Failed to query neurons with SKIDs: {str(e)}")
+        return []
+    
+    # Find neurons in VFB that don't exist in CATMAID anymore
+    deprecated_neurons = []
+    already_deprecated = []
+    
+    for neuron in vfb_neurons:
+        try:
+            skid = int(neuron['skid'])
+            if skid not in catmaid_skids:
+                if neuron['is_deprecated']:
+                    already_deprecated.append(neuron)
+                else:
+                    deprecated_neurons.append(neuron)
+        except ValueError:
+            log_error(f"Invalid SKID format: [{neuron['skid']}] for {neuron['vfb_id']}. Skipping.")
+    
+    log_info(f"Found {len(deprecated_neurons)} neurons that need to be marked as deprecated")
+    log_info(f"Found {len(already_deprecated)} neurons that are already marked as deprecated")
+    
+    # Generate Cypher query to mark neurons as deprecated
+    cypher_queries = []
+    if deprecated_neurons:
+        neuron_ids = [neuron['vfb_id'] for neuron in deprecated_neurons]
+        # Group queries in batches of 100 to avoid excessively long queries
+        batch_size = 100
+        for i in range(0, len(neuron_ids), batch_size):
+            batch = neuron_ids[i:i+batch_size]
+            cypher = f"""
+            // Mark {len(batch)} neurons as deprecated
+            MATCH (n:Individual)
+            WHERE n.short_form IN {json.dumps(batch)}
+            SET n:Deprecated, n.deprecated = [true], 
+                n.comment = CASE 
+                  WHEN n.comment IS NULL THEN ["Deprecated due to linked SkeletonID no longer exists in latest CATMAID instance"] 
+                  ELSE n.comment + "Deprecated due to linked SkeletonID no longer exists in latest CATMAID instance" 
+                END
+            """
+            cypher += "WITH 1 as dummy\n"
+            cypher_queries.append(cypher)
+    
+    log_info(f"Generated {len(cypher_queries)} Cypher queries to mark neurons as deprecated")
+    
+    # Save to file
+    if report and cypher_queries:
+        try:
+            # Ensure the directory exists
+            os.makedirs("../VFB_reporting_results/CATMAID_SKID_reports", exist_ok=True)
+            
+            outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.cypher"
+            with open(outfile, 'w') as f:
+                f.write("// Cypher queries to mark deprecated neurons\n")
+                f.write("// Generated on " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n\n")
+                # Remove the final "WITH" clause to avoid syntax error at the end of the transaction
+                content = "".join(cypher_queries)
+                if content.endswith("WITH 1 as dummy\n"):
+                    content = content[:-len("WITH 1 as dummy\n")]
+                f.write(content)
+            log_info(f"Saved {len(cypher_queries)} deprecated neurons queries to {outfile}")
+            
+            # Save a TSV report of deprecated neurons for reference
+            stats_outfile = f"../VFB_reporting_results/CATMAID_SKID_reports/{report}_deprecated_neurons.tsv"
+            df = pd.DataFrame(deprecated_neurons)
+            df.to_csv(stats_outfile, sep="\t", index=False)
+            log_info(f"Saved detailed information about {len(deprecated_neurons)} deprecated neurons to {stats_outfile}")
+        except Exception as e:
+            log_error(f"Failed to save deprecated neurons report: {str(e)}")
+    elif report and not cypher_queries:
+        log_info(f"No deprecated neurons found for {report}, no Cypher file created")
+    
+    return cypher_queries
+
+
 if __name__ == '__main__':
     # generate skid reports when this is run as a script
 
@@ -481,6 +611,10 @@ if __name__ == '__main__':
                 gen_missing_links_report(r[0], r[1], r[2], r[4])
             except Exception as e:
                 log_error(f"Error generating missing links report for {r[4]}: {str(e)}")
+            try:
+                gen_deprecated_neurons_report(r[0], r[1], r[2], r[4])
+            except Exception as e:
+                log_error(f"Error generating deprecated neurons report for {r[4]}: {str(e)}")
     except Exception as e:
         log_error(f"Error processing larval reports: {str(e)}")
         
@@ -490,6 +624,10 @@ if __name__ == '__main__':
             gen_missing_links_report(*FAFB[0:3], FAFB[4])
         except Exception as e:
             log_error(f"Error generating missing links report for FAFB: {str(e)}")
+        try:
+            gen_deprecated_neurons_report(*FAFB[0:3], FAFB[4])
+        except Exception as e:
+            log_error(f"Error generating deprecated neurons report for FAFB: {str(e)}")
     except Exception as e:
         log_error(f"Error processing FAFB report: {str(e)}")
     
@@ -499,6 +637,10 @@ if __name__ == '__main__':
             gen_missing_links_report(*FANC1[0:3], FANC1[4])
         except Exception as e:
             log_error(f"Error generating missing links report for FANC1: {str(e)}")
+        try:
+            gen_deprecated_neurons_report(*FANC1[0:3], FANC1[4])
+        except Exception as e:
+            log_error(f"Error generating deprecated neurons report for FANC1: {str(e)}")
     except Exception as e:
         log_error(f"Error processing FANC1 report: {str(e)}")
     
@@ -508,6 +650,10 @@ if __name__ == '__main__':
             gen_missing_links_report(*FANC2[0:3], FANC2[4])
         except Exception as e:
             log_error(f"Error generating missing links report for FANC2: {str(e)}")
+        try:
+            gen_deprecated_neurons_report(*FANC2[0:3], FANC2[4])
+        except Exception as e:
+            log_error(f"Error generating deprecated neurons report for FANC2: {str(e)}")
     except Exception as e:
         log_error(f"Error processing FANC2 report: {str(e)}")
     
@@ -517,5 +663,9 @@ if __name__ == '__main__':
             gen_missing_links_report(*LEG40[0:3], LEG40[4])
         except Exception as e:
             log_error(f"Error generating missing links report for LEG40: {str(e)}")
+        try:
+            gen_deprecated_neurons_report(*LEG40[0:3], LEG40[4])
+        except Exception as e:
+            log_error(f"Error generating deprecated neurons report for LEG40: {str(e)}")
     except Exception as e:
         log_error(f"Error processing LEG40 report: {str(e)}")
