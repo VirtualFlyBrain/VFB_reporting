@@ -246,7 +246,8 @@ def make_anat_records(site, curator, output_filename='./anat'):
     # get dataset name for paper from vfb
     for i in paper_ids:
         ds = comparison_table['VFB_name'][i]  # dataset name in VFB
-        if ds == str(numpy.nan):
+        if (isinstance(ds, float) and numpy.isnan(ds)) or pd.isna(ds):
+            print("No VFB dataset %s for paper %s" % (ds, i))
             continue  # if no VFB dataset for paper
 
         single_ds_data = new_skids[new_skids['paper_id'] == i]
