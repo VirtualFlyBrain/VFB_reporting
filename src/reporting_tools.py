@@ -108,5 +108,61 @@ return namedtuple('out', out.keys())(*out.values())
 """
 
 
+def gen_label_count_report(server, report_name):
+    """Generates a report listing all Neo4j node labels and relationship types with their counts.
+    This helps identify major issues by showing the distribution of different entity types.
+    Args:
+        server: server connection as [endpoint, usr, pwd]
+        report_name: name for the report
+    Returns:
+        pandas DataFrame with columns: type, label, count
+    """
+    # Query to get node label counts
+    node_query = """
+    CALL db.labels() YIELD label
+    CALL apoc.cypher.run('MATCH (n:`' + label + '`) RETURN count(n) as count', {}) YIELD value
+    RETURN 'node' as type, label, value.count as count
+    ORDER BY label
+    """
+    
+    # Query to get relationship type counts
+    rel_query = """
+    CALL db.relationshipTypes() YIELD relationshipType
+    CALL apoc.cypher.run('MATCH ()-[r:`' + relationshipType + '`]->() RETURN count(r) as count', {}) YIELD value
+    RETURN 'relationship' as type, relationshipType as label, value.count as count
+    ORDER BY relationshipType
+    """
+    
+    # Generate both reports
+    nc = neo4j_connect(*server)
+    
+    # Get node counts
+    print("Getting node label counts...")
+    node_results = nc.commit_list([node_query])
+    node_dc = results_2_dict_list(node_results)
+    node_df = pd.DataFrame.from_records(node_dc)
+    
+    # Get relationship counts
+    print("Getting relationship type counts...")
+    rel_results = nc.commit_list([rel_query])
+    rel_dc = results_2_dict_list(rel_results)
+    rel_df = pd.DataFrame.from_records(rel_dc)
+    
+    # Combine the results
+    if not node_df.empty and not rel_df.empty:
+        combined_df = pd.concat([node_df, rel_df], ignore_index=True)
+    elif not node_df.empty:
+        combined_df = node_df
+    elif not rel_df.empty:
+        combined_df = rel_df
+    else:
+        combined_df = pd.DataFrame(columns=['type', 'label', 'count'])
+    
+    combined_df.replace(np.nan, '', regex=True, inplace=True)
+    combined_df.name = report_name
+    
+    return combined_df
+
+
 def save_report(report, filename):
     report.to_csv(filename, sep='\t', index=False)
