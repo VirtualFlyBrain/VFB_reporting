@@ -4,3 +4,4 @@ vfb_connect
 mdutils
 fsspec
 pysolr
+oaklib
