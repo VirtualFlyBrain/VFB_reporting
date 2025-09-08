@@ -3,12 +3,10 @@ are not on the classes that they are annotated with."""
 
 import pandas as pd
 from uk.ac.ebi.vfb.neo4j.neo4j_tools import neo4j_connect, results_2_dict_list
-from oaklib import get_adapter
 import wget
 import pathlib
 
 nc = neo4j_connect('http://pdb.virtualflybrain.org', 'neo4j', 'vfb')
-adapter = get_adapter("sqlite:obo:fbbt")
 
 # nt labels
 neurotransmitter_labels = ['Cholinergic', 'Glutamatergic', 'GABAergic', 'Octopaminergic', 'Dopaminergic',
@@ -71,15 +69,13 @@ def label_conflict_report(query_labels, VFB_labels, report_filename):
     all_labels_with_new = all_relevant_labels[all_relevant_labels['new_labels'].str.len() > 0].reset_index(drop=True)
     all_labels_with_new['new_labels'] = all_labels_with_new['new_labels'].apply(lambda x: x[0])
 
-    old_labels = all_labels_with_new[['FBbt_id', 'class_tags']]
+    old_labels = all_labels_with_new[['FBbt_id', 'class_tags']].copy()
     old_labels['existing_labels'] = old_labels['class_tags'].apply(lambda x: '|'.join(x))
     old_labels = old_labels.drop('class_tags', axis=1).drop_duplicates()
 
     value_counts = pd.DataFrame(all_labels_with_new[['FBbt_id', 'FBbt_label', 'new_labels']].value_counts().reset_index())
     value_counts = value_counts.merge(old_labels, on='FBbt_id', how='left').rename(
         columns={'class_tags': 'existing_labels'}).drop_duplicates()
-    value_counts['subclasses'] = value_counts['FBbt_id'].apply(
-        lambda x: adapter.descendant_count(x, predicates=['rdfs:subClassOf']))
     value_counts = value_counts.sort_values(by='FBbt_id', axis=0)
     value_counts.to_csv(report_filename, sep='\t', index=False)
 
