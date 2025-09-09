@@ -3,3 +3,4 @@ VFB_reporting_results
 .DS_Store
 .idea/
 venv/
+src/.ipynb_checkpoints/
