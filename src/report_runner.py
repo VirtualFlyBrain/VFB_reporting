@@ -1,4 +1,4 @@
-from reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_prod, gen_label_count_report, save_report
+from reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_prod, gen_label_count_report, save_report, template_painted_domain_report
 
 
 kb_report = gen_dataset_report(["http://kb.virtualflybrain.org", "neo4j", "vfb"], 'kb')
@@ -51,7 +51,9 @@ try:
 except Exception as e:
   print(f"An exception occurred running dev report: {e}")
   
-
-
-
+try:
+  template_painted_domain_report = template_painted_domain_report(["http://pdb.virtualflybrain.org", "neo4j", "vfb"], 'pdb_template_painted_domains')
+  save_report(template_painted_domain_report, "../VFB_reporting_results/template_painted_domain_report.tsv")
+except Exception as e:
+  print(f"An exception occurred running template_painted_domain_report: {e}")
 

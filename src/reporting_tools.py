@@ -163,6 +163,18 @@ def gen_label_count_report(server, report_name):
     
     return combined_df
 
+def template_painted_domain_report(server, report_name):
+    """ Get all 'computer graphic's registered to each template and their FBbt annotations
+    # NB some cases where multiple domain instances have the same label"""
+    query = """MATCH (c:Class)<-[:INSTANCEOF]-(i:Individual)<-[:depicts]-(ch:Individual:Channel)-[:in_register_with]->(t:Template)
+    MATCH (ch)-[:is_specified_output_of]->(im:Class)
+    WHERE im.label = 'computer graphic'
+    RETURN distinct t.label AS Template, i.label AS Painted_domain, 
+    COUNT(DISTINCT i.short_form) AS Instances, COLLECT(c.label) AS Anatomy 
+    ORDER BY Template"""
+
+    report = gen_report(server, query=query, report_name=report_name)
+    return report
 
 def save_report(report, filename):
     report.to_csv(filename, sep='\t', index=False)
