@@ -5,3 +5,4 @@ mdutils
 fsspec
 pysolr
 wget
+numpy>=1.22.2 # not directly required, pinned by Snyk to avoid a vulnerability
