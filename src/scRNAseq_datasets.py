@@ -17,4 +17,4 @@ def get_scRNAseq_DataSets(vfb_server=('http://pdb.virtualflybrain.org', 'neo4j',
 if __name__ == "__main__":
     print("Getting scRNAseq DataSets")
     scRNAseq_DataSet_table = get_scRNAseq_DataSets()
-    scRNAseq_DataSet_table.to_csv("../VFB_reporting_results/ID_tables/scRNAseq_DataSets.tsv", sep='\t', index=False)
+    scRNAseq_DataSet_table.to_csv("../VFB_reporting_results/scRNAseq_DataSets.tsv", sep='\t', index=False)
