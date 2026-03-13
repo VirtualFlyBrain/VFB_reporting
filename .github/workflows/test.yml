@@ -78,6 +78,12 @@ jobs:
           mkdir -p ../VFB_reporting_results/ID_tables
           rm -vf ../VFB_reporting_results/ID_tables/*.tsv
           python ./ID_mapping_tables.py
+      - name: Generate connectomics instance synonym reports
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
+          cd src
+          rm -vf ../VFB_reporting_results/instance_synonym_report_*.tsv
+          python ./connectomics_instance_synonym_reports.py
       - name: Clean up
         run: |
           rm -rfv VFB_reporting
