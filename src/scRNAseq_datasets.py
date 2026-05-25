@@ -6,8 +6,10 @@ def get_scRNAseq_DataSets(vfb_server=('http://pdb.virtualflybrain.org', 'neo4j',
 
     scRNAseq_DataSets = gen_report(server=vfb_server,
                              query=("MATCH (ds:scRNAseq_DataSet:Individual) "
+                                    "OPTIONAL MATCH (cl:Cluster:Individual)-[:has_source]->(ds) "
                                     "RETURN DISTINCT ds.short_form AS FlyBase_ID, ds.label AS Name, "
-                                    "ds.description[0] AS Description, ds.filtered_gene_count[0] AS `Filtered Gene Count` "
+                                    "ds.description[0] AS Description, ds.filtered_gene_count[0] AS `Filtered Gene Count`, "
+                                    "COUNT(DISTINCT cl) AS `Cluster Count` "
                                     "ORDER BY ds.label DESC"),
                              report_name='scRNAseq_DataSets')
 
