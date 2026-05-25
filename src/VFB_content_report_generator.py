@@ -75,6 +75,10 @@ class VFBContentReport:
         self.sensory_connections_sense_organ_number = None
         self.sensory_connections_connection_number = None
         self.templates_data = None
+        self.scrnaseq_dataset_number = None
+        self.scrnaseq_cluster_number = None
+        self.scrnaseq_anatomy_number = None
+        self.scrnaseq_gene_number = None
 
     def get_info(self):
         """Gets content info from VFB and assigns to attributes."""
@@ -442,6 +446,28 @@ class VFBContentReport:
                                          report_name='templates_data')
         if self.templates_data is not None:
               self.templates_data.set_index('template', inplace=True, verify_integrity=True)
+              self.templates_data.sort_values(by='datasets', ascending=False, inplace=True)
+
+        # scRNAseq totals
+        scrnaseq = safe_gen_report(server=self.server,
+                                   query=("MATCH (cl:Cluster:Individual)-[:has_source]->"
+                                          "(ds:scRNAseq_DataSet:Individual) "
+                                          "WITH COLLECT(DISTINCT cl) AS clusters, "
+                                          "COLLECT(DISTINCT ds) AS datasets "
+                                          "UNWIND clusters AS cl "
+                                          "OPTIONAL MATCH (cl)-[:composed_primarily_of]->(a:Class) "
+                                          "WHERE a.short_form STARTS WITH 'FBbt' "
+                                          "OPTIONAL MATCH (cl)-[:expresses]->(g:Gene) "
+                                          "RETURN SIZE(clusters) AS total_clusters, "
+                                          "COUNT(DISTINCT a) AS distinct_anatomy, "
+                                          "COUNT(DISTINCT g) AS distinct_genes, "
+                                          "SIZE(datasets) AS datasets"),
+                                   report_name='scrnaseq_totals')
+        if scrnaseq is not None:
+              self.scrnaseq_dataset_number = scrnaseq['datasets'][0]
+              self.scrnaseq_cluster_number = scrnaseq['total_clusters'][0]
+              self.scrnaseq_anatomy_number = scrnaseq['distinct_anatomy'][0]
+              self.scrnaseq_gene_number = scrnaseq['distinct_genes'][0]
 
 
     def prepare_report(self, filename):
@@ -520,7 +546,7 @@ class VFBContentReport:
                       str(self.split_exp_pattern_fragment_driver_number)))
 
         f.new_line()
-        f.new_line("Annotations", bold_italics_code='bic')
+        f.new_line("Expression Annotations", bold_italics_code='bic')
         f.new_line()
         f.new_line('**%s** annotations recording **%s** types of anatomical structure that '
                    '**%s** specific driver lines are expressed in.'
@@ -584,6 +610,20 @@ class VFBContentReport:
 
         f.new_table(columns=9, rows=(len(self.templates_data.index) + 1), text=template_table_content, text_align='left')
         f.new_line()
+
+        f.new_line()
+        f.new_line("scRNAseq Data", bold_italics_code='bic')
+        f.new_line()
+        f.new_line('**%s** clusters from **%s** datasets'
+                   % (str(self.scrnaseq_cluster_number),
+                      str(self.scrnaseq_dataset_number)))
+        f.new_line('**%s** distinct anatomy (FBbt) annotations on clusters'
+                   % str(self.scrnaseq_anatomy_number))
+        f.new_line('**%s** distinct genes expressed across all clusters'
+                   % str(self.scrnaseq_gene_number))
+        f.new_line()
+        f.new_line('See the [scRNAseq dataset report](scRNAseq_DataSets.tsv) for per-dataset '
+                   'cluster and gene counts.')
 
         f.create_md_file()
 
