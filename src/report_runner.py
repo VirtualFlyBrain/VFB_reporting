@@ -1,8 +1,11 @@
 from reporting_tools import diff_report, gen_dataset_report, gen_dataset_report_prod, gen_label_count_report, save_report, template_painted_domain_report
 
 
-kb_report = gen_dataset_report(["http://kb.virtualflybrain.org", "neo4j", "vfb"], 'kb')
-save_report(kb_report, "../VFB_reporting_results/kb_report.tsv")
+try:
+  kb_report = gen_dataset_report(["http://kb.virtualflybrain.org", "neo4j", "vfb"], 'kb')
+  save_report(kb_report, "../VFB_reporting_results/kb_report.tsv")
+except Exception as e:
+  print(f"An exception occurred running kb report: {e}")
 
 pdb_report = gen_dataset_report_prod(["http://pdb.virtualflybrain.org", "neo4j", "vfb"], 'pdb')
 save_report(pdb_report, "../VFB_reporting_results/pdb_report.tsv")
