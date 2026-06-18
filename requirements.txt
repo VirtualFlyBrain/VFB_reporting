@@ -5,3 +5,4 @@ mdutils>=1.7.0
 fsspec
 pysolr
 wget
+urllib3>=2.6.3 # not directly required, pinned by Snyk to avoid a vulnerability
