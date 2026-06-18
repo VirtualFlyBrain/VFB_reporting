@@ -74,6 +74,7 @@ class VFBContentReport:
         self.sensory_connections_neuron_number = None
         self.sensory_connections_sense_organ_number = None
         self.sensory_connections_connection_number = None
+        self.em_project_data = None
         self.templates_data = None
         self.scrnaseq_dataset_number = None
         self.scrnaseq_cluster_number = None
@@ -402,6 +403,17 @@ class VFBContentReport:
               self.sensory_connections_sense_organ_number = sensory_connections['sense_organs'][0]
               self.sensory_connections_connection_number = sensory_connections['connections'][0]
 
+        # per-EM-project neuron and synapse counts
+        self.em_project_data = safe_gen_report(server=self.server,
+                                        query=("MATCH (n:Neuron:Individual)-[:database_cross_reference]->"
+                                               "(d:Site:Connectome:Individual) "
+                                               "OPTIONAL MATCH (n)-[r:synapsed_to]->(m:Neuron:Individual) "
+                                               "RETURN d.short_form AS `EM Project`, "
+                                               "count(distinct n) AS Neurons, "
+                                               "sum(r.weight[0]) AS Synapses, "
+                                               "count(r) AS Edges ORDER BY Neurons DESC"),
+                                        report_name='em_project_data')
+
         # Template data (excluding hemibrain v1.0.1)
 
         self.templates_data = safe_gen_report(server=self.server,
@@ -574,6 +586,19 @@ class VFBContentReport:
 
         f.new_table(columns=5, rows=5, text=connectivity_table_content, text_align='left')
         f.new_line()
+
+        if self.em_project_data is not None:
+            f.new_line()
+            em_project_table_content = ['EM Project', 'Neurons', 'Synapses', 'Edges']
+            for i in self.em_project_data.index:
+                em_project_table_content.extend([self.em_project_data['EM Project'][i],
+                                                 self.em_project_data['Neurons'][i],
+                                                 self.em_project_data['Synapses'][i],
+                                                 self.em_project_data['Edges'][i]])
+
+            f.new_table(columns=4, rows=(len(self.em_project_data.index) + 1),
+                        text=em_project_table_content, text_align='left')
+            f.new_line()
 
         f.new_line()
         f.new_line("Content by Template", bold_italics_code='bic')
