@@ -63,6 +63,11 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
           cd src
           python ./Instance_FBbt_conflict_report.py
+      - name: Run connectome multiple symbol-bearing class report
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
+          cd src
+          python ./connectome_multi_symbol_class_report.py
       - name: Create curation files
         run: |
           export PYTHONPATH=$PYTHONPATH:$PWD/VFB_neo4j/src/
