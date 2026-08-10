@@ -120,4 +120,4 @@ For each EM dataset the following reports are generated:
 
 
 -------------
-Note: the reports readme.md is automatically generated on each run. Please edit [reports.md](https://github.com/VirtualFlyBrain/VFB_reporting/blob/master/reports.md) if changes are needed.
+Note: in the [VFB_reporting_results](https://github.com/VirtualFlyBrain/VFB_reporting_results) repo, `README.md` is regenerated on each report run by concatenating `README_header.md` (the repo overview) with this file (`reports.md`, the report notes). Edit those source files — not the generated `README.md`.
