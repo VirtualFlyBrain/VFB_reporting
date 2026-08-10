@@ -4,11 +4,11 @@ INSTANCEOF more than one Class carrying a symbol.
 Background: the Circuit Browser labels each graph node with the symbol of the class the
 neuron is an instance of. When a neuron is an instance of several symbol-bearing classes
 the displayed label is ambiguous. Where one of those classes is a subclass of all the
-others (a single "most specific" class) the label resolves to that leaf. Where there is
-no such class (n_most_specific = 0) the competing classes are not linked in the ontology
-hierarchy - either a subclass relationship is missing, or the neuron carries conflicting
-cell-type annotations. Those (resolvable_by_subclass = False) are the rows to review; the
-instance `comment` usually holds the raw source typing that explains them.
+others the label resolves to that leaf (resolvable_by_subclass = True). Where there is no
+such class (resolvable_by_subclass = False) the competing classes are not linked in the
+ontology hierarchy - either a subclass relationship is missing, or the neuron carries
+conflicting cell-type annotations. Those are the rows to review; the instance `comment`
+usually holds the raw source typing that explains them.
 
 A report is generated for each pipeline server (pdb = production, dev/staging =
 pre-release, checked during the release process). Each offender is cross-checked against

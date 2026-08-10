@@ -19,6 +19,24 @@ report = complete report of content
 diff = diff of server to kb, to track progress of data to release
 
 
+## Connectome multiple symbol-bearing class report
+
+`connectome_multi_symbol_class_report.py` → `{server}_connectome_multi_symbol_class.tsv` (generated for `pdb`, `dev` and `staging`).
+
+The Circuit Browser labels each graph node with the *symbol* of the class the neuron is an instance of, so a connectome neuron (`Individual:Neuron:has_neuron_connectivity`) that is `INSTANCEOF` more than one symbol-bearing class has an ambiguous node label. This report lists every such neuron on each pipeline server and cross-checks the knowledge base (kb) to indicate whether the ambiguity comes from the curation source or is introduced by the pipeline.
+
+Per server, the query finds connectome neurons that are `INSTANCEOF` more than one `Class` carrying a `symbol`, and works out whether one of those classes is a subclass of all the others. kb has neither the `has_neuron_connectivity` label nor class symbols (both added by the pipeline), so the kb cross-check compares the `INSTANCEOF` class set by `short_form` rather than re-running the symbol query.
+
+Columns:
+
+- `instance_id` / `instance_label` – the neuron (VFB id / label)
+- `n_symbol_classes` – number of symbol-bearing classes it is `INSTANCEOF`
+- `resolvable_by_subclass` – `True` if one competing class is a subclass of all the others (the label resolves to that leaf); `False` = the classes are not linked in the ontology hierarchy (candidate missing relationship, or genuinely distinct types)
+- `conflict_in_kb` – `True` = kb itself carries ≥2 of the competing classes (source / curation issue); `False` = the extra symbol-bearing class is not in kb, i.e. added downstream by the pipeline (or pdb is out of date)
+- `symbol_classes` – the competing classes as `symbol [FBbt_id] label`
+- `kb_typing` – the neuron's full `INSTANCEOF` classification in kb, for comparison
+- `comment` / `synonyms` – the raw source annotation on the instance, which usually explains the typing (e.g. connectome "Primary Cell Type" / "Alternative Cell Type(s)")
+
 ## EM dataset pipeline reports
 For each EM dataset the following reports are generated:
 
