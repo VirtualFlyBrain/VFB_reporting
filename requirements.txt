@@ -5,3 +5,4 @@ mdutils>=1.7.0
 fsspec
 pysolr
 wget
+google-auth
