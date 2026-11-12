@@ -1,0 +1,75 @@
+{
+  "definitions": {
+    "mapping": {
+      "properties": {
+        "name_in_source": {
+          "type":  "string"
+        },
+        "id_in_source": {
+          "type":  "string"
+        },
+        "maps_to_name": {
+         "type":  "string"
+        },
+        "maps_to_id": {
+          "type":  "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "pub": {
+      "Properties": {
+        "FBrf": {
+          "type": "string"
+        },
+        "PMID": {
+          "type": "string"
+        },
+        "DOI": {
+          "type": "string"
+        },
+        "CATMAID": {
+           "type": "string"
+        },
+        "DataSet": {
+           "type": "string"
+        },
+        "status": {
+           "$ref" :"#definitions/status"
+        }
+      }
+    },
+    "source": {
+    },
+    "status": {
+      "additionalProperties": false,
+      "properties": {
+        "thin": {
+          "type": "boolean"
+        },
+        "anat": {
+          "type": "boolean"
+        },
+        "exp_cur": {
+          "type": "boolean"
+        },
+        "kb": {
+          "description": "Is paper in KB?",
+          "type": "boolean"
+        },
+        "image_curation": {
+          "description": "Have related images been curated to KB?",
+          "type": "boolean"
+        }
+      }
+    },
+    "mapped_anatomy":
+    {
+      "type": "list",
+      "value": {
+        "$ref": "#definitions/mapping"
+      }
+    }
+  }
+}
